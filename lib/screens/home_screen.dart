@@ -3,6 +3,7 @@ import 'package:murdjaju/authentication/auth.dart';
 import 'package:murdjaju/model/genre.dart';
 import 'package:murdjaju/model/movie_response.dart';
 import 'package:murdjaju/repository/repository.dart';
+import 'package:murdjaju/screens/account_screen.dart';
 import 'package:murdjaju/screens/filter_screen.dart';
 import 'package:murdjaju/widgets/cineTabBar.dart';
 import 'package:murdjaju/widgets/weekPageView.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+import '../style/theme.dart' as Style;
 import 'package:murdjaju/bloc/get_weeks_bloc.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,7 +32,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   TabController _tabController;
 
-  List<Genre> myGenresFilterList = [];
+  List<int> myGenresFilterList = [];
   List<String> mySallesFilterList = [];
 
   AnimationController _animationController;
@@ -41,31 +43,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _firebaseMessaging.requestNotificationPermissions();
-    _firebaseMessaging.setAutoInitEnabled(true);
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
+    _firebaseMessaging.requestNotificationPermissions();
+    _firebaseMessaging.setAutoInitEnabled(true);
     _firebaseMessaging.configure(
-      onMessage: (message) async {
-        _animationController.repeat();
-        await weeksListBloc.getWeeks();
-        _animationController.stop();
-        setState(() {});
-      },
-      onLaunch: (message) async {
-        _animationController.repeat();
-        await weeksListBloc.getWeeks();
-        _animationController.stop();
-        setState(() {});
-      },
-      onResume: (message) async {
-        _animationController.repeat();
-        await weeksListBloc.getWeeks();
-        _animationController.stop();
-        setState(() {});
-      },
+      onMessage: (message) async {},
+      onLaunch: (message) async {},
+      onResume: (message) async {},
     );
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
@@ -80,18 +67,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Style.Colors.mainColor,
       appBar: AppBar(
         shadowColor: Colors.transparent,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        centerTitle: true,
-        // title: Text("Cinéma Murdjaju",style:Theme.of(context).textTheme.headline6.copyWith(color:Colors.black)),
+        // centerTitle: true,
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Text(
+            mySallesFilterList.isEmpty
+                ? ""
+                : mySallesFilterList.fold(
+                      "",
+                      (previousValue, element) =>
+                          previousValue + element + ", ",
+                    ) +
+                    (myGenresFilterList.isEmpty
+                        ? ""
+                        : myGenresFilterList.fold(
+                            "",
+                            (previousValue, element) =>
+                                (previousValue + element.toString() + ", ")
+                                    .toString(),
+                          )),
+            style: Theme.of(context)
+                .textTheme
+                .headline6
+                .copyWith(color: Style.Colors.secondaryColor),
+          ),
+        ),
         leading: IconButton(
           icon: Icon(MdiIcons.account, color: Colors.white),
           onPressed: () async {
-            final auth = Provider.of<UserAuth>(context, listen: false);
-            await auth.logout();
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => AccountScreen(),
+              ),
+            );
           },
         ),
         actions: [
@@ -111,8 +125,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ).then(
                 (value) {
-                  if (!value.isEmpty) {
-                    print(value[0]);
+                  if (value != null && value.isNotEmpty) {
                     myWeekId = value[0];
                     myGenresFilterList = value[1];
                     mySallesFilterList = value[2];

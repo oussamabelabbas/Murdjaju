@@ -123,8 +123,9 @@ class _SwiperColumnState extends State<SwiperColumn> {
                     'https://image.tmdb.org/t/p/w780/' +
                         projections[index].movie.poster,
                   );
-                  AssetImage asset =
-                      AssetImage('assets/Netflix_Symbol_RGB.png');
+                  AssetImage asset = AssetImage(
+                    'assets/placeholder.png',
+                  );
                   return InkWell(
                     borderRadius: BorderRadius.circular(20),
                     splashColor: Colors.orange,
@@ -137,8 +138,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
                             image: image,
                             thumbnail: thumbnail,
                             asset: asset,
-                            heroId:
-                                projections[index].movie.id + heroId + index,
+                            heroId: index,
                           ),
                         ),
                       );
@@ -158,7 +158,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: Hero(
-                          tag: projections[index].movie.id + heroId + index,
+                          tag: projections[index].movie.id + index,
                           child: ProgressiveImage(
                             fit: BoxFit.cover,
                             blur: 10,
@@ -198,9 +198,9 @@ class _SwiperColumnState extends State<SwiperColumn> {
                       children: [
                         Spacer(),
                         Hero(
-                          tag: heroId.toString() +
-                              projections[index].movie.id.toString() +
-                              projections[index].movie.date.toString(),
+                          tag: projections[index].movie.id.toString() +
+                              projections[index].movie.date.toString() +
+                              index.toString(),
                           child: Text(
                             ((DateTime.now().isAfter(
                                           projections[index].date.add(
@@ -244,8 +244,9 @@ class _SwiperColumnState extends State<SwiperColumn> {
                         ),
                         Spacer(),
                         Hero(
-                          tag: projections[index].movie.title +
-                              (projections[index].movie.id + heroId).toString(),
+                          tag: projections[index].movie.id.toString() +
+                              projections[index].movie.title.toString() +
+                              index.toString(),
                           child: Text(
                             projections[index].movie.title,
                             textAlign: TextAlign.center,
@@ -259,10 +260,10 @@ class _SwiperColumnState extends State<SwiperColumn> {
                           ),
                         ),
                         Text(
-                          projections[index].movie.overview,
+                          "\n" + projections[index].movie.overview,
                           textAlign: TextAlign.center,
                           softWrap: true,
-                          maxLines: 2,
+                          maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyText2.copyWith(
                                 color: Colors.white,

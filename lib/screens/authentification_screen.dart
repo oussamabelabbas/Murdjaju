@@ -52,7 +52,7 @@ class _AuthentificationScreenState extends State<AuthentificationScreen> {
                         ),
                         const SizedBox(height: 10.0),
                         Text(
-                          "Welcome to this awesome login app. \n You are awesome",
+                          "Welcome to the best app in the world 😂",
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 18.0,

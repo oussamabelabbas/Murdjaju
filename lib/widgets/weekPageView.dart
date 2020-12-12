@@ -14,7 +14,7 @@ import 'cine_show_widgets/cineShow copy.dart';
 class WeekPageView extends StatefulWidget {
   final TabController tabController;
   final String weekId;
-  final List<Genre> myGenresFilterList;
+  final List<int> myGenresFilterList;
   final List<String> mySallesFilterList;
 
   WeekPageView(
@@ -33,7 +33,7 @@ class WeekPageView extends StatefulWidget {
 class _WeekPageViewState extends State<WeekPageView> {
   final TabController _tabController;
   final String weekId;
-  final List<Genre> myGenresFilterList;
+  final List<int> myGenresFilterList;
   final List<String> mySallesFilterList;
 
   _WeekPageViewState(this._tabController, this.weekId, this.myGenresFilterList,
@@ -96,42 +96,21 @@ class _WeekPageViewState extends State<WeekPageView> {
       itemCount: myWeek.numberOfDays,
       controller: _pageController,
       itemBuilder: (context, index) {
-        return /* TabBarView(
-          controller: _tabController,
-          children: [ */
-            CineBoxOffice2(
+        return CineBoxOffice2(
           projections: myWeek.projections
               .where(
                 (proj) =>
                     proj.date.weekday % 7 == index &&
                     (mySallesFilterList.isEmpty ||
-                        mySallesFilterList.contains(proj.salle.id)),
+                        mySallesFilterList.contains(proj.salle.id)) &&
+                    (myGenresFilterList.isEmpty ||
+                        proj.movie.genres.indexWhere(
+                              (genre) => myGenresFilterList.contains(genre.id),
+                            ) !=
+                            -1),
               )
               .toList(),
         );
-        /* CineKids2(
-              projections: myWeek.projections
-                  .where(
-                    (proj) =>
-                        proj.date.weekday % 7 == index &&
-                        (mySallesFilterList.isEmpty ||
-                            mySallesFilterList.contains(proj.salle.id)),
-                  )
-                  .toList(),
-            ),
-            CineShow2(
-              projections: myWeek.projections
-                  .where(
-                    (proj) =>
-                        proj.date.weekday % 7 == index &&
-                        (mySallesFilterList.isEmpty ||
-                            mySallesFilterList.contains(proj.salle.id)),
-                  )
-                  .toList(),
-            ),
-          ], 
-        );
-          */
       },
     );
   }

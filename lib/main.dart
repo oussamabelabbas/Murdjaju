@@ -53,9 +53,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       color: Palette.white,
       theme: ThemeData(
+        brightness: Brightness.dark,
         fontFamily: GoogleFonts.montserrat().fontFamily,
-        accentColor: Colors.orange,
-        splashColor: Colors.orange,
+        accentColor: Style.Colors.secondaryColor,
+        splashColor: Style.Colors.secondaryColor,
         iconTheme: IconThemeData(
           color: Colors.white,
           opacity: .85,

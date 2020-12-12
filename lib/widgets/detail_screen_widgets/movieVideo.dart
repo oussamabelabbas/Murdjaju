@@ -5,7 +5,7 @@ import 'package:murdjaju/model/video_response.dart';
 import 'package:flutter/material.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class MovieVideo extends StatefulWidget {
   final Movie movie;
@@ -47,15 +47,12 @@ class _MovieVideoState extends State<MovieVideo> {
           return _buildVideoWidget(
             snapshot.data,
             YoutubePlayerController(
-              initialVideoId: snapshot.data.videos.first.key,
-              flags: YoutubePlayerFlags(
-                autoPlay: false,
-                loop: false,
-                forceHD: false,
-                hideControls: false,
-                captionLanguage: "fr",
-              ),
-            ),
+                initialVideoId: snapshot.data.videos.first.key,
+                params: YoutubePlayerParams(
+                  showFullscreenButton: true,
+                  strictRelatedVideos: true,
+                  showVideoAnnotations: false,
+                )),
           );
         } else if (snapshot.hasError) {
           return _buildErrorWidget(snapshot.data);
@@ -89,14 +86,19 @@ class _MovieVideoState extends State<MovieVideo> {
           ),
         ),
         Container(
-          margin: EdgeInsets.all(5),
-          width: (MediaQuery.of(context).size.width - 10),
-          height: (MediaQuery.of(context).size.width - 10) * 9 / 16,
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: YoutubePlayerBuilder(
+            margin: EdgeInsets.all(5),
+            width: (MediaQuery.of(context).size.width - 10),
+            height: (MediaQuery.of(context).size.width - 10) * 9 / 16,
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: YoutubePlayerIFrame(
+              aspectRatio: 9 / 16,
+              controller: controller,
+            )
+
+            /*  YoutubePlayerBuilder(
             builder: (context, child) => child,
             onExitFullScreen: () {
               setState(() {});
@@ -104,31 +106,10 @@ class _MovieVideoState extends State<MovieVideo> {
             player: YoutubePlayer(
               controller: controller,
             ),
-          ),
-        ),
+          ), */
+            ),
       ],
     );
-    /* ListView.separated(
-        padding: EdgeInsets.all(5),
-        scrollDirection: Axis.horizontal,
-        itemCount: 1, //videos.length,
-        separatorBuilder: (context, index) => SizedBox(width: 5),
-        itemBuilder: (context, index) {
-          /* YoutubePlayerController _controller = YoutubePlayerController(
-            initialVideoId: videos[index].key,
-            flags: YoutubePlayerFlags(
-              autoPlay: false,
-              mute: true,
-              forceHD: false,
-              controlsVisibleAtStart: true,
-              loop: false,
-            ),
-          );
-          _controller.pause(); */
-
-         
-        },
-      ), */
   }
 
   Widget _buildErrorWidget(VideoResponse error) {

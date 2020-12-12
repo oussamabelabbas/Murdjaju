@@ -88,7 +88,7 @@ class _MovieCastState extends State<MovieCast> {
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   color: Colors.white38,
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: cast[index].image != null
                     ? ProgressiveImage(
@@ -100,7 +100,7 @@ class _MovieCastState extends State<MovieCast> {
                           "https://image.tmdb.org/t/p/w45/" + cast[index].image,
                         ),
                         image: NetworkImage(
-                          "https://image.tmdb.org/t/p/original/" +
+                          "https://image.tmdb.org/t/p/h632/" +
                               cast[index].image,
                         ),
                       )

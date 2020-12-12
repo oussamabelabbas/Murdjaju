@@ -40,48 +40,4 @@ class _CineBoxOffice2State extends State<CineBoxOffice2> {
         heroId: 0,
       );
   }
-
-  Widget _buildErrorWidget(ProjectionResponse error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 25,
-            width: 25,
-            child: Icon(MdiIcons.exclamation, color: Colors.grey),
-          ),
-          Text(
-            "Something went wrong :",
-            style: TextStyle(color: Colors.grey),
-          ),
-          Text(
-            error.error,
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingWidget() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 25,
-            width: 25,
-            child: CircularProgressIndicator(
-              backgroundColor: Style.Colors.mainColor,
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

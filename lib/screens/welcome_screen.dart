@@ -37,6 +37,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Style.Colors.mainColor,
+
       /* bottomNavigationBar: BottomAppBar(
         child: Container(
           color: Colors.transparent,
@@ -175,7 +177,7 @@ class IntroItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: bg ?? Theme.of(context).primaryColor,
+      color: Style.Colors.mainColor,
       child: Padding(
         padding: const EdgeInsets.all(0.0),
         child: Column(
@@ -205,10 +207,26 @@ class IntroItem extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(0.0),
                   child: Material(
+                    color: Style.Colors.mainColor,
                     elevation: 0,
                     child: Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) =>
+                          loadingProgress == null
+                              ? child
+                              : Center(
+                                  child: SizedBox(
+                                    height: 100,
+                                    width: 100,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 1,
+                                      backgroundColor: Style.Colors.mainColor,
+                                      valueColor: AlwaysStoppedAnimation(
+                                          Style.Colors.secondaryColor),
+                                    ),
+                                  ),
+                                ),
                     ),
                   ),
                 ),

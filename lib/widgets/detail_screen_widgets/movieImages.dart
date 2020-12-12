@@ -74,7 +74,7 @@ class _MovieImagesState extends State<MovieImages> {
         itemBuilder: (context, index) {
           //   return Text(backdrops[index].path);
           return Image.network(
-            "https://image.tmdb.org/t/p/original" + backdrops[index].path,
+            "https://image.tmdb.org/t/p/w780" + backdrops[index].path,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return Center(
@@ -82,12 +82,12 @@ class _MovieImagesState extends State<MovieImages> {
                   height: 50,
                   width: 50,
                   child: CircularProgressIndicator(
-                    strokeWidth: .5,
+                    strokeWidth: 1,
                     backgroundColor: Colors.white10,
                     valueColor:
                         AlwaysStoppedAnimation(Style.Colors.secondaryColor),
-                    value: loadingProgress.expectedTotalBytes /
-                        loadingProgress.expectedTotalBytes,
+                    /* value: loadingProgress.expectedTotalBytes /
+                        loadingProgress.expectedTotalBytes, */
                   ),
                 ),
               );

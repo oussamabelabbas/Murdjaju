@@ -4,17 +4,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'movie.dart';
 
 class Projection {
+  final String id;
   final Movie movie;
   final DateTime date;
   final Salle salle;
   final int prixTicket;
   final List<Place> places;
 
-  Projection(this.movie, this.date, this.salle, this.prixTicket, this.places);
+  Projection(
+      this.id, this.movie, this.date, this.salle, this.prixTicket, this.places);
 
   Projection.fromSnaps(DocumentSnapshot projection, DocumentSnapshot movie,
       DocumentSnapshot salle)
-      : movie = Movie.fromSnap(movie),
+      : id = projection.id,
+        movie = Movie.fromSnap(movie),
         date = DateTime.fromMillisecondsSinceEpoch(
             projection["date"].millisecondsSinceEpoch),
         salle = Salle.fromSnapshot(salle),
@@ -25,7 +28,8 @@ class Projection {
 
   Projection.fromJson(DocumentSnapshot projection,
       List<DocumentSnapshot> movies, List<DocumentSnapshot> salles)
-      : movie = Movie.fromSnap(
+      : id = projection.id,
+        movie = Movie.fromSnap(
             movies.where((movie) => movie.id == projection["movieId"]).first),
         date = DateTime.fromMillisecondsSinceEpoch(
             projection["date"].millisecondsSinceEpoch),

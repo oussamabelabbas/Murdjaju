@@ -7,6 +7,8 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:provider/provider.dart';
 
+import '../../main.dart';
+
 class SigninForm extends StatefulWidget {
   SigninForm({Key key}) : super(key: key);
 
@@ -22,7 +24,7 @@ class _SigninFormState extends State<SigninForm> {
   PhoneNumber _phoneNumber;
 
   String errorText;
-  Future<bool> loginUser(String phone, BuildContext context) async {
+  Future<void> loginUser(String phone, BuildContext context) async {
     final auth = Provider.of<UserAuth>(context, listen: false);
     setState(() {
       _loading = true;
@@ -36,8 +38,8 @@ class _SigninFormState extends State<SigninForm> {
         setState(() {
           _loading = false;
         });
-        /*  await Navigator.pushReplacement(
-            context, CupertinoPageRoute(builder: (_) => MyApp())); */
+        await Navigator.pushReplacement(
+            context, CupertinoPageRoute(builder: (_) => MyApp()));
       },
       verificationFailed: (FirebaseAuthException exception) {
         print(exception);
@@ -97,12 +99,12 @@ class _SigninFormState extends State<SigninForm> {
                     //await FirebaseAuth.instance.signInWithCredential(credential);
 
                     await auth.signInWithCredential(credential);
-                    /* await Navigator.pushReplacement(
+                    await Navigator.pushReplacement(
                       context,
                       CupertinoPageRoute(
                         builder: (_) => MyApp(),
                       ),
-                    ); */
+                    );
                   },
                 )
               ],
@@ -119,107 +121,127 @@ class _SigninFormState extends State<SigninForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white54,
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: <Widget>[
-                  IntlPhoneField(
-                    enabled: !_loading,
-                    controller: _phoneController,
-                    textAlign: TextAlign.center,
-                    dropDownArrowColor: Colors.black,
-                    initialCountryCode: 'DZ',
-                    keyboardType: TextInputType.phone,
-                    autoValidate: true,
-                    onChanged: (phone) {
-                      _phoneNumber = phone;
-                      if (phone.number.isEmpty)
-                        errorText = "Empty !";
-                      else if (phone.number.startsWith("0"))
-                        errorText = "Please remove 0 from the start !";
-                      else if (phone.number.length < 9)
-                        errorText = "To short !";
-                      else
-                        errorText = null;
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            // width: MediaQuery.of(context).size.width - 32,
+            // height: (MediaQuery.of(context).size.width - 32) / 2,
+            margin: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Style.Colors.mainColor.withOpacity(.75),
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                IntlPhoneField(
+                  enabled: !_loading,
+                  controller: _phoneController,
+                  textAlign: TextAlign.center,
+                  dropDownArrowColor: Colors.black,
+                  initialCountryCode: 'DZ',
+                  keyboardType: TextInputType.phone,
+                  autoValidate: true,
+                  onChanged: (phone) {
+                    _phoneNumber = phone;
+                    if (phone.number.isEmpty)
+                      errorText = "Empty !";
+                    else if (phone.number.startsWith("0"))
+                      errorText = "Please remove 0 from the start !";
+                    else if (phone.number.length < 9)
+                      errorText = "To short !";
+                    else
+                      errorText = null;
 
-                      print(phone.completeNumber);
-                      setState(() {});
-                    },
-                    showDropdownIcon: false,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        print("Error!");
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      errorText: errorText,
-                      labelText: 'Phone Number',
-                      labelStyle: Theme.of(context)
-                          .textTheme
-                          .caption
-                          .copyWith(color: Colors.black),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.orange),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.orange),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.red),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.red),
-                      ),
+                    print(phone.completeNumber);
+                    setState(() {});
+                  },
+                  showDropdownIcon: false,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      print("Error!");
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    errorText: errorText,
+                    labelText: 'Phone Number',
+                    labelStyle: Theme.of(context)
+                        .textTheme
+                        .caption
+                        .copyWith(color: Colors.white60),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.red),
                     ),
                   ),
-                  const SizedBox(height: 10.0),
-                  RaisedButton(
-                    padding: EdgeInsets.all(2),
-                    color: Colors.orange,
-                    textColor: Colors.black,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    child: Center(
-                      child: _loading
-                          ? CircularProgressIndicator(
-                              strokeWidth: .5,
-                              backgroundColor: Colors.transparent,
-                              valueColor: AlwaysStoppedAnimation(Colors.orange),
-                            )
-                          : Text("Send Code"),
-                    ),
-                    onPressed: !_loading
-                        ? () async {
-                            //FirebaseAuth.instance.signOut();
-                            if (_phoneNumber != null &&
-                                _phoneNumber.number.length == 9)
-                              loginUser(_phoneController.text, context);
+                ),
+                const SizedBox(height: 10.0),
+                RaisedButton(
+                  padding: EdgeInsets.all(2),
+                  color: Colors.orange,
+                  textColor: Colors.black,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: Center(
+                    child: _loading
+                        ? CircularProgressIndicator(
+                            strokeWidth: .5,
+                            backgroundColor: Colors.transparent,
+                            valueColor: AlwaysStoppedAnimation(Colors.orange),
+                          )
+                        : Text("Send Code"),
+                  ),
+                  onPressed: !_loading
+                      ? () async {
+                          //FirebaseAuth.instance.signOut();
+                          if (_phoneNumber != null &&
+                              _phoneNumber.number.length == 9) {
+                            setState(() {
+                              _loading = true;
+                            });
+                            loginUser(_phoneController.text, context);
                           }
-                        : null,
-                  ),
-                ],
+                        }
+                      : null,
+                ),
+              ],
+            ),
+          ),
+          /*  Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width,
+            child: Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.transparent,
+                valueColor: AlwaysStoppedAnimation(Style.Colors.mainColor),
               ),
             ),
-          ],
-        ),
-      ],
+          ), */
+        ],
+      ),
     );
+    /*   Container(
+              color: Colors.white,
+              child: Center(child: CircularProgressIndicator()),
+            ), */
   }
 }

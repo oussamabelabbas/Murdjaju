@@ -86,28 +86,32 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FadeTransition(
-        opacity: _hideFabAnimController,
-        child: ScaleTransition(
-          scale: _hideFabAnimController,
-          child: FloatingActionButton(
-            backgroundColor: Style.Colors.mainColor,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            child: Icon(MdiIcons.ticket, color: Style.Colors.secondaryColor),
-            onPressed: () {
-              Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (context) {
-                    return BookingScreen(projection: projection);
+      floatingActionButton: false //projection.date.isBefore(DateTime.now())
+          ? null
+          : FadeTransition(
+              opacity: _hideFabAnimController,
+              child: ScaleTransition(
+                scale: _hideFabAnimController,
+                child: FloatingActionButton(
+                  backgroundColor: Style.Colors.mainColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  child:
+                      Icon(MdiIcons.ticket, color: Style.Colors.secondaryColor),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) {
+                          return BookingScreen(
+                              projection: projection, heroId: heroId);
+                        },
+                      ),
+                    );
                   },
                 ),
-              );
-            },
-          ),
-        ),
-      ),
+              ),
+            ),
       body: Stack(
         children: [
           Container(
@@ -115,15 +119,15 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: widget.image,
+                image: widget.thumbnail,
                 fit: BoxFit.cover,
               ),
             ),
             clipBehavior: Clip.antiAlias,
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+              filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
               child: Container(
-                color: Style.Colors.mainColor.withOpacity(.6),
+                color: Style.Colors.mainColor.withOpacity(.4),
               ),
             ),
           ),
@@ -131,31 +135,45 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
             controller: _scrollController,
             slivers: <Widget>[
               SliverAppBar(
-                expandedHeight: MediaQuery.of(context).size.width * 439 / 780 -
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(bottom: Radius.circular(20))),
+                expandedHeight: MediaQuery.of(context).size.width * 3 / 2 -
                     MediaQuery.of(context).padding.top,
-                backgroundColor: Style.Colors.mainColor.withOpacity(.0),
+                backgroundColor: Style.Colors.mainColor.withOpacity(.15),
                 pinned: true,
                 shadowColor: Colors.transparent,
                 elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
-                    projection.movie.title,
-                    overflow: TextOverflow.ellipsis,
+                  title: Hero(
+                    tag: projection.movie.id.toString() +
+                        projection.movie.title.toString() +
+                        heroId.toString(),
+                    child: Text(
+                      projection.movie.title,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   centerTitle: true,
                   background: Stack(
+                    alignment: Alignment.centerLeft,
                     children: [
-                      Image.network(
-                        'https://image.tmdb.org/t/p/w780/' +
-                            projection.movie.backPoster,
-                        fit: BoxFit.cover,
+                      Hero(
+                        tag: projection.movie.id + heroId,
+                        child: ProgressiveImage(
+                          placeholder: widget.asset,
+                          thumbnail: widget.thumbnail,
+                          image: widget.image,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.width * 3 / 2,
+                        ),
                       ),
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
                               Colors.transparent,
-                              Style.Colors.mainColor.withOpacity(.6)
+                              Style.Colors.mainColor.withOpacity(.4)
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -169,7 +187,9 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
                 leading: IconButton(
                   icon: const Icon(Icons.keyboard_arrow_left),
                   tooltip: 'Retour',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ),
               SliverToBoxAdapter(
