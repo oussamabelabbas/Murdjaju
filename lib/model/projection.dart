@@ -5,18 +5,20 @@ import 'movie.dart';
 
 class Projection {
   final String id;
+  final String weekId;
   final Movie movie;
   final DateTime date;
   final Salle salle;
   final int prixTicket;
   final List<Place> places;
 
-  Projection(
-      this.id, this.movie, this.date, this.salle, this.prixTicket, this.places);
+  Projection(this.id, this.weekId, this.movie, this.date, this.salle,
+      this.prixTicket, this.places);
 
   Projection.fromSnaps(DocumentSnapshot projection, DocumentSnapshot movie,
       DocumentSnapshot salle)
       : id = projection.id,
+        weekId = projection.reference.parent.parent.id,
         movie = Movie.fromSnap(movie),
         date = DateTime.fromMillisecondsSinceEpoch(
             projection["date"].millisecondsSinceEpoch),
@@ -29,6 +31,7 @@ class Projection {
   Projection.fromJson(DocumentSnapshot projection,
       List<DocumentSnapshot> movies, List<DocumentSnapshot> salles)
       : id = projection.id,
+        weekId = projection.reference.parent.parent.id,
         movie = Movie.fromSnap(
             movies.where((movie) => movie.id == projection["movieId"]).first),
         date = DateTime.fromMillisecondsSinceEpoch(

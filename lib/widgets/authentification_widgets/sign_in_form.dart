@@ -22,8 +22,8 @@ class _SigninFormState extends State<SigninForm> {
 
   bool _loading = false;
   PhoneNumber _phoneNumber;
-
   String errorText;
+
   Future<void> loginUser(String phone, BuildContext context) async {
     final auth = Provider.of<UserAuth>(context, listen: false);
     setState(() {
@@ -32,7 +32,7 @@ class _SigninFormState extends State<SigninForm> {
 
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: _phoneNumber.completeNumber,
-      timeout: Duration(seconds: 60),
+      timeout: Duration(seconds: 120),
       verificationCompleted: (credential) async {
         await auth.signInWithCredential(credential);
         setState(() {
@@ -52,62 +52,69 @@ class _SigninFormState extends State<SigninForm> {
           _loading = true;
         });
         showDialog(
+          useRootNavigator: false,
           context: context,
           barrierDismissible: true,
-          barrierColor: Colors.orange.withOpacity(.1),
+          barrierColor: Style.Colors.secondaryColor.withOpacity(.1),
           builder: (context) {
-            return AlertDialog(
-              title: Text("Entre votre code! "),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    controller: _codeController,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      errorText: errorText,
-                      labelText: 'Code',
-                      labelStyle: Theme.of(context)
-                          .textTheme
-                          .caption
-                          .copyWith(color: Colors.black),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.orange),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.orange),
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: AlertDialog(
+                title: Text("Entre votre code! "),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      controller: _codeController,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        errorText: errorText,
+                        labelText: 'Code',
+                        labelStyle: Theme.of(context)
+                            .textTheme
+                            .caption
+                            .copyWith(color: Colors.black),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide:
+                              BorderSide(color: Style.Colors.secondaryColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide:
+                              BorderSide(color: Style.Colors.secondaryColor),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
+                ),
+                actions: <Widget>[
+                  RaisedButton(
+                    color: Style.Colors.secondaryColor,
+                    textColor: Colors.black,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: Text("Confirmer"),
+                    onPressed: () async {
+                      final code = _codeController.text.trim();
+                      AuthCredential credential = PhoneAuthProvider.credential(
+                          verificationId: verificationId, smsCode: code);
+                      //await FirebaseAuth.instance.signInWithCredential(credential);
+
+                      await auth.signInWithCredential(credential);
+
+                      await Navigator.pushReplacement(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => MyApp(),
+                        ),
+                      );
+                    },
+                  )
                 ],
               ),
-              actions: <Widget>[
-                RaisedButton(
-                  color: Colors.orange,
-                  textColor: Colors.black,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  child: Text("Confirmer"),
-                  onPressed: () async {
-                    final code = _codeController.text.trim();
-                    AuthCredential credential = PhoneAuthProvider.credential(
-                        verificationId: verificationId, smsCode: code);
-                    //await FirebaseAuth.instance.signInWithCredential(credential);
-
-                    await auth.signInWithCredential(credential);
-                    await Navigator.pushReplacement(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => MyApp(),
-                      ),
-                    );
-                  },
-                )
-              ],
             );
           },
         );
@@ -176,11 +183,13 @@ class _SigninFormState extends State<SigninForm> {
                         .copyWith(color: Colors.white60),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.orange),
+                      borderSide:
+                          BorderSide(color: Style.Colors.secondaryColor),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.orange),
+                      borderSide:
+                          BorderSide(color: Style.Colors.secondaryColor),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -195,7 +204,7 @@ class _SigninFormState extends State<SigninForm> {
                 const SizedBox(height: 10.0),
                 RaisedButton(
                   padding: EdgeInsets.all(2),
-                  color: Colors.orange,
+                  color: Style.Colors.secondaryColor,
                   textColor: Colors.black,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -206,7 +215,8 @@ class _SigninFormState extends State<SigninForm> {
                         ? CircularProgressIndicator(
                             strokeWidth: .5,
                             backgroundColor: Colors.transparent,
-                            valueColor: AlwaysStoppedAnimation(Colors.orange),
+                            valueColor: AlwaysStoppedAnimation(
+                                Style.Colors.secondaryColor),
                           )
                         : Text("Send Code"),
                   ),

@@ -1,5 +1,9 @@
+//import 'package:cloud_functions/cloud_functions.dart';
+import 'package:dio/dio.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:murdjaju/authentication/auth.dart';
+import 'package:murdjaju/model/firebase.dart';
 import 'package:murdjaju/model/genre.dart';
 import 'package:murdjaju/model/movie_response.dart';
 import 'package:murdjaju/repository/repository.dart';
@@ -15,6 +19,9 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 import '../style/theme.dart' as Style;
 import 'package:murdjaju/bloc/get_weeks_bloc.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
+import 'package:http/http.dart' as http;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -40,17 +47,85 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   String myWeekId;
 
+  void oneSignal() async {
+    OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+
+    await OneSignal.shared.init(
+      "a1de0aa0-fb19-466a-9986-37ff14e1491e",
+      iOSSettings: {
+        OSiOSSettings.autoPrompt: false,
+        OSiOSSettings.inAppLaunchUrl: false
+      },
+    );
+    await OneSignal.shared
+        .setInFocusDisplayType(OSNotificationDisplayType.notification);
+
+// The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+    await OneSignal.shared
+        .promptUserForPushNotificationPermission(fallbackToSettings: true);
+
+    OneSignal.shared
+        .setNotificationReceivedHandler((OSNotification notification) async {
+      // will be called whenever a notification is received
+      showBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+              child: Center(
+            child: Text(notification.toString()),
+          ));
+        },
+      );
+    });
+
+    OneSignal.shared
+        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
+      // will be called whenever a notification is opened/button pressed.
+    });
+
+    OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
+      // will be called whenever the permission changes
+      // (ie. user taps Allow on the permission prompt in iOS)
+    });
+
+    OneSignal.shared
+        .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
+      // will be called whenever the subscription changes
+      //(ie. user gets registered with OneSignal and gets a user ID)
+    });
+
+    OneSignal.shared.setEmailSubscriptionObserver(
+        (OSEmailSubscriptionStateChanges emailChanges) {
+      // will be called whenever then user's email subscription changes
+      // (ie. OneSignal.setEmail(email) is called and the user gets registered
+    });
+    var status = await OneSignal.shared.getPermissionSubscriptionState();
+    await FirebaseFirestore.instance
+        .collection("Players")
+        .doc("NotificationsPlayersIdsDocument")
+        .update(
+      {
+        "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    oneSignal();
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
     _firebaseMessaging.requestNotificationPermissions();
     _firebaseMessaging.setAutoInitEnabled(true);
+    _firebaseMessaging.subscribeToTopic("pushNotifications");
+
     _firebaseMessaging.configure(
-      onMessage: (message) async {},
+      onMessage: (message) async {
+        print(" w 7a9 rabi la khadmeet");
+      },
       onLaunch: (message) async {},
       onResume: (message) async {},
     );
@@ -156,7 +231,176 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           content: Text('Double-Tap to close'),
         ),
       ),
-      /*  floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(onPressed: () async {
+        /*  var status = await OneSignal.shared.getPermissionSubscriptionState();
+        print(status.subscriptionStatus.userId);
+
+        await FirebaseFirestore.instance
+            .collection("Players")
+            .doc("NotificationsPlayersIdsDocument")
+            .get()
+            .then(
+          (doc) async {
+            try {
+              await OneSignal.shared.postNotification(
+                OSCreateNotification(
+                  playerIds: List.generate(
+                      doc['Ids'].length, (index) => doc['Ids'][index]),
+                  androidLargeIcon: "@mipmap/logo",
+                  androidSmallIcon: "@mipmap/logo",
+                  bigPicture:
+                      "https://image.tmdb.org/t/p/original/pbrkL804c8yAv3zBZR4QPEafpAR.jpg",
+                  content:
+                      "Interstellar,Tenet et Inception...\nLa semaine Christopher Nolan est la pour vous, 25% de reduction pour les 10 premiers réservations !!",
+                  heading: "Nouvelle semaine et nouveaux films !!!",
+                  buttons: [
+                    OSActionButton(
+                      text: "Botona",
+                      id: "id1",
+                    ),
+                    OSActionButton(
+                      text: "Botona bessah a droite",
+                      id: "id2",
+                    )
+                  ],
+                ),
+              );
+            } catch (e) {
+              print(e);
+            }
+          },
+        );
+
+        var response;
+
+        print("==>" + response.toString()); */
+
+        /*  var res = await http.post(
+          "https://onesignal.com/api/v1/notifications",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization":
+                "basic ODk4ZTMzZTktYzAzMy00ZGI3LThjMWYtMTQ1YTcxNzM4YWZm"
+          },
+          body: {
+            "app_id": "5eb5a37e-b458-11e3-ac11-000c2940e62c",
+            "included_segments": ["All"],
+            "data": {"foo": "bar"},
+            "contents": {"en": "English Message"},
+          },
+
+          /*   {
+            "app_id": "5eb5a37e-b458-11e3-ac11-000c2940e62c",
+            "contents": {"en": "English Message"},
+          }, */
+        );
+
+        print(res.body); */
+        /*   var postUrl = "https://onesignal.com/api/v1/notifications";
+
+        var headers = {
+          "Content-Type": "application/json; charset=utf-8",
+          "Authorization": "ODk4ZTMzZTktYzAzMy00ZGI3LThjMWYtMTQ1YTcxNzM4YWZm"
+        };
+
+        var options = {
+          "host": "onesignal.com",
+          "port": 443,
+          "path": "/api/v1/notifications",
+          "method": "POST",
+          "headers": headers
+        };
+        BaseOptions option = BaseOptions(
+          headers: headers,
+        );
+
+        final data = {
+          "app_id": "a1de0aa0-fb19-466a-9986-37ff14e1491e",
+          "included_segments": ["All"],
+          "contents": {"en": "English Message"},
+          "data": {"foo": "bar"}
+        };
+
+        var message = {
+          "app_id": "5eb5a37e-b458-11e3-ac11-000c2940e62c",
+          "contents": {"en": "English Message"},
+          "filters": [
+            {"field": "tag", "key": "level", "relation": "=", "value": "10"},
+            {"operator": "OR"},
+            {"field": "amount_spent", "relation": ">", "value": "0"}
+          ]
+        };
+
+        try {
+          final response = await Dio(option).post(postUrl, data: data);
+
+          if (response.statusCode == 200) {
+            Fluttertoast.showToast(msg: 'Request Sent To Driver');
+          } else {
+            print('notification sending failed');
+            // on failure do sth
+          }
+        } catch (e) {
+          print('exception $e');
+        } */
+
+        /*  // See index.js in the functions folder for the example function we
+        // are using for this example
+        HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+            'listFruit',
+            options: HttpsCallableOptions(timeout: Duration(seconds: 5)));
+
+        await callable().then((v) {
+          print("ketba chabaa ====");
+        }).catchError((e) {
+          print("Lmohim ketba");
+        }); */
+        /*  Dio dio = Dio();
+        var postUrl = "fcm.googleapis.com/fcm/send";
+        FirebaseMessaging fcm = FirebaseMessaging();
+        var token = await fcm.getToken();
+
+        final data = {
+          "notification": {
+            "body": "Accept Ride Request",
+            "title": "This is Ride Request"
+          },
+          "priority": "high",
+          "data": {
+            "click_action": "FLUTTER_NOTIFICATION_CLICK",
+            "id": "1",
+            "status": "done"
+          },
+          "to": "$token"
+        };
+
+        final headers = {
+          'content-type': 'application/json',
+          'Authorization':
+              'AAAAe2oi9U4:APA91bFLEdUODxfi9uQr3NheZF-jnCTLawULAx1riWhRUUOm7eFCQey0a5axD_GHZ9-I79_RlZG8Q7HD_gU2yLOXNW75nQBAmO6h-LNT2AUxRhBLVwjQqrvZcUOrK7augqSlhSql2uO-'
+        };
+
+        BaseOptions options = new BaseOptions(
+          connectTimeout: 5000,
+          receiveTimeout: 3000,
+          headers: headers,
+        );
+
+        try {
+          final response =
+              await http.post(postUrl, body: data.toString(), headers: headers);
+
+          if (response.statusCode == 200) {
+            Fluttertoast.showToast(msg: 'Request Sent To Driver');
+          } else {
+            print('notification sending failed');
+            // on failure do sth
+          }
+        } catch (e) {
+          print('exception $e');
+        } */
+      }),
+      /*
         child: Center(
           child: CircularProgressIndicator(
             value: _animationController.isAnimating ? null : 1,
@@ -166,6 +410,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
          onPressed: () async {
           /*Stream s = weeksListBloc.subject.stream; */
 
+        floatingActionButton: FloatingActionButton(
           print("pressed");
           _animationController.repeat();
           Random rnd = Random();

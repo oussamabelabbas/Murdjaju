@@ -1,5 +1,6 @@
 import 'package:murdjaju/bloc/get_weeks_bloc.dart';
 import 'package:murdjaju/model/genre.dart';
+import 'package:murdjaju/model/projection.dart';
 import 'package:murdjaju/model/week.dart';
 import 'package:murdjaju/model/week_response.dart';
 import 'package:murdjaju/widgets/cine_kids_widgets/cineKids%20copy.dart';
@@ -79,37 +80,51 @@ class _WeekPageViewState extends State<WeekPageView> {
     if (widget.weekId != null)
       myWeek = data.weeks.firstWhere((element) => element.id == widget.weekId);
     else
-      myWeek = data.weeks.firstWhere(
-        (_week) =>
-            DateTime.now().isAfter(_week.startDate) &&
-            DateTime.now().isBefore(
-              _week.projections.last.date.add(
-                Duration(
-                  minutes: _week.projections.last.movie.runtime,
-                ),
-              ),
-            ),
-      );
+      myWeek = data.weeks.indexWhere(
+                (_week) =>
+                    DateTime.now().isAfter(_week.startDate) &&
+                    DateTime.now().isBefore(
+                      _week.projections.last.date.add(
+                        Duration(
+                          minutes: _week.projections.last.movie.runtime,
+                        ),
+                      ),
+                    ),
+              ) ==
+              -1
+          ? data.weeks.first
+          : data.weeks[data.weeks.indexWhere(
+              (_week) =>
+                  DateTime.now().isAfter(_week.startDate) &&
+                  DateTime.now().isBefore(
+                    _week.projections.last.date.add(
+                      Duration(
+                        minutes: _week.projections.last.movie.runtime,
+                      ),
+                    ),
+                  ),
+            )];
 
     return PageView.builder(
       scrollDirection: Axis.vertical,
       itemCount: myWeek.numberOfDays,
       controller: _pageController,
       itemBuilder: (context, index) {
+        List<Projection> _projections = myWeek.projections
+            .where(
+              (proj) =>
+                  proj.date.weekday % 7 == index &&
+                  (mySallesFilterList.isEmpty ||
+                      mySallesFilterList.contains(proj.salle.id)) &&
+                  (myGenresFilterList.isEmpty ||
+                      proj.movie.genres.indexWhere(
+                            (genre) => myGenresFilterList.contains(genre.id),
+                          ) !=
+                          -1),
+            )
+            .toList();
         return CineBoxOffice2(
-          projections: myWeek.projections
-              .where(
-                (proj) =>
-                    proj.date.weekday % 7 == index &&
-                    (mySallesFilterList.isEmpty ||
-                        mySallesFilterList.contains(proj.salle.id)) &&
-                    (myGenresFilterList.isEmpty ||
-                        proj.movie.genres.indexWhere(
-                              (genre) => myGenresFilterList.contains(genre.id),
-                            ) !=
-                            -1),
-              )
-              .toList(),
+          projections: _projections,
         );
       },
     );

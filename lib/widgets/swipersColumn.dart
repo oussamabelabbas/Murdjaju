@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:murdjaju/model/projection.dart';
 import 'package:murdjaju/screens/detail_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,6 +48,8 @@ class _SwiperColumnState extends State<SwiperColumn> {
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting();
+
     _swiperControl = SwiperControl(iconNext: null, iconPrevious: null);
     initialIndex = projections.indexWhere(
       (proj) => proj.date.add(Duration(minutes: proj.movie.runtime)).isAfter(
@@ -226,7 +229,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
                                                     projections[index].date)
                                             ? "(Playing Now) "
                                             : "") +
-                                        DateFormat('EEE, d MMM,')
+                                        DateFormat('EEE, d MMM', 'fr-FR')
                                             .format(projections[index].date) +
                                         DateFormat(' HH:mm')
                                             .format(projections[index].date) ??

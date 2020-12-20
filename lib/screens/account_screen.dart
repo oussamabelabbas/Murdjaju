@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:murdjaju/authentication/auth.dart';
 import 'package:provider/provider.dart';
 
+import '../main.dart';
 import '../style/theme.dart' as Style;
 
 class AccountScreen extends StatefulWidget {
@@ -36,19 +38,19 @@ class _AccountScreenState extends State<AccountScreen> {
             Container(
               height: 50,
               child: Center(
-                child: Text(auth.user.displayName),
+                child: Text(auth.user.displayName ?? "no Name"),
               ),
             ),
             Container(
               height: 50,
               child: Center(
-                child: Text(auth.user.email),
+                child: Text(auth.user.email ?? "no Mail"),
               ),
             ),
             Container(
               height: 50,
               child: Center(
-                child: Text(auth.user.phoneNumber),
+                child: Text(auth.user.phoneNumber ?? "No phone"),
               ),
             ),
             Container(
@@ -65,6 +67,7 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Text('Déconnexion'),
               onPressed: () async {
                 await auth.logout();
+                Navigator.pop(context);
               },
             ),
           ],
