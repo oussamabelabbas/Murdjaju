@@ -7,11 +7,10 @@ class CastResponse {
   CastResponse(this.casts, this.error);
 
   CastResponse.fromJson(Map<String, dynamic> json)
-      : casts =
-            (json["cast"] as List).map((e) => new Cast.fromJson(e)).toList(),
+      : casts = (json["cast"] as List).map((e) => new Cast.fromJson(e)).toList(),
         error = "";
 
   CastResponse.withError(String errorValue)
-      : casts = List(),
+      : casts = [],
         error = errorValue;
 }

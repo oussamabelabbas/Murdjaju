@@ -52,20 +52,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     await OneSignal.shared.init(
       "a1de0aa0-fb19-466a-9986-37ff14e1491e",
-      iOSSettings: {
-        OSiOSSettings.autoPrompt: false,
-        OSiOSSettings.inAppLaunchUrl: false
-      },
+      iOSSettings: {OSiOSSettings.autoPrompt: false, OSiOSSettings.inAppLaunchUrl: false},
     );
-    await OneSignal.shared
-        .setInFocusDisplayType(OSNotificationDisplayType.notification);
+    await OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
 
 // The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-    await OneSignal.shared
-        .promptUserForPushNotificationPermission(fallbackToSettings: true);
+    await OneSignal.shared.promptUserForPushNotificationPermission(fallbackToSettings: true);
 
-    OneSignal.shared
-        .setNotificationReceivedHandler((OSNotification notification) async {
+    OneSignal.shared.setNotificationReceivedHandler((OSNotification notification) async {
       // will be called whenever a notification is received
       showBottomSheet(
         context: context,
@@ -78,8 +72,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       );
     });
 
-    OneSignal.shared
-        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
+    OneSignal.shared.setNotificationOpenedHandler((OSNotificationOpenedResult result) {
       // will be called whenever a notification is opened/button pressed.
     });
 
@@ -88,22 +81,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       // (ie. user taps Allow on the permission prompt in iOS)
     });
 
-    OneSignal.shared
-        .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
+    OneSignal.shared.setSubscriptionObserver((OSSubscriptionStateChanges changes) {
       // will be called whenever the subscription changes
       //(ie. user gets registered with OneSignal and gets a user ID)
     });
 
-    OneSignal.shared.setEmailSubscriptionObserver(
-        (OSEmailSubscriptionStateChanges emailChanges) {
+    OneSignal.shared.setEmailSubscriptionObserver((OSEmailSubscriptionStateChanges emailChanges) {
       // will be called whenever then user's email subscription changes
       // (ie. OneSignal.setEmail(email) is called and the user gets registered
     });
     var status = await OneSignal.shared.getPermissionSubscriptionState();
-    await FirebaseFirestore.instance
-        .collection("Players")
-        .doc("NotificationsPlayersIdsDocument")
-        .update(
+    await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").update(
       {
         "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
       },
@@ -155,21 +143,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ? ""
                 : mySallesFilterList.fold(
                       "",
-                      (previousValue, element) =>
-                          previousValue + element + ", ",
+                      (previousValue, element) => previousValue + element + ", ",
                     ) +
                     (myGenresFilterList.isEmpty
                         ? ""
                         : myGenresFilterList.fold(
                             "",
-                            (previousValue, element) =>
-                                (previousValue + element.toString() + ", ")
-                                    .toString(),
+                            (previousValue, element) => (previousValue + element.toString() + ", ").toString(),
                           )),
-            style: Theme.of(context)
-                .textTheme
-                .headline6
-                .copyWith(color: Style.Colors.secondaryColor),
+            style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.secondaryColor),
           ),
         ),
         leading: IconButton(
@@ -232,6 +214,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       ),
       floatingActionButton: FloatingActionButton(onPressed: () async {
+        var status = await OneSignal.shared.getPermissionSubscriptionState();
+        String str = status.subscriptionStatus.userId;
+        print(str);
         /*  var status = await OneSignal.shared.getPermissionSubscriptionState();
         print(status.subscriptionStatus.userId);
 
