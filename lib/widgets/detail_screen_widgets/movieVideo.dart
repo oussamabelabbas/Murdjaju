@@ -50,6 +50,8 @@ class _MovieVideoState extends State<MovieVideo> {
                 initialVideoId: snapshot.data.videos.first.key,
                 params: YoutubePlayerParams(
                   showFullscreenButton: true,
+                  showControls: true,
+                  desktopMode: true,
                   strictRelatedVideos: true,
                   showVideoAnnotations: false,
                 )),
@@ -63,8 +65,7 @@ class _MovieVideoState extends State<MovieVideo> {
     );
   }
 
-  Widget _buildVideoWidget(
-      VideoResponse data, YoutubePlayerController controller) {
+  Widget _buildVideoWidget(VideoResponse data, YoutubePlayerController controller) {
     Video video = data.videos.first;
 
     return Stack(
@@ -150,8 +151,7 @@ class _MovieVideoState extends State<MovieVideo> {
               width: 25,
               child: CircularProgressIndicator(
                 backgroundColor: Style.Colors.mainColor,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
+                valueColor: AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
               ),
             ),
           ],

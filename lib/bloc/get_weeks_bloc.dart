@@ -4,8 +4,12 @@ import 'package:rxdart/rxdart.dart';
 
 class WeeksListBloc {
   final MovieRepository _repository = MovieRepository();
-  final BehaviorSubject<WeekResponse> _subject =
-      BehaviorSubject<WeekResponse>();
+  final BehaviorSubject<WeekResponse> _subject = BehaviorSubject<WeekResponse>();
+
+  Future getMiniWeeks() async {
+    WeekResponse response = await _repository.getMiniWeeksList();
+    _subject.sink.add(response);
+  }
 
   Future getWeeks() async {
     WeekResponse response = await _repository.getWeeksList();

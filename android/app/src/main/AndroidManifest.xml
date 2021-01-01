@@ -1,9 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.kaydev.murdjaju">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
    <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="Cinéma Murdjaju"
-        android:icon="@mipmap/logo">
+        android:icon="@mipmap/logo"
+        tools:replace="android:icon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

@@ -38,8 +38,7 @@ class _SigninFormState extends State<SigninForm> {
         setState(() {
           _loading = false;
         });
-        await Navigator.pushReplacement(
-            context, CupertinoPageRoute(builder: (_) => MyApp()));
+        await Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
       },
       verificationFailed: (FirebaseAuthException exception) {
         print(exception);
@@ -60,6 +59,8 @@ class _SigninFormState extends State<SigninForm> {
             return ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: AlertDialog(
+                clipBehavior: Clip.antiAlias,
+                backgroundColor: Style.Colors.mainColor,
                 title: Text("Entre votre code! "),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -70,19 +71,14 @@ class _SigninFormState extends State<SigninForm> {
                       decoration: InputDecoration(
                         errorText: errorText,
                         labelText: 'Code',
-                        labelStyle: Theme.of(context)
-                            .textTheme
-                            .caption
-                            .copyWith(color: Colors.black),
+                        labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide:
-                              BorderSide(color: Style.Colors.secondaryColor),
+                          borderSide: BorderSide(color: Style.Colors.secondaryColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide:
-                              BorderSide(color: Style.Colors.secondaryColor),
+                          borderSide: BorderSide(color: Style.Colors.secondaryColor),
                         ),
                       ),
                     ),
@@ -99,8 +95,7 @@ class _SigninFormState extends State<SigninForm> {
                     child: Text("Confirmer"),
                     onPressed: () async {
                       final code = _codeController.text.trim();
-                      AuthCredential credential = PhoneAuthProvider.credential(
-                          verificationId: verificationId, smsCode: code);
+                      AuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
                       //await FirebaseAuth.instance.signInWithCredential(credential);
 
                       await auth.signInWithCredential(credential);
@@ -177,19 +172,14 @@ class _SigninFormState extends State<SigninForm> {
                   decoration: InputDecoration(
                     errorText: errorText,
                     labelText: 'Phone Number',
-                    labelStyle: Theme.of(context)
-                        .textTheme
-                        .caption
-                        .copyWith(color: Colors.white60),
+                    labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.white60),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide:
-                          BorderSide(color: Style.Colors.secondaryColor),
+                      borderSide: BorderSide(color: Style.Colors.secondaryColor),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide:
-                          BorderSide(color: Style.Colors.secondaryColor),
+                      borderSide: BorderSide(color: Style.Colors.secondaryColor),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -215,16 +205,14 @@ class _SigninFormState extends State<SigninForm> {
                         ? CircularProgressIndicator(
                             strokeWidth: .5,
                             backgroundColor: Colors.transparent,
-                            valueColor: AlwaysStoppedAnimation(
-                                Style.Colors.secondaryColor),
+                            valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
                           )
                         : Text("Send Code"),
                   ),
                   onPressed: !_loading
                       ? () async {
                           //FirebaseAuth.instance.signOut();
-                          if (_phoneNumber != null &&
-                              _phoneNumber.number.length == 9) {
+                          if (_phoneNumber != null && _phoneNumber.number.length == 9) {
                             setState(() {
                               _loading = true;
                             });

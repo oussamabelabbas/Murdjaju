@@ -10,6 +10,25 @@ class WeekResponse {
     this.error,
   );
 
+  WeekResponse.fromMiniSnapshot(List<DocumentSnapshot> weeks)
+      : weeks = weeks
+            .map(
+              (doc) => new Week.fromMini(doc),
+            )
+            .toList(),
+        error = "";
+
+  WeekResponse.fromSnapshot(
+    List<DocumentSnapshot> weeks,
+    List<DocumentSnapshot> salles,
+    List<List<DocumentSnapshot>> projs,
+  )   : weeks = weeks
+            .map(
+              (doc) => new Week.fromProjection(doc, salles, projs[weeks.indexOf(doc)]),
+            )
+            .toList(),
+        error = "";
+
   WeekResponse.fromSnapshots(
     List<DocumentSnapshot> weeks,
     List<DocumentSnapshot> movies,
@@ -17,13 +36,12 @@ class WeekResponse {
     List<List<DocumentSnapshot>> projs,
   )   : weeks = weeks
             .map(
-              (doc) => new Week.fromSnap(
-                  doc, movies, salles, projs[weeks.indexOf(doc)]),
+              (doc) => new Week.fromSnaps(doc, movies, salles, projs[weeks.indexOf(doc)]),
             )
             .toList(),
         error = "";
 
   WeekResponse.withError(String errorValue)
-      : weeks = List(),
+      : weeks = [],
         error = errorValue;
 }

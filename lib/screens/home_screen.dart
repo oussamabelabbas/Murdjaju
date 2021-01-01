@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:murdjaju/authentication/auth.dart';
+import 'package:murdjaju/bloc/current_week_bloc.dart';
 import 'package:murdjaju/model/firebase.dart';
 import 'package:murdjaju/model/genre.dart';
 import 'package:murdjaju/model/movie_response.dart';
@@ -46,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   String myWeekId;
+  String cineWhat;
 
   void oneSignal() async {
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
@@ -106,17 +108,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
-    _firebaseMessaging.requestNotificationPermissions();
-    _firebaseMessaging.setAutoInitEnabled(true);
-    _firebaseMessaging.subscribeToTopic("pushNotifications");
 
-    _firebaseMessaging.configure(
-      onMessage: (message) async {
-        print(" w 7a9 rabi la khadmeet");
-      },
-      onLaunch: (message) async {},
-      onResume: (message) async {},
-    );
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       setState(() {});
@@ -138,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         // centerTitle: true,
         title: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Text(
+          /*  child: Text(
             mySallesFilterList.isEmpty
                 ? ""
                 : mySallesFilterList.fold(
@@ -152,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             (previousValue, element) => (previousValue + element.toString() + ", ").toString(),
                           )),
             style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.secondaryColor),
-          ),
+          ), */
         ),
         leading: IconButton(
           icon: Icon(MdiIcons.account, color: Colors.white),
@@ -174,7 +166,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 CupertinoPageRoute(
                   builder: (context) {
                     return FilterScreen(
-                      myWeekid: myWeekId,
+                      myWeekId: myWeekId,
+                      cineWhat: cineWhat,
                       myGenresFilterList: myGenresFilterList,
                       mySallesFilterList: mySallesFilterList,
                     );
@@ -183,10 +176,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ).then(
                 (value) {
                   if (value != null && value.isNotEmpty) {
-                    myWeekId = value[0];
-                    myGenresFilterList = value[1];
-                    mySallesFilterList = value[2];
-                    setState(() {});
+                    print(value.toString());
+                    setState(() {
+                      myWeekId = value[0];
+                      cineWhat = value[1];
+                      myGenresFilterList = value[2];
+                      mySallesFilterList = value[3];
+                    });
+
+                    currentWeekBloc.filterCurrentWeek(value[0], value[1], value[2], value[3]);
                   }
                 },
               );
@@ -197,14 +195,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       body: DoubleBackToCloseApp(
         child: Column(
           children: [
-            /*  CineBar(tabController: _tabController),
-            SizedBox(height: 5), */
             Builder(
               builder: (context) => WeekPageView(
                 tabController: _tabController,
-                weekId: myWeekId,
-                myGenresFilterList: myGenresFilterList,
-                mySallesFilterList: mySallesFilterList,
+                weekId: null, // myWeekId,
+                cineWhat: null, // cineWhat,
+                myGenresFilterList: [], //myGenresFilterList,
+                mySallesFilterList: [], //mySallesFilterList,
               ),
             ),
           ],
@@ -213,7 +210,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           content: Text('Double-Tap to close'),
         ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: () async {
+      /* floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await currentWeekBloc.getCurrentWeek(null);
+          print(currentWeekBloc.subject.value.startDate.toString());
+        },
+      ), */
+      /*   floatingActionButton: FloatingActionButton(onPressed: () async {
         var status = await OneSignal.shared.getPermissionSubscriptionState();
         String str = status.subscriptionStatus.userId;
         print(str);
@@ -384,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         } catch (e) {
           print('exception $e');
         } */
-      }),
+      }), */
       /*
         child: Center(
           child: CircularProgressIndicator(

@@ -16,22 +16,13 @@ class MovieDetailScreen extends StatefulWidget {
   final NetworkImage thumbnail;
   final AssetImage asset;
   final int heroId;
-  MovieDetailScreen(
-      {Key key,
-      this.projection,
-      this.image,
-      this.thumbnail,
-      this.asset,
-      this.heroId})
-      : super(key: key);
+  MovieDetailScreen({Key key, this.projection, this.image, this.thumbnail, this.asset, this.heroId}) : super(key: key);
 
   @override
-  _MovieDetailScreenState createState() =>
-      _MovieDetailScreenState(projection, heroId);
+  _MovieDetailScreenState createState() => _MovieDetailScreenState(projection, heroId);
 }
 
-class _MovieDetailScreenState extends State<MovieDetailScreen>
-    with SingleTickerProviderStateMixin {
+class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTickerProviderStateMixin {
   final Projection projection;
   final int heroId;
 
@@ -94,17 +85,14 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
                 scale: _hideFabAnimController,
                 child: FloatingActionButton(
                   backgroundColor: Style.Colors.mainColor,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  child:
-                      Icon(MdiIcons.ticket, color: Style.Colors.secondaryColor),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Icon(MdiIcons.ticket, color: Style.Colors.secondaryColor),
                   onPressed: () {
                     Navigator.push(
                       context,
                       CupertinoPageRoute(
                         builder: (context) {
-                          return BookingScreen(
-                              projection: projection, heroId: heroId);
+                          return BookingScreen(projection: projection, heroId: heroId);
                         },
                       ),
                     );
@@ -136,19 +124,16 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
             slivers: <Widget>[
               SliverAppBar(
                 shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(bottom: Radius.circular(20))),
-                expandedHeight: MediaQuery.of(context).size.width * 3 / 2 -
-                    MediaQuery.of(context).padding.top,
+                    //  borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+                    ),
+                expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
                 backgroundColor: Style.Colors.mainColor.withOpacity(.15),
                 pinned: true,
                 shadowColor: Colors.transparent,
                 elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
                   title: Hero(
-                    tag: projection.movie.id.toString() +
-                        projection.movie.title.toString() +
-                        heroId.toString(),
+                    tag: projection.movie.id.toString() + projection.movie.title.toString() + heroId.toString(),
                     child: Text(
                       projection.movie.title,
                       overflow: TextOverflow.ellipsis,
@@ -171,10 +156,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              Style.Colors.mainColor.withOpacity(.4)
-                            ],
+                            colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             stops: [0, 1],
@@ -195,7 +177,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
               SliverToBoxAdapter(
                 child: Container(
                   // padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
+                  decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))
                       //color: Style.Colors.mainColor.withOpacity(.75),
                       ),
                   clipBehavior: Clip.antiAlias,
@@ -224,10 +206,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
         padding: EdgeInsets.all(15),
         child: Text(
           'Reserver',
-          style: Theme.of(context)
-              .textTheme
-              .headline6
-              .copyWith(color: Colors.white),
+          style: Theme.of(context).textTheme.headline6.copyWith(color: Colors.white),
         ),
         onPressed: () {
           Navigator.push(
@@ -300,14 +279,12 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
                   return Container(
                     // padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(25)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                       color: Colors.white,
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: ListView(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
                       controller: _sc,
                       children: [
                         /* Image.network(
@@ -325,15 +302,13 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(25)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                           color: Style.Colors.mainColor,
                         ),
                         clipBehavior: Clip.antiAlias,
                         width: MediaQuery.of(context).size.width,
                         child: Image.network(
-                          'https://image.tmdb.org/t/p/w92/' +
-                              projection.movie.poster,
+                          'https://image.tmdb.org/t/p/w92/' + projection.movie.poster,
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
@@ -341,8 +316,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
                             return Center(
                               child: CircularProgressIndicator(
                                 backgroundColor: Style.Colors.mainColor,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.orange),
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
                               ),
                             );
                           },
@@ -351,8 +325,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen>
                       Container(
                         // padding: EdgeInsets.all(5),
                         decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(25)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                           color: Style.Colors.mainColor,
                         ),
                         clipBehavior: Clip.antiAlias,

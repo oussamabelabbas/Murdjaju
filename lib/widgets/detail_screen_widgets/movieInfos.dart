@@ -29,20 +29,7 @@ class _MovieInfosState extends State<MovieInfos> {
 
   _MovieInfosState(this.projection, this.heroId);
 
-  List<String> months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'Decenmebr'
-  ];
+  List<String> months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decenmebr'];
 
   final EdgeInsets _padding = EdgeInsets.symmetric(horizontal: 10);
 
@@ -55,9 +42,7 @@ class _MovieInfosState extends State<MovieInfos> {
         Container(
           child: Center(
             child: Hero(
-              tag: projection.movie.id.toString() +
-                  projection.movie.date.toString() +
-                  heroId.toString(),
+              tag: projection.id.toString() + projection.date.toString() + heroId.toString(),
               child: Text(
                 ((DateTime.now().isAfter(
                               projection.date.add(
@@ -68,8 +53,7 @@ class _MovieInfosState extends State<MovieInfos> {
                                 : "") +
                             (DateTime.now().isBefore(
                                       projection.date.add(
-                                        Duration(
-                                            minutes: projection.movie.runtime),
+                                        Duration(minutes: projection.movie.runtime),
                                       ),
                                     ) &&
                                     DateTime.now().isAfter(projection.date)
@@ -83,10 +67,7 @@ class _MovieInfosState extends State<MovieInfos> {
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .button
-                    .copyWith(color: Style.Colors.secondaryColor),
+                style: Theme.of(context).textTheme.button.copyWith(color: Style.Colors.secondaryColor),
               ),
             ),
           ),
@@ -97,10 +78,7 @@ class _MovieInfosState extends State<MovieInfos> {
           child: Text(
             "Resumé:",
             textAlign: TextAlign.left,
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+            style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         Padding(
@@ -108,10 +86,7 @@ class _MovieInfosState extends State<MovieInfos> {
           child: Text(
             projection.movie.overview,
             textAlign: TextAlign.left,
-            style: Theme.of(context)
-                .textTheme
-                .bodyText2
-                .copyWith(color: Colors.white),
+            style: Theme.of(context).textTheme.bodyText2.copyWith(color: Colors.white),
           ),
         ),
         SizedBox(height: 10),
@@ -122,10 +97,7 @@ class _MovieInfosState extends State<MovieInfos> {
             textAlign: TextAlign.left,
             //maxLines: 1,
             //overflow: TextOverflow.ellipsis,
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+            style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         SizedBox(height: 5),
@@ -139,10 +111,7 @@ class _MovieInfosState extends State<MovieInfos> {
             textAlign: TextAlign.left,
             //maxLines: 1,
             //overflow: TextOverflow.ellipsis,
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+            style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         SizedBox(height: 5),

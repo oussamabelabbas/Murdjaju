@@ -12,7 +12,7 @@ class ReservationsResponse {
   );
 
   ReservationsResponse.fromSnapshots(List<DocumentSnapshot> reservations)
-      : reservations = reservations.map((projection) => new Reservation.fromSnapshots(projection)).toList(),
+      : reservations = reservations.map((reservation) => new Reservation.fromSnapshots(reservation)).toList(),
         error = "";
 
   ReservationsResponse.withError(String errorValue)

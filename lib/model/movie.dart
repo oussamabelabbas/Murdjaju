@@ -11,7 +11,7 @@ class Movie {
   final String poster;
   final String overview;
   final List<Genre> genres;
-  final DateTime date;
+  //final DateTime date;
 
   Movie(
     this.id,
@@ -22,7 +22,7 @@ class Movie {
     this.runtime,
     this.originalTitle,
     this.genres,
-    this.date,
+    //  this.date,
   );
 
   Movie.fromSnap(DocumentSnapshot snap)
@@ -33,11 +33,8 @@ class Movie {
         overview = snap["overview"],
         originalTitle = snap["original_title"],
         runtime = snap["runtime"],
-        date = DateTime.fromMillisecondsSinceEpoch(DateFormat("yyyy-MM-dd")
-            .parse(snap["release_date"])
-            .millisecondsSinceEpoch),
-        genres =
-            (snap["genres"] as List).map((e) => new Genre.fromJson(e)).toList();
+        //  date = DateTime.fromMillisecondsSinceEpoch(DateFormat("yyyy-MM-dd").parse(snap["release_date"]).millisecondsSinceEpoch),
+        genres = (snap["genres"] as List).map((e) => new Genre.fromJson(e)).toList();
 
   Movie.fromJson(Map<String, dynamic> json)
       : id = json["id"],
@@ -45,12 +42,19 @@ class Movie {
         backPoster = json["backdrop_path"],
         poster = json["poster_path"],
         overview = json["overview"],
-        date = DateTime(2020, 10, 25),
+        //   date = DateTime(2020, 10, 25),
         originalTitle = json["original_title"],
         runtime = json["runtime"],
-        genres = json["genres"] != null
-            ? (json["genres"] as List)
-                .map((e) => new Genre.fromJson(e))
-                .toList()
-            : [];
+        genres = json["genres"] != null ? (json["genres"] as List).map((e) => new Genre.fromJson(e)).toList() : [];
+
+  Movie.fromProjection(DocumentSnapshot projection)
+      : id = projection["movieId"],
+        title = projection["movieTitle"],
+        backPoster = projection["movieBackDropPath"],
+        poster = projection["moviePosterPath"],
+        overview = projection["movieOverview"],
+        runtime = 0,
+        originalTitle = "",
+        genres = (projection["genres"] as List).map((e) => new Genre.fromJson(e)).toList();
+  //  date = null;
 }

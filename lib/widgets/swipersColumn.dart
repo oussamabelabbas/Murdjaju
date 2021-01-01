@@ -30,20 +30,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
   SwiperControl _swiperControl;
   int initialIndex;
 
-  List<String> months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'Decenmebr'
-  ];
+  List<String> months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decenmebr'];
 
   @override
   void initState() {
@@ -71,8 +58,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
             loop: false,
             itemBuilder: (context, index) {
               return Image.network(
-                'https://image.tmdb.org/t/p/w92/' +
-                    projections[index].movie.poster,
+                'https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster,
                 fit: BoxFit.cover,
               );
             },
@@ -100,11 +86,8 @@ class _SwiperColumnState extends State<SwiperColumn> {
               padding: EdgeInsets.all(10),
               height: AppBar().preferredSize.height,
               child: Text(
-                DateFormat('EEEEEE, M/d/y').format(projections.first.date),
-                style: Theme.of(context)
-                    .textTheme
-                    .headline5
-                    .copyWith(color: Colors.white),
+                DateFormat('EEEEEE d MMM y. HH:mm.', 'fr-FR').format(projections.first.date),
+                style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
               ),
             ),
             SizedBox(height: 20),
@@ -119,12 +102,9 @@ class _SwiperColumnState extends State<SwiperColumn> {
                 scale: 0.7,
                 onIndexChanged: (value) => _swiperController.move(value),
                 itemBuilder: (context, index) {
-                  NetworkImage thumbnail = NetworkImage(
-                      'https://image.tmdb.org/t/p/w92/' +
-                          projections[index].movie.poster);
+                  NetworkImage thumbnail = NetworkImage('https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster);
                   NetworkImage image = NetworkImage(
-                    'https://image.tmdb.org/t/p/w780/' +
-                        projections[index].movie.poster,
+                    'https://image.tmdb.org/t/p/w780/' + projections[index].movie.poster,
                   );
                   AssetImage asset = AssetImage(
                     'assets/placeholder.png',
@@ -201,65 +181,46 @@ class _SwiperColumnState extends State<SwiperColumn> {
                       children: [
                         Spacer(),
                         Hero(
-                          tag: projections[index].movie.id.toString() +
-                              projections[index].movie.date.toString() +
-                              index.toString(),
+                          tag: projections[index].id.toString() + projections[index].date.toString() + index.toString(),
                           child: Text(
                             ((DateTime.now().isAfter(
                                           projections[index].date.add(
-                                                Duration(
-                                                    minutes: projections[index]
-                                                        .movie
-                                                        .runtime),
+                                                Duration(minutes: projections[index].movie.runtime),
                                               ),
                                         )
                                             ? "(Played) "
                                             : "") +
                                         (DateTime.now().isBefore(
                                                   projections[index].date.add(
-                                                        Duration(
-                                                            minutes:
-                                                                projections[
-                                                                        index]
-                                                                    .movie
-                                                                    .runtime),
+                                                        Duration(minutes: projections[index].movie.runtime),
                                                       ),
                                                 ) &&
-                                                DateTime.now().isAfter(
-                                                    projections[index].date)
+                                                DateTime.now().isAfter(projections[index].date)
                                             ? "(Playing Now) "
                                             : "") +
-                                        DateFormat('EEE, d MMM', 'fr-FR')
-                                            .format(projections[index].date) +
-                                        DateFormat(' HH:mm')
-                                            .format(projections[index].date) ??
+                                        DateFormat('EEE, d MMM', 'fr-FR').format(projections[index].date) +
+                                        DateFormat(' HH:mm').format(projections[index].date) ??
                                     "Sat 14 Nov, 17:30") +
                                 ", " +
                                 projections[index].salle.name,
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .button
-                                .copyWith(color: Style.Colors.secondaryColor),
+                            style: Theme.of(context).textTheme.button.copyWith(color: Style.Colors.secondaryColor),
                           ),
                         ),
                         Spacer(),
                         Hero(
-                          tag: projections[index].movie.id.toString() +
-                              projections[index].movie.title.toString() +
-                              index.toString(),
+                          tag: projections[index].movie.id.toString() + projections[index].movie.title.toString() + index.toString(),
                           child: Text(
                             projections[index].movie.title,
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style:
-                                Theme.of(context).textTheme.headline5.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            style: Theme.of(context).textTheme.headline5.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ),
                         Text(

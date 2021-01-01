@@ -1,62 +1,66 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:murdjaju/bloc/get_genres_list.dart';
 import 'package:murdjaju/model/genre.dart';
+import 'package:murdjaju/model/genre_response.dart';
 import 'package:murdjaju/model/salle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:murdjaju/model/week.dart';
 import 'package:murdjaju/model/week_response.dart';
 import 'package:murdjaju/bloc/get_weeks_bloc.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
 
 class FilterScreen extends StatefulWidget {
-  final String myWeekid;
+  final String myWeekId;
   final List<int> myGenresFilterList;
   final List<String> mySallesFilterList;
+  final String cineWhat;
 
-  FilterScreen(
-      {Key key,
-      this.myWeekid,
-      this.myGenresFilterList,
-      this.mySallesFilterList})
-      : super(key: key);
+  FilterScreen({Key key, this.myWeekId, this.myGenresFilterList, this.mySallesFilterList, this.cineWhat}) : super(key: key);
   @override
   _FilterScreenState createState() => _FilterScreenState();
 }
 
 class _FilterScreenState extends State<FilterScreen> {
-  String myWeekid;
+  String myWeekId;
   List<int> myGenresFilterList;
   List<String> mySallesFilterList;
   List<Genre> allGenres = [];
   List<Salle> allSalles = [];
+
+  List<int> genresFilterList = [];
+  List<String> sallesFilterList = [];
+
+  List cineList = ["BoxOffice", "Kids", "Show"];
+
+  String cineWhat;
+  bool cineClear = false;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getData();
     initializeDateFormatting();
+    genresListBloc.getGenres();
+    weeksListBloc.getMiniWeeks();
 
     //weeksListBloc.getWeeks();
-    myWeekid = widget.myWeekid;
-    myGenresFilterList = widget.myGenresFilterList;
-    mySallesFilterList = widget.mySallesFilterList;
+    myWeekId = widget.myWeekId;
+    cineWhat = widget.cineWhat;
+    genresFilterList = widget.myGenresFilterList;
+    sallesFilterList = widget.mySallesFilterList;
   }
 
   void getData() async {
-    weeksListBloc.subject.value.weeks.forEach(
-      (week) {
-        week.projections.forEach(
-          (proj) {
-            if (allSalles.indexWhere((salle) => salle.id == proj.salle.id) ==
-                -1) allSalles.add(proj.salle);
-            proj.movie.genres.forEach(
-              (genre) {
-                if (allGenres.indexWhere((_genre) => _genre.id == genre.id) ==
-                    -1) allGenres.add(genre);
-              },
-            );
+    await FirebaseFirestore.instance.collection("Salles").get().then(
+      (value) {
+        value.docs.forEach(
+          (element) {
+            allSalles.add(Salle.fromSnapshot(element));
           },
         );
       },
@@ -67,6 +71,9 @@ class _FilterScreenState extends State<FilterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        print(genresFilterList.toString());
+      }),
       backgroundColor: Style.Colors.mainColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -77,34 +84,39 @@ class _FilterScreenState extends State<FilterScreen> {
             child: FittedBox(
               child: Text(
                 "Cancel",
-                style: Theme.of(context)
-                    .textTheme
-                    .button
-                    .copyWith(color: Style.Colors.titleColor),
+                style: Theme.of(context).textTheme.button.copyWith(color: Style.Colors.titleColor),
               ),
             ),
             onPressed: () {
               Navigator.pop(context, []);
             },
           ),
-          Spacer(),
+          Expanded(
+            child: Center(
+              child: Text(
+                "filtrer votre expérience",
+                style: Theme.of(context).textTheme.headline5.copyWith(
+                      color: Style.Colors.titleColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+          ),
           FlatButton(
             child: FittedBox(
               child: Text(
                 "Confirm",
-                style: Theme.of(context)
-                    .textTheme
-                    .button
-                    .copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.button.copyWith(color: Colors.white),
               ),
             ),
             onPressed: () {
               Navigator.pop(
                 context,
                 [
-                  myWeekid,
-                  myGenresFilterList,
-                  mySallesFilterList,
+                  myWeekId,
+                  cineClear ? null : cineWhat,
+                  genresFilterList,
+                  sallesFilterList,
                 ],
               );
             },
@@ -118,165 +130,285 @@ class _FilterScreenState extends State<FilterScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text("Genres:",
-                      style: Theme.of(context).textTheme.headline5),
-                ),
-                Container(
-                  height: 60,
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.all(10),
-                    itemCount: allGenres.length,
-                    separatorBuilder: (context, index) => SizedBox(width: 10),
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {
-                          myGenresFilterList.contains(allGenres[index].id)
-                              ? myGenresFilterList.remove(allGenres[index].id)
-                              : myGenresFilterList.add(allGenres[index].id);
-                          setState(() {});
-                        },
-                        child: Container(
-                          height: 40,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color:
-                                myGenresFilterList.contains(allGenres[index].id)
-                                    ? Style.Colors.secondaryColor
-                                    : Style.Colors.titleColor.withOpacity(.5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              allGenres[index].name,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text("Salles:",
-                      style: Theme.of(context).textTheme.headline5),
-                ),
-                Container(
-                  height: 60,
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.all(10),
-                    itemCount: allSalles.length,
-                    separatorBuilder: (context, index) => SizedBox(width: 10),
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {
-                          mySallesFilterList.contains(allSalles[index].id)
-                              ? mySallesFilterList.remove(allSalles[index].id)
-                              : mySallesFilterList.add(allSalles[index].id);
-                          setState(() {});
-                        },
-                        child: Container(
-                          height: 40,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color:
-                                mySallesFilterList.contains(allSalles[index].id)
-                                    ? Style.Colors.secondaryColor
-                                    : Style.Colors.titleColor.withOpacity(.5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              allSalles[index].name +
-                                  " (" +
-                                  allSalles[index].screenQuality +
-                                  ")",
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 10, top: 10),
-                  child: Text(
-                    "Programme:",
-                    style: Theme.of(context).textTheme.headline5,
-                  ),
-                ),
+                SizedBox(height: 25),
                 Padding(
                   padding: EdgeInsets.only(left: 10),
-                  child: Text(
-                    "(Si aucun programme n'est selectioné, le programme de la semaine en cours s'affichera)",
-                    style: Theme.of(context).textTheme.caption,
+                  child: Row(
+                    children: [
+                      Text(
+                        "Genres:",
+                        style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.titleColor),
+                      ),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(50),
+                        //padding: EdgeInsets.zero,
+                        child: Icon(
+                          MdiIcons.closeCircle,
+                          color: (genresFilterList.length > 0) ? Style.Colors.secondaryColor : Colors.transparent,
+                        ),
+                        onTap: (genresFilterList.length > 0)
+                            ? () {
+                                genresFilterList.clear();
+                                setState(() {});
+                              }
+                            : null,
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 75,
+                          child: StreamBuilder(
+                            stream: genresListBloc.subject.stream,
+                            builder: (context, AsyncSnapshot<GenreResponse> snapshot) {
+                              if (snapshot.hasData) {
+                                if (snapshot.data.error != null && snapshot.data.error.length > 0) {
+                                  return _buildErrorWidget(snapshot.data.error);
+                                }
+
+                                return _buildGenresBuilder(snapshot.data);
+                              } else if (snapshot.hasError) {
+                                return _buildErrorWidget(snapshot.data.error);
+                              } else {
+                                return _buildLoadingWidget();
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Container(
-                  height: 60,
-                  child: StreamBuilder(
-                    stream: weeksListBloc.subject.stream,
-                    builder: (context, AsyncSnapshot<WeekResponse> snapshot) {
-                      if (snapshot.hasData) {
-                        if (snapshot.data.error != null &&
-                            snapshot.data.error.length > 0) {
-                          return Center(child: Text("Error"));
-                        }
-
-                        return ListView.separated(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          padding: EdgeInsets.all(10),
-                          itemCount: snapshot.data.weeks.length,
-                          separatorBuilder: (context, index) =>
-                              SizedBox(width: 10),
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () {
-                                myWeekid == snapshot.data.weeks[index].id
-                                    ? myWeekid = null
-                                    : myWeekid = snapshot.data.weeks[index].id;
+                SizedBox(height: 25),
+                Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Text(
+                      "Ciné:",
+                      style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.titleColor),
+                    ),
+                    Spacer(),
+                    ToggleButtons(
+                      borderRadius: BorderRadius.circular(20),
+                      onPressed: (index) {
+                        if (cineClear) {
+                          cineClear = false;
+                          cineWhat = cineList[index];
+                        } else if (cineWhat == cineList[index])
+                          cineClear = true;
+                        else
+                          cineWhat = cineList[index];
+                        setState(() {});
+                      },
+                      borderColor: Style.Colors.titleColor,
+                      color: Style.Colors.titleColor,
+                      selectedColor: Style.Colors.secondaryColor,
+                      selectedBorderColor: Style.Colors.secondaryColor,
+                      isSelected: List.generate(cineList.length, (index) => cineList[index] == cineWhat && !cineClear),
+                      children: List.generate(
+                        cineList.length,
+                        (index) => Padding(padding: EdgeInsets.all(10), child: Text(cineList[index])),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 25),
+                Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Text(
+                      "Salle:",
+                      style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.titleColor),
+                    ),
+                    Spacer(),
+                    ToggleButtons(
+                      borderRadius: BorderRadius.circular(20),
+                      onPressed: (index) {
+                        if (sallesFilterList.contains(allSalles[index].id))
+                          sallesFilterList.remove(allSalles[index].id);
+                        else
+                          sallesFilterList.add(allSalles[index].id);
+                        setState(() {});
+                      },
+                      borderColor: Style.Colors.titleColor,
+                      color: Style.Colors.titleColor,
+                      selectedColor: Style.Colors.secondaryColor,
+                      selectedBorderColor: Style.Colors.secondaryColor,
+                      isSelected: List.generate(allSalles.length, (index) => sallesFilterList.contains(allSalles[index].id)),
+                      children: List.generate(
+                        allSalles.length,
+                        (index) => Padding(padding: EdgeInsets.all(10), child: Text(allSalles[index].name)),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 25),
+                Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Semaine de :",
+                        style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.titleColor),
+                      ),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(50),
+                        //padding: EdgeInsets.zero,
+                        child: Icon(
+                          MdiIcons.closeCircle,
+                          color: myWeekId != null ? Style.Colors.secondaryColor : Colors.transparent,
+                        ),
+                        onTap: myWeekId != null
+                            ? () {
+                                myWeekId = null;
                                 setState(() {});
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: myWeekid ==
-                                          snapshot.data.weeks[index].id
-                                      ? Style.Colors.secondaryColor
-                                      : Style.Colors.titleColor.withOpacity(.5),
-                                ),
-                                child: Center(
-                                  child: Text("Semaine du " +
-                                      DateFormat('EEE, d MMM', 'fr-FR').format(
-                                        snapshot.data.weeks[index].startDate,
-                                      )),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text("Error"));
-                      } else {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                    },
+                              }
+                            : null,
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 75,
+                          child: StreamBuilder(
+                            stream: weeksListBloc.subject.stream,
+                            builder: (context, AsyncSnapshot<WeekResponse> snapshot) {
+                              if (snapshot.hasData) {
+                                if (snapshot.data.error != null && snapshot.data.error.length > 0) {
+                                  return _buildErrorWidget(snapshot.data.error);
+                                }
+
+                                return _buildWeeksBuilder(snapshot.data);
+                              } else if (snapshot.hasError) {
+                                return _buildErrorWidget(snapshot.data.error);
+                              } else {
+                                return _buildLoadingWidget();
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  _buildWeeksBuilder(WeekResponse data) {
+    List<Week> weeks = data.weeks;
+    if (weeks.length == 0) return _buildErrorWidget("No weeks founds");
+
+    weeks.sort((a, b) => a.startDate.compareTo(b.startDate));
+
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.all(10),
+      itemCount: weeks.length,
+      separatorBuilder: (context, index) => SizedBox(width: 10),
+      itemBuilder: (context, index) {
+        return InkWell(
+          onTap: () {
+            myWeekId == weeks[index].id ? myWeekId = null : myWeekId = weeks[index].id;
+            setState(() {});
+          },
+          child: Container(
+            padding: EdgeInsets.all(10),
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: myWeekId == weeks[index].id ? Style.Colors.secondaryColor.withOpacity(.5) : Style.Colors.titleColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Center(
+              child: Text(
+                DateFormat('EEE d MMM y', 'fr-FR').format(weeks[index].startDate),
+                style: Theme.of(context).textTheme.button,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  _buildGenresBuilder(GenreResponse data) {
+    List<Genre> genres = data.genres;
+    if (genres.length == 0) return _buildErrorWidget("No genres founds");
+
+    // genres.sort((genre0, genre1) => genresFilterList.contains(genre0) ? genres.indexOf(genre0) : genres.indexOf(genre1));
+    genres.sort((a, b) {
+      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
+
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.all(10),
+      itemCount: genres.length,
+      separatorBuilder: (context, index) => SizedBox(width: 10),
+      itemBuilder: (context, index) {
+        return InkWell(
+          onTap: () {
+            genresFilterList.contains(genres[index % genres.length].id) ? genresFilterList.remove(genres[index % genres.length].id) : genresFilterList.add(genres[index % genres.length].id);
+            setState(() {});
+          },
+          child: Container(
+            padding: EdgeInsets.all(10),
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: genresFilterList.contains(genres[index % genres.length].id) ? Style.Colors.secondaryColor.withOpacity(.5) : Style.Colors.titleColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Center(
+              child: Text(
+                genres[index % genres.length].name,
+                style: Theme.of(context).textTheme.button,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildErrorWidget(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 25,
+            width: 25,
+            child: Icon(MdiIcons.exclamation, color: Colors.grey),
+          ),
+          Text(
+            "Something went wrong :",
+            style: TextStyle(color: Colors.grey),
+          ),
+          Text(
+            error,
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 25,
+            width: 25,
+            child: CircularProgressIndicator(
+              backgroundColor: Style.Colors.mainColor,
+              valueColor: AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
+            ),
+          ),
+        ],
       ),
     );
   }
