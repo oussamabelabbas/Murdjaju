@@ -321,7 +321,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                             alignment: Alignment.bottomCenter,
                             children: [
                               Image.network(
-                                'https://image.tmdb.org/t/p/w780/' + projection.movie.backPoster,
+                                projection.movie.isShow ? projection.movie.backPoster : 'https://image.tmdb.org/t/p/w780/' + projection.movie.backPoster,
                                 fit: BoxFit.cover,
                               ),
                               Container(

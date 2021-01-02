@@ -21,25 +21,12 @@ class _MovieCastState extends State<MovieCast> {
 
   _MovieCastState(this.movie);
 
-  List<String> months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'Decenmebr'
-  ];
+  List<String> months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decenmebr'];
 
   @override
   void initState() {
     super.initState();
-    castsBloc..getCasts(movie.id);
+    castsBloc..getCasts(int.parse(movie.id));
   }
 
   @override
@@ -94,14 +81,12 @@ class _MovieCastState extends State<MovieCast> {
                     ? ProgressiveImage(
                         height: 120,
                         width: 80,
-                        placeholder:
-                            AssetImage('assets/Netflix_Symbol_RGB.png'),
+                        placeholder: AssetImage('assets/Netflix_Symbol_RGB.png'),
                         thumbnail: NetworkImage(
                           "https://image.tmdb.org/t/p/w45/" + cast[index].image,
                         ),
                         image: NetworkImage(
-                          "https://image.tmdb.org/t/p/h632/" +
-                              cast[index].image,
+                          "https://image.tmdb.org/t/p/h632/" + cast[index].image,
                         ),
                       )
                     : Icon(Icons.person),
@@ -196,8 +181,7 @@ class _MovieCastState extends State<MovieCast> {
               width: 25,
               child: CircularProgressIndicator(
                 backgroundColor: Style.Colors.mainColor,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
+                valueColor: AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
               ),
             ),
           ],

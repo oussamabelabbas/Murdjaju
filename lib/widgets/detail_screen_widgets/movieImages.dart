@@ -28,7 +28,7 @@ class _MovieImagesState extends State<MovieImages> {
   @override
   void initState() {
     super.initState();
-    imagesBloc..getImages(movie.id);
+    if (!movie.isShow) imagesBloc..getImages(int.parse(movie.id));
   }
 
   @override
@@ -40,6 +40,34 @@ class _MovieImagesState extends State<MovieImages> {
 
   @override
   Widget build(BuildContext context) {
+    if (movie.isShow)
+      return AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Container(
+          color: Colors.white10,
+          // width: MediaQuery.of(context).size.width,
+          // height: MediaQuery.of(context).size.width / 1.777777777777778,
+          child: Image.network(
+            movie.backPoster,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1,
+                    backgroundColor: Colors.white10,
+                    valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
+                    /* value: loadingProgress.expectedTotalBytes /
+                        loadingProgress.expectedTotalBytes, */
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
     return StreamBuilder(
       stream: imagesBloc.subject.stream,
       builder: (context, AsyncSnapshot<ImageResponse> snapshot) {
@@ -84,8 +112,7 @@ class _MovieImagesState extends State<MovieImages> {
                   child: CircularProgressIndicator(
                     strokeWidth: 1,
                     backgroundColor: Colors.white10,
-                    valueColor:
-                        AlwaysStoppedAnimation(Style.Colors.secondaryColor),
+                    valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
                     /* value: loadingProgress.expectedTotalBytes /
                         loadingProgress.expectedTotalBytes, */
                   ),
@@ -136,8 +163,7 @@ class _MovieImagesState extends State<MovieImages> {
               width: 25,
               child: CircularProgressIndicator(
                 backgroundColor: Style.Colors.mainColor,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
+                valueColor: AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
               ),
             ),
           ],

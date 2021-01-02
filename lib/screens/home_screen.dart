@@ -6,6 +6,7 @@ import 'package:murdjaju/authentication/auth.dart';
 import 'package:murdjaju/bloc/current_week_bloc.dart';
 import 'package:murdjaju/model/firebase.dart';
 import 'package:murdjaju/model/genre.dart';
+import 'package:murdjaju/model/movie.dart';
 import 'package:murdjaju/model/movie_response.dart';
 import 'package:murdjaju/repository/repository.dart';
 import 'package:murdjaju/screens/account_screen.dart';
@@ -158,6 +159,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.add_alert),
+            onPressed: () async {
+              DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Movies").doc('titre').get();
+              Movie movie = Movie.fromSnap(doc);
+              print(movie.toString());
+              await FirebaseFirestore.instance.collection("Weeks").doc("PSpDMPwJ98vki95abNnh").collection("Projections").add(
+                {
+                  "date": DateTime.now(),
+                  "cine": "Kids",
+                  "forbiddenPlaces": [],
+                  "genres": [],
+                  "isShow": true,
+                  "movieBackDropPath": movie.backPoster,
+                  "movieId": "titre",
+                  "movieOverview": movie.overview,
+                  "moviePosterPath": movie.poster,
+                  "movieTitle": movie.title,
+                  "places": [],
+                  "prixTicket": 200,
+                  "salleId": "salle_Q",
+                },
+              );
+            },
+          ),
           IconButton(
             icon: Icon(MdiIcons.filterOutline, color: Colors.white),
             onPressed: () async {

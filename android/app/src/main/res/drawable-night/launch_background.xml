@@ -8,6 +8,6 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/kay_logo_dark" />
+            android:src="@mipmap/splash_dark" />
     </item>
 </layer-list>

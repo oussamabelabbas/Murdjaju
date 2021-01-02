@@ -144,7 +144,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                     alignment: Alignment.centerLeft,
                     children: [
                       Hero(
-                        tag: projection.movie.id + heroId,
+                        tag: projection.movie.id + heroId.toString(),
                         child: ProgressiveImage(
                           placeholder: widget.asset,
                           thumbnail: widget.thumbnail,
@@ -229,7 +229,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Hero(
-                      tag: projection.movie.id + heroId,
+                      tag: projection.movie.id + heroId.toString(),
                       child: Container(
                         alignment: Alignment.topCenter,
                         height: MediaQuery.of(context).size.height,
@@ -287,10 +287,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
                       controller: _sc,
                       children: [
-                        /* Image.network(
-                          'https://image.tmdb.org/t/p/w780/' +
-                              projection.movie.backPoster,
-                        ), */
                         MovieInfos(
                           heroId: heroId,
                           projection: projection,
@@ -308,7 +304,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                         clipBehavior: Clip.antiAlias,
                         width: MediaQuery.of(context).size.width,
                         child: Image.network(
-                          'https://image.tmdb.org/t/p/w92/' + projection.movie.poster,
+                          projection.movie.isShow ? projection.movie.backPoster : 'https://image.tmdb.org/t/p/w92/' + projection.movie.poster,
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;

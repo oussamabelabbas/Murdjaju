@@ -12,6 +12,6 @@ class FirebaseResponse {
         error = "";
 
   FirebaseResponse.withError(String errorValue)
-      : movies = List(),
+      : movies = [],
         error = errorValue;
 }

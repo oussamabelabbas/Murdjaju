@@ -58,7 +58,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
             loop: false,
             itemBuilder: (context, index) {
               return Image.network(
-                'https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster,
+                projections[index].movie.isShow ? projections[index].movie.poster : 'https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster,
                 fit: BoxFit.cover,
               );
             },
@@ -102,9 +102,9 @@ class _SwiperColumnState extends State<SwiperColumn> {
                 scale: 0.7,
                 onIndexChanged: (value) => _swiperController.move(value),
                 itemBuilder: (context, index) {
-                  NetworkImage thumbnail = NetworkImage('https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster);
+                  NetworkImage thumbnail = NetworkImage(projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster));
                   NetworkImage image = NetworkImage(
-                    'https://image.tmdb.org/t/p/w780/' + projections[index].movie.poster,
+                    projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w780/' + projections[index].movie.poster),
                   );
                   AssetImage asset = AssetImage(
                     'assets/placeholder.png',
@@ -141,7 +141,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: Hero(
-                          tag: projections[index].movie.id + index,
+                          tag: projections[index].movie.id + index.toString(),
                           child: ProgressiveImage(
                             fit: BoxFit.cover,
                             blur: 10,

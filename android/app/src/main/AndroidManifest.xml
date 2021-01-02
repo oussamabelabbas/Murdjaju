@@ -7,7 +7,7 @@
    <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="Cinéma Murdjaju"
-        android:icon="@mipmap/logo"
+        android:icon="@mipmap/splash"
         tools:replace="android:icon">
         <activity
             android:name=".MainActivity"

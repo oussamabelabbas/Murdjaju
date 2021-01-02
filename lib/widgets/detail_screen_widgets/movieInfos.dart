@@ -24,7 +24,7 @@ class _MovieInfosState extends State<MovieInfos> {
   @override
   void initState() {
     super.initState();
-    movieDetailBloc..getMovieDetail(projection.movie.id);
+    //movieDetailBloc..getMovieDetail(projection.movie.id);
   }
 
   _MovieInfosState(this.projection, this.heroId);
@@ -101,7 +101,30 @@ class _MovieInfosState extends State<MovieInfos> {
           ),
         ),
         SizedBox(height: 5),
-        MovieCast(movie: projection.movie),
+        projection.movie.isShow
+            ? Container(
+                width: MediaQuery.of(context).size.width,
+                height: 130,
+                child: ListView.separated(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 10,
+                  separatorBuilder: (context, index) => SizedBox(width: 5),
+                  itemBuilder: (context, index) {
+                    return Container(
+                      height: 120,
+                      width: 80,
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        color: Colors.white38,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Icon(Icons.person),
+                    );
+                  },
+                ),
+              )
+            : MovieCast(movie: projection.movie),
         SizedBox(height: 10),
         SizedBox(height: 10),
         Padding(
