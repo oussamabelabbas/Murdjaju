@@ -11,10 +11,11 @@ class CurrentWeekBloc {
   final BehaviorSubject<Week> _subjectReserve = BehaviorSubject<Week>();
 
   Future filterCurrentWeek(String id, String cineWhat, List<int> genresIdList, List<String> sallesIdList) async {
-    _subject.sink.add(Week(_subject.value.id, _subject.value.startDate, _subject.value.numberOfDays, _subject.value.projections, "Loading..."));
-
+    _subject.sink.add(Week(_subject.value.id, _subject.value.startDate, 1, _subject.value.projections, "Loading..."));
+    await Future.delayed(Duration(milliseconds: 500));
     Week response;
     if (_subject.value.id != id) {
+      print("Yes, ah no .");
       response = await _repository.getCurrentWeek(id);
       _subjectReserve.sink.add(response);
     } else
@@ -25,6 +26,8 @@ class CurrentWeekBloc {
           (proj) => (cineWhat == null || proj.cine == cineWhat) && (genresIdList.isEmpty || proj.movie.genres.map<int>((e) => e.id).toList().where((element) => genresIdList.contains(element)).isNotEmpty) && (sallesIdList.isEmpty || sallesIdList.indexWhere((element) => proj.salle.id == element) != -1),
         )
         .toList();
+    print("Yes, ah no .");
+
     response = Week(response.id, response.startDate, response.numberOfDays, projections, response.error);
     _subject.sink.add(response);
   }

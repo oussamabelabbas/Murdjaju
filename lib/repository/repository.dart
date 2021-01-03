@@ -49,8 +49,9 @@ class MovieRepository {
       DocumentSnapshot week;
 
       if (id != null) {
-        weeksQuery = await FirebaseFirestore.instance.collection('Weeks').where("id", isEqualTo: id.toString()).get();
-        week = weeksQuery.docs.first;
+        //weeksQuery =
+        week = await FirebaseFirestore.instance.collection('Weeks').doc(id.toString()).get();
+        //weeksQuery.docs.first;
 
         query = await week.reference.collection("Projections").orderBy("date").get();
         projections = query.docs;

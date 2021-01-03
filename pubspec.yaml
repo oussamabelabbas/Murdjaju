@@ -43,6 +43,7 @@ dependencies:
   font_awesome_flutter: ^8.10.0
   google_fonts: ^1.1.1
   google_sign_in: ^4.5.5
+  highlighter_coachmark: ^0.0.3
   http: ^0.12.2
   intl: ^0.16.1
   intl_phone_field: ^1.4.2

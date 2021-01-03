@@ -1,6 +1,9 @@
 //import 'package:cloud_functions/cloud_functions.dart';
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 import 'package:http/http.dart';
 import 'package:murdjaju/authentication/auth.dart';
 import 'package:murdjaju/bloc/current_week_bloc.dart';
@@ -60,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
 
 // The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-    await OneSignal.shared.promptUserForPushNotificationPermission(fallbackToSettings: true);
+    //  await OneSignal.shared.promptUserForPushNotificationPermission(fallbackToSettings: true);
 
     OneSignal.shared.setNotificationReceivedHandler((OSNotification notification) async {
       // will be called whenever a notification is received
@@ -94,11 +97,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       // (ie. OneSignal.setEmail(email) is called and the user gets registered
     });
     var status = await OneSignal.shared.getPermissionSubscriptionState();
-    await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").update(
-      {
-        "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
-      },
-    );
+    DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").get();
+    if (!doc["Ids"].contains(status.subscriptionStatus.userId)) {
+      showCoachMarkFAB();
+
+      doc.reference.update(
+        {
+          "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
+        },
+      );
+    }
   }
 
   @override
@@ -117,6 +125,89 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void getSallesAndGenres() async {}
+
+  GlobalKey _fabKey = GlobalObjectKey("fab");
+  GlobalKey _tileKey = GlobalObjectKey("tile_2");
+  GlobalKey _middleKey = GlobalObjectKey("middle");
+
+  void showCoachMarkFAB() {
+    CoachMark coachMarkFAB = CoachMark();
+    RenderBox target = _fabKey.currentContext.findRenderObject();
+
+    Rect markRect = target.localToGlobal(Offset.zero) & target.size;
+    markRect = Rect.fromCircle(center: markRect.center, radius: markRect.longestSide * 0.6);
+
+    coachMarkFAB.show(
+        targetContext: _fabKey.currentContext,
+        markRect: markRect,
+        children: [
+          Center(
+              child: Text("Tap on button\nto add a friend",
+                  style: const TextStyle(
+                    fontSize: 24.0,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white,
+                  )))
+        ],
+        duration: null,
+        onClose: () {
+          showCoachMarkTile();
+        });
+  }
+
+  //And here is example of CoachMark usage.
+  //One more example you can see in FriendDetailsPage - showCoachMarkBadges()
+  void showCoachMarkTile() {
+    CoachMark coachMarkTile = CoachMark();
+    RenderBox target = _tileKey.currentContext.findRenderObject();
+
+    Rect markRect = target.localToGlobal(Offset.zero) & target.size;
+    markRect = markRect.inflate(5.0);
+
+    coachMarkTile.show(
+      targetContext: _fabKey.currentContext,
+      markRect: markRect,
+      markShape: BoxShape.rectangle,
+      children: [
+        Positioned(
+            top: markRect.bottom + 15.0,
+            right: 5.0,
+            child: Text("Tap on friend to see details",
+                style: const TextStyle(
+                  fontSize: 24.0,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.white,
+                )))
+      ],
+    );
+  }
+
+  //And here is example of CoachMark usage.
+  //One more example you can see in FriendDetailsPage - showCoachMarkBadges()
+  void showCoachSlideUp() {
+    CoachMark coachMarkTile = CoachMark();
+    RenderBox target = _middleKey.currentContext.findRenderObject();
+
+    Rect markRect = target.localToGlobal(Offset.zero) & target.size;
+    markRect = markRect.inflate(5.0);
+
+    coachMarkTile.show(
+      targetContext: _fabKey.currentContext,
+      markRect: markRect,
+      markShape: BoxShape.rectangle,
+      children: [
+        Positioned(
+            top: markRect.bottom + 15.0,
+            right: 5.0,
+            child: Text("Tap on friend to see details",
+                style: const TextStyle(
+                  fontSize: 24.0,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.white,
+                )))
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +239,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ), */
         ),
         leading: IconButton(
+          key: _tileKey,
           icon: Icon(MdiIcons.account, color: Colors.white),
           onPressed: () async {
             Navigator.push(
@@ -160,29 +252,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         actions: [
           IconButton(
+            key: _fabKey,
             icon: Icon(Icons.add_alert),
-            onPressed: () async {
-              DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Movies").doc('titre').get();
-              Movie movie = Movie.fromSnap(doc);
-              print(movie.toString());
-              await FirebaseFirestore.instance.collection("Weeks").doc("PSpDMPwJ98vki95abNnh").collection("Projections").add(
-                {
-                  "date": DateTime.now(),
-                  "cine": "Kids",
-                  "forbiddenPlaces": [],
-                  "genres": [],
-                  "isShow": true,
-                  "movieBackDropPath": movie.backPoster,
-                  "movieId": "titre",
-                  "movieOverview": movie.overview,
-                  "moviePosterPath": movie.poster,
-                  "movieTitle": movie.title,
-                  "places": [],
-                  "prixTicket": 200,
-                  "salleId": "salle_Q",
-                },
-              );
-            },
+            onPressed: () async {},
           ),
           IconButton(
             icon: Icon(MdiIcons.filterOutline, color: Colors.white),

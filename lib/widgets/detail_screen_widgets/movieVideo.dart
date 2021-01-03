@@ -44,10 +44,12 @@ class _MovieVideoState extends State<MovieVideo> {
     // TODO: implement dispose
     //movieVideosBloc..drainStream();
     super.dispose();
-    videoPlayerController.pause();
+    if (movie.isShow) {
+      videoPlayerController.pause();
 
-    videoPlayerController.initialize();
-    videoPlayerController.dispose();
+      videoPlayerController.initialize();
+      videoPlayerController.dispose();
+    }
   }
 
   @override
