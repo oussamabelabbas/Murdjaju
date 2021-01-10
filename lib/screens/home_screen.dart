@@ -99,8 +99,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     var status = await OneSignal.shared.getPermissionSubscriptionState();
     DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").get();
     if (!doc["Ids"].contains(status.subscriptionStatus.userId)) {
-      showCoachMarkFAB();
-
       doc.reference.update(
         {
           "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
@@ -125,89 +123,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void getSallesAndGenres() async {}
-
-  GlobalKey _fabKey = GlobalObjectKey("fab");
-  GlobalKey _tileKey = GlobalObjectKey("tile_2");
-  GlobalKey _middleKey = GlobalObjectKey("middle");
-
-  void showCoachMarkFAB() {
-    CoachMark coachMarkFAB = CoachMark();
-    RenderBox target = _fabKey.currentContext.findRenderObject();
-
-    Rect markRect = target.localToGlobal(Offset.zero) & target.size;
-    markRect = Rect.fromCircle(center: markRect.center, radius: markRect.longestSide * 0.6);
-
-    coachMarkFAB.show(
-        targetContext: _fabKey.currentContext,
-        markRect: markRect,
-        children: [
-          Center(
-              child: Text("Tap on button\nto add a friend",
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.white,
-                  )))
-        ],
-        duration: null,
-        onClose: () {
-          showCoachMarkTile();
-        });
-  }
-
-  //And here is example of CoachMark usage.
-  //One more example you can see in FriendDetailsPage - showCoachMarkBadges()
-  void showCoachMarkTile() {
-    CoachMark coachMarkTile = CoachMark();
-    RenderBox target = _tileKey.currentContext.findRenderObject();
-
-    Rect markRect = target.localToGlobal(Offset.zero) & target.size;
-    markRect = markRect.inflate(5.0);
-
-    coachMarkTile.show(
-      targetContext: _fabKey.currentContext,
-      markRect: markRect,
-      markShape: BoxShape.rectangle,
-      children: [
-        Positioned(
-            top: markRect.bottom + 15.0,
-            right: 5.0,
-            child: Text("Tap on friend to see details",
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.white,
-                )))
-      ],
-    );
-  }
-
-  //And here is example of CoachMark usage.
-  //One more example you can see in FriendDetailsPage - showCoachMarkBadges()
-  void showCoachSlideUp() {
-    CoachMark coachMarkTile = CoachMark();
-    RenderBox target = _middleKey.currentContext.findRenderObject();
-
-    Rect markRect = target.localToGlobal(Offset.zero) & target.size;
-    markRect = markRect.inflate(5.0);
-
-    coachMarkTile.show(
-      targetContext: _fabKey.currentContext,
-      markRect: markRect,
-      markShape: BoxShape.rectangle,
-      children: [
-        Positioned(
-            top: markRect.bottom + 15.0,
-            right: 5.0,
-            child: Text("Tap on friend to see details",
-                style: const TextStyle(
-                  fontSize: 24.0,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.white,
-                )))
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +154,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ), */
         ),
         leading: IconButton(
-          key: _tileKey,
           icon: Icon(MdiIcons.account, color: Colors.white),
           onPressed: () async {
             Navigator.push(

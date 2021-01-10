@@ -29,6 +29,8 @@ import 'screens/fillData_screen.dart';
 import 'screens/welcome_screen.dart';
 
 void main() async {
+  SystemUiOverlayStyle mySystemTheme = SystemUiOverlayStyle.dark.copyWith(systemNavigationBarColor: Style.Colors.mainColor);
+  SystemChrome.setSystemUIOverlayStyle(mySystemTheme);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -38,8 +40,7 @@ void main() async {
       create: (_) => UserAuth(
         FirebaseAuth.instance.currentUser,
         FirebaseAuth.instance.currentUser != null,
-        FirebaseAuth.instance.currentUser != null &&
-            FirebaseAuth.instance.currentUser.displayName != null,
+        FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser.displayName != null,
       ),
       child: MyApp(),
     ),
@@ -79,8 +80,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   double get _screenHeight => MediaQuery.of(context).size.height;
   double get _screenWidth => MediaQuery.of(context).size.width;
 
@@ -140,13 +140,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   TMDB tmdbWithCustomLogs;
 
-  List<String> _titles = [
-    "Home",
-    "Weekly program",
-    "Book a place",
-    "Coming soon",
-    "Profile"
-  ];
+  List<String> _titles = ["Home", "Weekly program", "Book a place", "Coming soon", "Profile"];
 
   TextEditingController _textController = TextEditingController();
   bool _appIsLoading;
@@ -192,8 +186,7 @@ class _MyHomePageState extends State<MyHomePage>
         builder: (context) {
           return AlertDialog(
             title: Text('onMessage'),
-            content: Text(_message['notification']['title'] +
-                _message['notification']['body']),
+            content: Text(_message['notification']['title'] + _message['notification']['body']),
             actions: [
               FlatButton(
                 child: Text('khra'),
@@ -218,8 +211,7 @@ class _MyHomePageState extends State<MyHomePage>
           alignment: Alignment.center,
           placeholder: AssetImage('assets/Netflix_Symbol_RGB.png'),
           // size: 1.87KB
-          thumbnail: NetworkImage('http://image.tmdb.org/t/p/w92/' +
-              data.docs[index]['poster_path']),
+          thumbnail: NetworkImage('http://image.tmdb.org/t/p/w92/' + data.docs[index]['poster_path']),
           // size: 1.29MB
           image: NetworkImage(
             'http://image.tmdb.org/t/p/w780/' + data.docs[index]['poster_path'],
@@ -271,8 +263,7 @@ class _MyHomePageState extends State<MyHomePage>
                   setState(() {});
                   _swiperController.move(0);
                 },
-                indicator:
-                    CircleTabIndicator(color: Palette.darkRed, radius: 2),
+                indicator: CircleTabIndicator(color: Palette.darkRed, radius: 2),
                 unselectedLabelStyle: TextStyle(
                   color: Palette.white,
                   fontWeight: FontWeight.normal,
@@ -303,10 +294,7 @@ class _MyHomePageState extends State<MyHomePage>
                   children: List.generate(
                     3,
                     (index) => StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection('MoviesData')
-                          .where("cineType", isEqualTo: _cineType[index])
-                          .snapshots(),
+                      stream: FirebaseFirestore.instance.collection('MoviesData').where("cineType", isEqualTo: _cineType[index]).snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.data == null)
                           return LinearProgressIndicator(
@@ -316,10 +304,7 @@ class _MyHomePageState extends State<MyHomePage>
                             ),
                           );
 
-                        if (snapshot.data.documents.length < 5)
-                          return Center(
-                              child: Text(
-                                  snapshot.data.documents.length.toString()));
+                        if (snapshot.data.documents.length < 5) return Center(child: Text(snapshot.data.documents.length.toString()));
 
                         return Column(
                           children: [
@@ -347,13 +332,9 @@ class _MyHomePageState extends State<MyHomePage>
                                         MaterialPageRoute(
                                           builder: (context) {
                                             return MovieHome(
-                                              movie: snapshot
-                                                  .data.documents[index],
+                                              movie: snapshot.data.documents[index],
                                               poster: Image.network(
-                                                'http://image.tmdb.org/t/p/w780/' +
-                                                    snapshot.data
-                                                            .documents[index]
-                                                        ['poster_path'],
+                                                'http://image.tmdb.org/t/p/w780/' + snapshot.data.documents[index]['poster_path'],
                                               ),
                                             );
                                           },
@@ -367,23 +348,16 @@ class _MyHomePageState extends State<MyHomePage>
                                       ),
                                       clipBehavior: Clip.antiAlias,
                                       child: Hero(
-                                        tag:
-                                            'Poster${snapshot.data.documents[index]['id']}',
+                                        tag: 'Poster${snapshot.data.documents[index]['id']}',
                                         child: ProgressiveImage(
                                           blur: 10,
                                           alignment: Alignment.center,
-                                          placeholder: AssetImage(
-                                              'assets/Netflix_Symbol_RGB.png'),
+                                          placeholder: AssetImage('assets/Netflix_Symbol_RGB.png'),
                                           // size: 1.87KB
-                                          thumbnail: NetworkImage(
-                                              'http://image.tmdb.org/t/p/w92/' +
-                                                  snapshot.data.documents[index]
-                                                      ['poster_path']),
+                                          thumbnail: NetworkImage('http://image.tmdb.org/t/p/w92/' + snapshot.data.documents[index]['poster_path']),
                                           // size: 1.29MB
                                           image: NetworkImage(
-                                            'http://image.tmdb.org/t/p/w780/' +
-                                                snapshot.data.documents[index]
-                                                    ['poster_path'],
+                                            'http://image.tmdb.org/t/p/w780/' + snapshot.data.documents[index]['poster_path'],
                                           ),
                                           height: _screenHeight * .6,
                                           width: _screenWidth * .67,
@@ -402,68 +376,46 @@ class _MyHomePageState extends State<MyHomePage>
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Hero(
-                                      tag:
-                                          'title${snapshot.data.documents[_swiperIndex]['id']}',
+                                      tag: 'title${snapshot.data.documents[_swiperIndex]['id']}',
                                       child: AnimatedSwitcher(
                                         switchInCurve: Curves.easeOutExpo,
                                         duration: Duration(milliseconds: 300),
-                                        transitionBuilder: (Widget child,
-                                            Animation<double> animation) {
+                                        transitionBuilder: (Widget child, Animation<double> animation) {
                                           return SlideTransition(
                                             child: child,
-                                            position: Tween<Offset>(
-                                                    begin: Offset(
-                                                        -_screenWidth, -0.0),
-                                                    end: Offset(0.0, 0.0))
-                                                .animate(animation),
+                                            position: Tween<Offset>(begin: Offset(-_screenWidth, -0.0), end: Offset(0.0, 0.0)).animate(animation),
                                           );
                                         },
                                         child: Text(
-                                          snapshot.data.documents[_swiperIndex]
-                                              ['title'],
+                                          snapshot.data.documents[_swiperIndex]['title'],
                                           maxLines: 1,
                                           textAlign: TextAlign.center,
                                           overflow: TextOverflow.ellipsis,
                                           key: ValueKey<String>(
-                                            snapshot.data
-                                                    .documents[_swiperIndex]
-                                                ['title'],
+                                            snapshot.data.documents[_swiperIndex]['title'],
                                           ),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headline4
-                                              .copyWith(color: Palette.black),
+                                          style: Theme.of(context).textTheme.headline4.copyWith(color: Palette.black),
                                         ),
                                       ),
                                     ),
                                     AnimatedSwitcher(
                                       switchInCurve: Curves.easeOutExpo,
                                       duration: Duration(milliseconds: 500),
-                                      transitionBuilder: (Widget child,
-                                          Animation<double> animation) {
+                                      transitionBuilder: (Widget child, Animation<double> animation) {
                                         return SlideTransition(
                                           child: child,
-                                          position: Tween<Offset>(
-                                                  begin: Offset(
-                                                      _screenWidth, -0.0),
-                                                  end: Offset(0.0, 0.0))
-                                              .animate(animation),
+                                          position: Tween<Offset>(begin: Offset(_screenWidth, -0.0), end: Offset(0.0, 0.0)).animate(animation),
                                         );
                                       },
                                       child: Text(
-                                        snapshot.data.documents[_swiperIndex]
-                                            ['overview'],
+                                        snapshot.data.documents[_swiperIndex]['overview'],
                                         maxLines: 3,
                                         textAlign: TextAlign.center,
                                         overflow: TextOverflow.ellipsis,
                                         key: ValueKey<String>(
-                                          snapshot.data.documents[_swiperIndex]
-                                              ['overview'],
+                                          snapshot.data.documents[_swiperIndex]['overview'],
                                         ),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1
-                                            .copyWith(color: Palette.black),
+                                        style: Theme.of(context).textTheme.bodyText1.copyWith(color: Palette.black),
                                       ),
                                     ),
                                   ],
@@ -500,10 +452,7 @@ class _MyHomePageState extends State<MyHomePage>
         ],
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('MoviesData')
-            .where("cineType", isEqualTo: _cineType[_tabController.index])
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('MoviesData').where("cineType", isEqualTo: _cineType[_tabController.index]).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.data == null)
             return LinearProgressIndicator(
@@ -513,9 +462,7 @@ class _MyHomePageState extends State<MyHomePage>
               ),
             );
 
-          if (snapshot.data.documents.length < 5)
-            return Center(
-                child: Text(snapshot.data.documents.length.toString()));
+          if (snapshot.data.documents.length < 5) return Center(child: Text(snapshot.data.documents.length.toString()));
 
           return Container(
             height: _screenHeight,
@@ -538,8 +485,7 @@ class _MyHomePageState extends State<MyHomePage>
                       _swiperController.move(0);
                       setState(() {});
                     },
-                    indicator:
-                        CircleTabIndicator(color: Palette.darkRed, radius: 2),
+                    indicator: CircleTabIndicator(color: Palette.darkRed, radius: 2),
                     unselectedLabelStyle: TextStyle(
                       color: Palette.white,
                       fontWeight: FontWeight.normal,
@@ -593,9 +539,7 @@ class _MyHomePageState extends State<MyHomePage>
                                         return MovieHome(
                                           movie: snapshot.data.documents[index],
                                           poster: Image.network(
-                                            'http://image.tmdb.org/t/p/w780/' +
-                                                snapshot.data.documents[index]
-                                                    ['poster_path'],
+                                            'http://image.tmdb.org/t/p/w780/' + snapshot.data.documents[index]['poster_path'],
                                           ),
                                         );
                                       },
@@ -609,23 +553,16 @@ class _MyHomePageState extends State<MyHomePage>
                                   ),
                                   clipBehavior: Clip.antiAlias,
                                   child: Hero(
-                                    tag:
-                                        'Poster${snapshot.data.documents[index]['id']}',
+                                    tag: 'Poster${snapshot.data.documents[index]['id']}',
                                     child: ProgressiveImage(
                                       blur: 10,
                                       alignment: Alignment.center,
-                                      placeholder: AssetImage(
-                                          'assets/Netflix_Symbol_RGB.png'),
+                                      placeholder: AssetImage('assets/Netflix_Symbol_RGB.png'),
                                       // size: 1.87KB
-                                      thumbnail: NetworkImage(
-                                          'http://image.tmdb.org/t/p/w92/' +
-                                              snapshot.data.documents[index]
-                                                  ['poster_path']),
+                                      thumbnail: NetworkImage('http://image.tmdb.org/t/p/w92/' + snapshot.data.documents[index]['poster_path']),
                                       // size: 1.29MB
                                       image: NetworkImage(
-                                        'http://image.tmdb.org/t/p/w780/' +
-                                            snapshot.data.documents[index]
-                                                ['poster_path'],
+                                        'http://image.tmdb.org/t/p/w780/' + snapshot.data.documents[index]['poster_path'],
                                       ),
                                       height: _screenHeight * .6,
                                       width: _screenWidth * .67,
@@ -644,66 +581,46 @@ class _MyHomePageState extends State<MyHomePage>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Hero(
-                                  tag:
-                                      'title${snapshot.data.documents[_swiperIndex]['id']}',
+                                  tag: 'title${snapshot.data.documents[_swiperIndex]['id']}',
                                   child: AnimatedSwitcher(
                                     switchInCurve: Curves.easeOutExpo,
                                     duration: Duration(milliseconds: 300),
-                                    transitionBuilder: (Widget child,
-                                        Animation<double> animation) {
+                                    transitionBuilder: (Widget child, Animation<double> animation) {
                                       return SlideTransition(
                                         child: child,
-                                        position: Tween<Offset>(
-                                                begin:
-                                                    Offset(-_screenWidth, -0.0),
-                                                end: Offset(0.0, 0.0))
-                                            .animate(animation),
+                                        position: Tween<Offset>(begin: Offset(-_screenWidth, -0.0), end: Offset(0.0, 0.0)).animate(animation),
                                       );
                                     },
                                     child: Text(
-                                      snapshot.data.documents[_swiperIndex]
-                                          ['title'],
+                                      snapshot.data.documents[_swiperIndex]['title'],
                                       maxLines: 1,
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                       key: ValueKey<String>(
-                                        snapshot.data.documents[_swiperIndex]
-                                            ['title'],
+                                        snapshot.data.documents[_swiperIndex]['title'],
                                       ),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline4
-                                          .copyWith(color: Palette.black),
+                                      style: Theme.of(context).textTheme.headline4.copyWith(color: Palette.black),
                                     ),
                                   ),
                                 ),
                                 AnimatedSwitcher(
                                   switchInCurve: Curves.easeOutExpo,
                                   duration: Duration(milliseconds: 500),
-                                  transitionBuilder: (Widget child,
-                                      Animation<double> animation) {
+                                  transitionBuilder: (Widget child, Animation<double> animation) {
                                     return SlideTransition(
                                       child: child,
-                                      position: Tween<Offset>(
-                                              begin: Offset(_screenWidth, -0.0),
-                                              end: Offset(0.0, 0.0))
-                                          .animate(animation),
+                                      position: Tween<Offset>(begin: Offset(_screenWidth, -0.0), end: Offset(0.0, 0.0)).animate(animation),
                                     );
                                   },
                                   child: Text(
-                                    snapshot.data.documents[_swiperIndex]
-                                        ['overview'],
+                                    snapshot.data.documents[_swiperIndex]['overview'],
                                     maxLines: 3,
                                     textAlign: TextAlign.center,
                                     overflow: TextOverflow.ellipsis,
                                     key: ValueKey<String>(
-                                      snapshot.data.documents[_swiperIndex]
-                                          ['overview'],
+                                      snapshot.data.documents[_swiperIndex]['overview'],
                                     ),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyText1
-                                        .copyWith(color: Palette.black),
+                                    style: Theme.of(context).textTheme.bodyText1.copyWith(color: Palette.black),
                                   ),
                                 ),
                               ],
@@ -825,8 +742,7 @@ class _MyHomePageState extends State<MyHomePage>
 class CircleTabIndicator extends Decoration {
   final BoxPainter _painter;
 
-  CircleTabIndicator({@required Color color, @required double radius})
-      : _painter = _CirclePainter(color, radius);
+  CircleTabIndicator({@required Color color, @required double radius}) : _painter = _CirclePainter(color, radius);
 
   @override
   BoxPainter createBoxPainter([onChanged]) => _painter;
@@ -843,8 +759,7 @@ class _CirclePainter extends BoxPainter {
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration cfg) {
-    final Offset circleOffset =
-        offset + Offset(cfg.size.width / 2, cfg.size.height - radius);
+    final Offset circleOffset = offset + Offset(cfg.size.width / 2, cfg.size.height - radius);
     canvas.drawCircle(circleOffset, radius, _paint);
   }
 }
