@@ -55,7 +55,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
          manifestPlaceholders = [
-             onesignal_app_id: 'a1de0aa0-fb19-466a-9986-37ff14e1491e',
+             onesignal_app_id: '2c44c278-0038-4e05-a26b-3d17c6562f22',
             // Project number pulled from dashboard, local value is ignored.
             onesignal_google_project_number: 'REMOTE'
         ]

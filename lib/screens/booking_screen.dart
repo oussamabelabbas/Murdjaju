@@ -11,7 +11,7 @@ import 'package:murdjaju/model/reservation.dart';
 import 'package:murdjaju/model/reservations_response.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:qrscan/qrscan.dart' as scanner;
+//import 'package:qrscan/qrscan.dart' as scanner;
 
 class BookingScreen extends StatefulWidget {
   final Projection projection;

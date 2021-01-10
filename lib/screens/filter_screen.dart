@@ -71,9 +71,9 @@ class _FilterScreenState extends State<FilterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () {
+      /*  floatingActionButton: FloatingActionButton(onPressed: () {
         print(genresFilterList.toString());
-      }),
+      }), */
       backgroundColor: Style.Colors.mainColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,

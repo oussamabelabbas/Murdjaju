@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
 
     await OneSignal.shared.init(
-      "a1de0aa0-fb19-466a-9986-37ff14e1491e",
+      "2c44c278-0038-4e05-a26b-3d17c6562f22",
       iOSSettings: {OSiOSSettings.autoPrompt: false, OSiOSSettings.inAppLaunchUrl: false},
     );
     await OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     OneSignal.shared.setNotificationReceivedHandler((OSNotification notification) async {
       // will be called whenever a notification is received
-      showBottomSheet(
+      /*  showBottomSheet(
         context: context,
         builder: (context) {
           return Container(
@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Text(notification.toString()),
           ));
         },
-      );
+      ); */
     });
 
     OneSignal.shared.setNotificationOpenedHandler((OSNotificationOpenedResult result) {
@@ -251,11 +251,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         ),
         actions: [
-          IconButton(
+          /*  IconButton(
             key: _fabKey,
             icon: Icon(Icons.add_alert),
             onPressed: () async {},
-          ),
+          ), */
           IconButton(
             icon: Icon(MdiIcons.filterOutline, color: Colors.white),
             onPressed: () async {
