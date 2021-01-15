@@ -46,7 +46,6 @@ dependencies:
   highlighter_coachmark: ^0.0.3
   http: ^0.12.2
   intl: ^0.16.1
-  intl_phone_field: ^1.4.2
   material_design_icons_flutter: ^4.0.5755
   onesignal_flutter: ^2.6.2
   outline_material_icons: ^0.1.1

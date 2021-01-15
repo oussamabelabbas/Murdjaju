@@ -156,6 +156,14 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
             ),
           ),
+          MaterialButton(
+            color: Colors.red,
+            child: Text('Déconnexion'),
+            onPressed: () async {
+              await auth.logout();
+              Navigator.pop(context);
+            },
+          ),
         ],
       ),
       /* SingleChildScrollView(

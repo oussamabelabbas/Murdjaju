@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:intl_phone_field/phone_number.dart';
 import 'package:murdjaju/authentication/auth.dart';
 import 'package:murdjaju/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,7 +36,7 @@ class _FillDataScreenState extends State<FillDataScreen> {
   bool _passwordValide = true;
   String signInError;
 
-  PhoneNumber _phoneNumber;
+  String _phoneNumber;
 
   String errorText;
 
@@ -149,13 +148,13 @@ class _FillDataScreenState extends State<FillDataScreen> {
                 final auth = Provider.of<UserAuth>(context, listen: false);
                 await auth.updateUser(
                   _nameController.text,
-                  _phoneNumber.completeNumber,
+                  _phoneNumber,
                 );
                 await FirebaseFirestore.instance.collection("Users").doc(auth.user.uid).set(
                   {
                     "name": _nameController.text,
                     "mailAdress": auth.user.email,
-                    "phoneNumber": _phoneNumber.completeNumber,
+                    "phoneNumber": _phoneNumber,
                   },
                 );
                 await Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
@@ -215,29 +214,25 @@ class _FillDataScreenState extends State<FillDataScreen> {
                   onChanged: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
                 ),
                 SizedBox(height: 20),
-                IntlPhoneField(
+                TextFormField(
                   focusNode: _phoneFocusNode,
                   controller: _phoneController,
                   textAlign: TextAlign.center,
-                  dropDownArrowColor: Colors.black,
-                  initialCountryCode: 'DZ',
                   keyboardType: TextInputType.phone,
-                  autoValidate: true,
                   onChanged: (phone) {
                     _phoneNumber = phone;
-                    if (phone.number.isEmpty)
+                    if (phone.isEmpty)
                       errorText = "Empty !";
-                    else if (phone.number.startsWith("0"))
+                    else if (phone.startsWith("0"))
                       errorText = "Please remove 0 from the start !";
-                    else if (phone.number.length < 9)
+                    else if (phone.length < 9)
                       errorText = "To short !";
                     else
                       errorText = null;
 
-                    print(phone.completeNumber);
+                    print(phone);
                     setState(() {});
                   },
-                  showDropdownIcon: false,
                   validator: (value) {
                     if (value.isEmpty) {
                       print("Error!");

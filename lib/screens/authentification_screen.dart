@@ -26,7 +26,7 @@ class _AuthentificationScreenState extends State<AuthentificationScreen> with Si
       vsync: this,
     );
     formVisible = false;
-    _formsIndex = 1;
+    _formsIndex = 0;
   }
 
   @override
