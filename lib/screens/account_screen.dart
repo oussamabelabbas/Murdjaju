@@ -152,7 +152,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                 ),
                 autocorrect: false,
-                onChanged: (value) => validateName(value),
+                onChanged: (text) => validateName(text),
               ),
             ),
           ),
