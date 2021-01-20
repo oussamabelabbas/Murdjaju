@@ -47,6 +47,7 @@ class UserAuth with ChangeNotifier {
     await FirebaseFirestore.instance.collection("Users").doc(_user.uid).update(
       {
         "phoneNumber": phoneNumber,
+        "name": displayName,
         if (mailAdress != null && mailAdress != _user.email) "mailAdress": mailAdress,
       },
     );

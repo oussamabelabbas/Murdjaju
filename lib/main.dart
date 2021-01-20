@@ -23,7 +23,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await FirebaseAuth.instance.signOut();
   DocumentSnapshot snap;
   if (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser.phoneNumber == null) snap = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser.uid).get();
   runApp(
