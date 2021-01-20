@@ -14,7 +14,14 @@ class UserAuth with ChangeNotifier {
   bool get loggedIn => _loggedIn;
   bool get haveData => _haveData;
   User get user => _user;
-  String get phoneNumber => _phoneNumber;
+  String get phoneNumber => _user.phoneNumber != null ? _user.phoneNumber : _phoneNumber;
+
+  Future<void> verifyPhoneNumber(PhoneAuthCredential credential) async {
+    await FirebaseAuth.instance.currentUser.updatePhoneNumber(credential);
+    _user = FirebaseAuth.instance.currentUser;
+    notifyListeners();
+    print(_loggedIn.toString() + "===>");
+  }
 
   Future<void> signInWithCredential(PhoneAuthCredential credential) async {
     UserCredential uc = await _auth.signInWithCredential(credential);
@@ -62,6 +69,14 @@ class UserAuth with ChangeNotifier {
 
   Future<void> signupWithMailAndPassword(String userEmail, String userPassword) async {
     UserCredential uc = await _auth.createUserWithEmailAndPassword(email: userEmail, password: userPassword);
+    await FirebaseFirestore.instance.collection("Users").doc(uc.user.uid).set(
+      {
+        "phoneNumber": "",
+        "mailAdress": userEmail,
+        "name": "",
+      },
+    );
+
     _user = uc.user;
     _loggedIn = true;
     _haveData = uc.user.displayName != null;

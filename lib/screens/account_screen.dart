@@ -43,7 +43,7 @@ class _AccountScreenState extends State<AccountScreen> {
     resetFields();
   }
 
-  Void resetFields() {
+  void resetFields() {
     _nameFieldTextController = TextEditingController(text: auth.user.displayName);
     _mailFieldTextController = TextEditingController(text: auth.user.email);
     _phoneNumberFieldTextController = TextEditingController(text: auth.phoneNumber.substring(auth.phoneNumber.length - 9));
@@ -92,6 +92,7 @@ class _AccountScreenState extends State<AccountScreen> {
     return Scaffold(
       backgroundColor: Style.Colors.mainColor,
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Style.Colors.mainColor,
         leading: IconButton(
           onPressed: () {

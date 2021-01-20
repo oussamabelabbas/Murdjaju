@@ -23,14 +23,20 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  DocumentSnapshot snap = FirebaseAuth.instance.currentUser != null ? await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser.uid).get() : null;
+  await FirebaseAuth.instance.signOut();
+  DocumentSnapshot snap;
+  if (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser.phoneNumber == null) snap = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser.uid).get();
   runApp(
     ChangeNotifierProvider<UserAuth>(
       create: (_) => UserAuth(
         FirebaseAuth.instance.currentUser,
         FirebaseAuth.instance.currentUser != null,
         FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser.displayName != null,
-        snap['phoneNumber'],
+        FirebaseAuth.instance.currentUser == null
+            ? null
+            : snap != null
+                ? snap['phoneNumber']
+                : FirebaseAuth.instance.currentUser.phoneNumber,
       ),
       child: MyApp(),
     ),

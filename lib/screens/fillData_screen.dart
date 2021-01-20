@@ -241,6 +241,16 @@ class _FillDataScreenState extends State<FillDataScreen> {
                     return null;
                   },
                   decoration: InputDecoration(
+                    prefixIcon: new Icon(
+                      Icons.mail,
+                      color: _phoneController.text != ''
+                          ? errorText != null
+                              ? Colors.red
+                              : Style.Colors.secondaryColor
+                          : Style.Colors.secondaryColor,
+                    ),
+                    prefixText: "+213",
+                    prefixStyle: TextStyle(color: Style.Colors.secondaryColor),
                     errorText: errorText,
                     labelText: 'Phone Number',
                     labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.white60),

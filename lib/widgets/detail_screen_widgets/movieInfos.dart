@@ -42,6 +42,21 @@ class _MovieInfosState extends State<MovieInfos> {
         Container(
           child: Center(
             child: Hero(
+              tag: projection.movie.id.toString() + projection.movie.title.toString() + heroId.toString(),
+              child: Text(
+                projection.movie.title,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        Container(
+          child: Center(
+            child: Hero(
               tag: projection.id.toString() + projection.date.toString() + heroId.toString(),
               child: Text(
                 ((DateTime.now().isAfter(
@@ -68,6 +83,33 @@ class _MovieInfosState extends State<MovieInfos> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.button.copyWith(color: Style.Colors.secondaryColor),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        Container(
+          constraints: BoxConstraints.tightFor(),
+          height: 40,
+          width: MediaQuery.of(context).size.width,
+          child: Center(
+            child: ListView.separated(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              itemCount: projection.movie.genres.length,
+              separatorBuilder: (context, index) => SizedBox(width: 10),
+              itemBuilder: (context, index) => Container(
+                padding: EdgeInsets.all(10),
+                decoration: ShapeDecoration(
+                  shape: StadiumBorder(),
+                  color: Colors.white30,
+                ),
+                child: Center(
+                  child: Text(
+                    projection.movie.genres[index].name,
+                  ),
+                ),
               ),
             ),
           ),

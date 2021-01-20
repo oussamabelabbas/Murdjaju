@@ -2,6 +2,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 import 'package:http/http.dart';

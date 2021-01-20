@@ -118,22 +118,12 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
               controller: _scrollController,
               slivers: <Widget>[
                 SliverAppBar(
-                  shape: RoundedRectangleBorder(
-                      //  borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-                      ),
                   expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
-                  backgroundColor: Style.Colors.mainColor.withOpacity(.15),
+                  backgroundColor: Style.Colors.mainColor.withOpacity(.0),
                   pinned: true,
                   shadowColor: Colors.transparent,
                   elevation: 0,
                   flexibleSpace: FlexibleSpaceBar(
-                    title: Hero(
-                      tag: projection.movie.id.toString() + projection.movie.title.toString() + heroId.toString(),
-                      child: Text(
-                        projection.movie.title,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
                     centerTitle: true,
                     background: Stack(
                       alignment: Alignment.centerLeft,
@@ -161,12 +151,20 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                       ],
                     ),
                   ),
-                  leading: IconButton(
-                    icon: const Icon(Icons.keyboard_arrow_left),
-                    tooltip: 'Retour',
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                  leadingWidth: 56 + 5.0,
+                  leading: Padding(
+                    padding: EdgeInsets.only(left: 5),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      color: Colors.white60,
+                      child: Icon(
+                        Icons.chevron_left,
+                        color: Style.Colors.mainColor,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
                 ),
                 SliverToBoxAdapter(

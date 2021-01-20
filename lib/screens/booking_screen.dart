@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:murdjaju/model/reservation.dart';
 import 'package:murdjaju/model/reservations_response.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 //import 'package:qrscan/qrscan.dart' as scanner;
 
@@ -34,6 +35,8 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
   List<String> _seats;
   int _numberOfSeats = 1;
   bool _loading = false;
+
+  TextEditingController _codeController = TextEditingController();
 
   @override
   void initState() {
@@ -170,13 +173,81 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                                 label: Text("Valider"),
                                 icon: Icon(MdiIcons.ticketConfirmation),
                                 onPressed: () async {
-                                  setState(() {
-                                    _loading = true;
-                                  });
-                                  await reservation.reference.update({"Confirmed": true});
-                                  setState(() {
-                                    _loading = false;
-                                  });
+                                  final auth = Provider.of<UserAuth>(context, listen: false);
+                                  if (auth.user.phoneNumber == null) {
+                                    print("Is Empty");
+                                    await FirebaseAuth.instance.verifyPhoneNumber(
+                                      phoneNumber: auth.phoneNumber,
+                                      timeout: Duration(seconds: 120),
+                                      verificationCompleted: (credential) async {
+                                        setState(() {
+                                          _loading = false;
+                                        });
+                                      },
+                                      verificationFailed: (FirebaseAuthException exception) {
+                                        print(exception);
+                                        setState(() {
+                                          _loading = false;
+                                        });
+                                      },
+                                      codeSent: (String verificationId, [int forceResendingToken]) {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          builder: (context) {
+                                            return StatefulBuilder(
+                                              builder: (BuildContext context, StateSetter myState) {
+                                                return Container(
+                                                  child: Column(
+                                                    children: [
+                                                      TextField(
+                                                        controller: _codeController,
+                                                        textAlign: TextAlign.center,
+                                                        decoration: InputDecoration(
+                                                          labelText: 'Code',
+                                                          labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.black),
+                                                          border: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(16),
+                                                            borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                                                          ),
+                                                          focusedBorder: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(16),
+                                                            borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      RaisedButton(
+                                                        color: Style.Colors.secondaryColor,
+                                                        textColor: Colors.black,
+                                                        elevation: 0,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(16.0),
+                                                        ),
+                                                        child: Text("Confirmer"),
+                                                        onPressed: () async {
+                                                          final code = _codeController.text.trim();
+                                                          AuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
+                                                          await auth.verifyPhoneNumber(credential);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        );
+                                      },
+                                      codeAutoRetrievalTimeout: (str) {},
+                                    );
+                                  } else {
+                                    setState(() {
+                                      _loading = true;
+                                    });
+                                    await reservation.reference.update({"Confirmed": true});
+                                    setState(() {
+                                      _loading = false;
+                                    });
+                                  }
                                   //  Navigator.pop(context);
                                 },
                               ),
