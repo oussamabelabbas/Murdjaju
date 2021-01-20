@@ -60,15 +60,6 @@ class _AuthentificationScreenState extends State<AuthentificationScreen> with Si
                               fontSize: 30.0,
                             ),
                           ),
-                          const SizedBox(height: 10.0),
-                          Text(
-                            "Welcome to the best app in the world 😂",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 18.0,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
                           Spacer(),
                           Row(
                             children: [

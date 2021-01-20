@@ -1,3 +1,4 @@
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:murdjaju/authentication/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -139,13 +140,20 @@ class _SigninFormMailState extends State<SigninFormMail> {
                   ),
                   onPressed: () async {
                     final auth = Provider.of<UserAuth>(context, listen: false);
-                    auth.signinWithMailAndPassword(_mailAdressFieldTextController.text, _passwordFieldTextController.text);
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => MyApp(),
-                      ),
-                      ModalRoute.withName('/'),
+                    auth.signinWithMailAndPassword(_mailAdressFieldTextController.text, _passwordFieldTextController.text).then(
+                      (value) {
+                        if (value.isNotEmpty) {
+                          print(value);
+                          showError(value);
+                        } else
+                          Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (_) => MyApp(),
+                            ),
+                            //ModalRoute.withName('/'),
+                          );
+                      },
                     );
                   },
                 ),
@@ -155,5 +163,22 @@ class _SigninFormMailState extends State<SigninFormMail> {
         ],
       ),
     );
+  }
+
+  void showError(String e) {
+    String error;
+    e = e.substring(e.indexOf("["), e.indexOf("]") + 1);
+
+    switch (e) {
+      case "[firebase_auth/unknown]":
+        error = "Une Case est vide.";
+        break;
+      case "[firebase_auth/user-not-found]":
+        error = "Utilisateur n'existe pas!";
+        break;
+      default:
+        error = "quelque chose s'est mal passé.";
+    }
+    Fluttertoast.showToast(msg: error);
   }
 }

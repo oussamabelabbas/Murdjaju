@@ -84,39 +84,6 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
           return Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Style.Colors.mainColor,
-            appBar: AppBar(
-              actions: [
-                if (_loading)
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
-                        strokeWidth: .5,
-                      ),
-                    ),
-                  ),
-              ],
-              centerTitle: true,
-              title: Hero(
-                tag: projection.movie.id.toString() + projection.movie.title.toString() + widget.heroId.toString(),
-                child: Text(
-                  projection.movie.title,
-                  style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
-                ),
-              ),
-              backgroundColor: Style.Colors.mainColor,
-              leading: IconButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                },
-                icon: Icon(
-                  Icons.keyboard_arrow_left,
-                  color: Style.Colors.titleColor,
-                ),
-              ),
-            ),
             floatingActionButton: _selectedSeats.isEmpty
                 ? null
                 : FadeTransition(
@@ -181,24 +148,24 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                               "Votre projection n\a pas encore etais confirmé...\nLa reservation serra supprimé automatiquement dans ${DateTime.now().difference(reservation.date.add(Duration(hours: 1))).inMinutes} Minutes.",
                             ),
                           ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton.icon(
-                              label: Text("Annuler"),
-                              icon: Icon(MdiIcons.cancel),
-                              onPressed: () async {
-                                setState(() {
-                                  _loading = true;
-                                });
-                                await reservation.reference.delete();
-                                setState(() {
-                                  _loading = false;
-                                });
-                                //Navigator.pop(context);
-                              },
-                            ),
-                            if (!reservation.confirmed)
+                        if (!reservation.confirmed)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton.icon(
+                                label: Text("Annuler"),
+                                icon: Icon(MdiIcons.cancel),
+                                onPressed: () async {
+                                  setState(() {
+                                    _loading = true;
+                                  });
+                                  await reservation.reference.delete();
+                                  setState(() {
+                                    _loading = false;
+                                  });
+                                  //Navigator.pop(context);
+                                },
+                              ),
                               TextButton.icon(
                                 label: Text("Valider"),
                                 icon: Icon(MdiIcons.ticketConfirmation),
@@ -213,8 +180,8 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                                   //  Navigator.pop(context);
                                 },
                               ),
-                          ],
-                        ),
+                            ],
+                          ),
                       ],
                     ),
                   );
@@ -239,7 +206,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                                 height: MediaQuery.of(context).size.width * 439 / 780,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Colors.transparent, Style.Colors.mainColor],
+                                    colors: [Style.Colors.mainColor, Colors.transparent, Style.Colors.mainColor],
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                   ),
@@ -323,7 +290,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                             itemCount: projection.salle.capacity,
                             gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: projection.salle.rowLength,
-                              childAspectRatio: 1.5,
+                              childAspectRatio: 1,
                               mainAxisSpacing: 2,
                               crossAxisSpacing: 2,
                             ),
@@ -339,18 +306,16 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                                   setState(() {});
                                 },
                                 child: Container(
-                                  child: Center(
+                                  /*  child: Center(
                                     child: Text(_seats[index]),
-                                  ),
+                                  ), */
                                   decoration: BoxDecoration(
                                     color: reservationsResponse.reservations.indexWhere((reservation) => reservation.placesIds.contains(_seats[index])) != -1
                                         ? Colors.white
                                         : _selectedSeats.contains(_seats[index])
                                             ? Style.Colors.secondaryColor
                                             : Style.Colors.titleColor,
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(10),
-                                    ),
+                                    shape: BoxShape.circle,
                                   ),
                                 ),
                               );

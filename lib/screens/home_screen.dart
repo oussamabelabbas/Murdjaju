@@ -98,12 +98,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
     var status = await OneSignal.shared.getPermissionSubscriptionState();
     DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").get();
-    if (!doc["Ids"].contains(status.subscriptionStatus.userId)) {
-      doc.reference.update(
+
+    if (!doc.exists) {
+      await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").set(
         {
-          "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
+          "Ids": <String>[status.subscriptionStatus.userId],
         },
       );
+    } else {
+      if (!doc["Ids"].contains(status.subscriptionStatus.userId)) {
+        doc.reference.update(
+          {
+            "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
+          },
+        );
+      }
     }
   }
 

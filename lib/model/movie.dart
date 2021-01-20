@@ -12,7 +12,7 @@ class Movie {
   final String overview;
   final List<Genre> genres;
   final bool isShow;
-  final String video;
+  final String trailer;
   //final DateTime date;
 
   Movie(
@@ -25,7 +25,7 @@ class Movie {
     this.originalTitle,
     this.genres,
     this.isShow,
-    this.video,
+    this.trailer,
 
     //  this.date,
   );
@@ -41,7 +41,7 @@ class Movie {
         //  date = DateTime.fromMillisecondsSinceEpoch(DateFormat("yyyy-MM-dd").parse(snap["release_date"]).millisecondsSinceEpoch),
         genres = (snap["genres"] as List).map((e) => new Genre.fromJson(e)).toList(),
         isShow = snap['isShow'],
-        video = snap['isShow'] ? snap['trailer'] : null;
+        trailer = snap['trailer'];
 
   Movie.fromJson(Map<String, dynamic> json)
       : id = json["id"].toString(),
@@ -54,7 +54,7 @@ class Movie {
         runtime = json["runtime"],
         genres = json["genres"] != null ? (json["genres"] as List).map((e) => new Genre.fromJson(e)).toList() : [],
         isShow = json['isShow'],
-        video = json['isShow'] ? json['trailer'] : null;
+        trailer = json['trailer'];
 
   Movie.fromProjection(DocumentSnapshot projection)
       : id = projection["movieId"].toString(),
@@ -66,7 +66,7 @@ class Movie {
         originalTitle = "",
         genres = (projection["genres"] as List).map((e) => new Genre.fromJson(e)).toList(),
         isShow = projection['isShow'],
-        video = projection['isShow'] ? projection['trailer'] : null;
+        trailer = projection['movieTrailer'];
 
   //  date = null;
 }

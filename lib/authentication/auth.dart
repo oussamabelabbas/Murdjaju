@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -6,12 +7,14 @@ class UserAuth with ChangeNotifier {
   bool _loggedIn = false;
   bool _haveData = false;
   User _user;
+  String _phoneNumber;
 
-  UserAuth(this._user, this._loggedIn, this._haveData);
+  UserAuth(this._user, this._loggedIn, this._haveData, this._phoneNumber);
 
   bool get loggedIn => _loggedIn;
   bool get haveData => _haveData;
   User get user => _user;
+  String get phoneNumber => _phoneNumber;
 
   Future<void> signInWithCredential(PhoneAuthCredential credential) async {
     UserCredential uc = await _auth.signInWithCredential(credential);
@@ -27,11 +30,22 @@ class UserAuth with ChangeNotifier {
     _user = null;
     _haveData = false;
     _loggedIn = false;
+    _phoneNumber = null;
     notifyListeners();
   }
 
-  Future<void> updateUser(String displayName, String phoneNumber) async {
-    await _user.updateProfile(displayName: displayName);
+  Future<void> updateUser(String displayName, String mailAdress, String phoneNumber) async {
+    if (mailAdress != null && mailAdress != _user.email) await _user.updateEmail(mailAdress);
+    if (displayName != null && displayName != _user.displayName) await _user.updateProfile(displayName: displayName);
+    await FirebaseFirestore.instance.collection("Users").doc(_user.uid).update(
+      {
+        "phoneNumber": phoneNumber,
+        if (mailAdress != null && mailAdress != _user.email) "mailAdress": mailAdress,
+      },
+    );
+
+    _user = FirebaseAuth.instance.currentUser;
+    _phoneNumber = phoneNumber;
 
     _haveData = true;
 
@@ -43,6 +57,7 @@ class UserAuth with ChangeNotifier {
     _user = uc.user;
     _loggedIn = true;
     notifyListeners();
+    await FirebaseFirestore.instance.collection("Users").doc(uc.user.uid).get().then((value) => _phoneNumber = value['phoneNumber']);
   }
 
   Future<void> signupWithMailAndPassword(String userEmail, String userPassword) async {
@@ -50,6 +65,7 @@ class UserAuth with ChangeNotifier {
     _user = uc.user;
     _loggedIn = true;
     _haveData = uc.user.displayName != null;
+    _phoneNumber = null;
     notifyListeners();
   }
 
@@ -57,12 +73,17 @@ class UserAuth with ChangeNotifier {
     return _auth.currentUser;
   }
 
-  Future<void> signinWithMailAndPassword(String userEmail, String userPassword) async {
-    UserCredential uc = await _auth.signInWithEmailAndPassword(email: userEmail, password: userPassword);
-    _user = uc.user;
-    _loggedIn = true;
-    _haveData = uc.user.displayName != null;
-
-    notifyListeners();
+  Future<String> signinWithMailAndPassword(String userEmail, String userPassword) async {
+    try {
+      UserCredential uc = await _auth.signInWithEmailAndPassword(email: userEmail, password: userPassword);
+      _user = uc.user;
+      _loggedIn = true;
+      _haveData = uc.user.displayName != null;
+      notifyListeners();
+      await FirebaseFirestore.instance.collection("Users").doc(uc.user.uid).get().then((value) => _phoneNumber = value['phoneNumber']);
+      return "";
+    } catch (e) {
+      return e.toString();
+    }
   }
 }

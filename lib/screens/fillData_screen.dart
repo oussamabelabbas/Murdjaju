@@ -147,6 +147,7 @@ class _FillDataScreenState extends State<FillDataScreen> {
                 final auth = Provider.of<UserAuth>(context, listen: false);
                 await auth.updateUser(
                   _nameController.text,
+                  null,
                   "+213" + _phoneNumber,
                 );
                 await FirebaseFirestore.instance.collection("Users").doc(auth.user.uid).set(

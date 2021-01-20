@@ -69,6 +69,7 @@ class MovieRepository {
           projections = query.docs;
         }
       }
+      if (projections.length == 0) return Week.withError("Aucune projection disponible.");
 
       querySalles = await FirebaseFirestore.instance.collection('Salles').get();
       salles = querySalles.docs;

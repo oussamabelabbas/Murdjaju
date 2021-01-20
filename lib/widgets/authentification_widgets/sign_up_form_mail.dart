@@ -140,12 +140,12 @@ class _SignupFormMailState extends State<SignupFormMail> {
                   onPressed: () async {
                     final auth = Provider.of<UserAuth>(context, listen: false);
                     await auth.signupWithMailAndPassword(_mailAdressFieldTextController.text, _passwordFieldTextController.text);
-                    Navigator.pushAndRemoveUntil(
+                    Navigator.pushReplacement(
                       context,
                       CupertinoPageRoute(
                         builder: (_) => MyApp(),
                       ),
-                      ModalRoute.withName('/'),
+                      //ModalRoute.withName('/'),
                     );
                   },
                 ),
