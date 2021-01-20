@@ -30,7 +30,7 @@ dependencies:
   cloud_functions: ^0.6.0+1
   cupertino_icons: ^1.0.0
   dio: ^3.0.10
-  double_back_to_close_app: ^1.2.0
+  double_back_to_close_app: ^2.0.1
   eva_icons_flutter: ^2.0.1
   firebase_auth: ^0.18.1+2
   firebase_core: ^0.5.0+1

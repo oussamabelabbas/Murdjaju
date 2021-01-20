@@ -140,7 +140,7 @@ packages:
       name: double_back_to_close_app
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "2.0.1"
   eva_icons_flutter:
     dependency: "direct main"
     description:
