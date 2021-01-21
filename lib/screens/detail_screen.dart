@@ -18,13 +18,22 @@ class MovieDetailScreen extends StatefulWidget {
   final NetworkImage thumbnail;
   final AssetImage asset;
   final int heroId;
-  MovieDetailScreen({Key key, this.projection, this.image, this.thumbnail, this.asset, this.heroId}) : super(key: key);
+  MovieDetailScreen(
+      {Key key,
+      this.projection,
+      this.image,
+      this.thumbnail,
+      this.asset,
+      this.heroId})
+      : super(key: key);
 
   @override
-  _MovieDetailScreenState createState() => _MovieDetailScreenState(projection, heroId);
+  _MovieDetailScreenState createState() =>
+      _MovieDetailScreenState(projection, heroId);
 }
 
-class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTickerProviderStateMixin {
+class _MovieDetailScreenState extends State<MovieDetailScreen>
+    with SingleTickerProviderStateMixin {
   final Projection projection;
   final int heroId;
 
@@ -104,7 +113,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
     return YoutubePlayerBuilder(
       onExitFullScreen: () {
         // The player forces portraitUp after exiting fullscreen. This overrides the behaviour.
-        //SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       },
       onEnterFullScreen: () {
         _controller.play();
@@ -154,17 +163,26 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
             ),
           ),
           clipBehavior: Clip.antiAlias,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+          child:
+              // BackdropFilter(
+              //   filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+              //   child:
+              Container(
+            color: Style.Colors.mainColor.withOpacity(.4),
             child: Container(
-              color: Style.Colors.mainColor.withOpacity(.4),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/blur.png"),
+                  fit: BoxFit.fill,
+                ),
+              ),
               child: CustomScrollView(
                 //controller: _scrollController,
                 slivers: <Widget>[
                   SliverAppBar(
                     actions: [
                       projection.date.isBefore(DateTime.now())
-                          ? null
+                          ? SizedBox()
                           : /* FadeTransition(
                 opacity: _hideFabAnimController,
                 child: ScaleTransition(
@@ -172,14 +190,18 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                   child: */
                           FloatingActionButton(
                               backgroundColor: Style.Colors.secondaryColor,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              child: Icon(MdiIcons.ticket, color: Style.Colors.mainColor),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              child: Icon(MdiIcons.ticket,
+                                  color: Style.Colors.mainColor),
                               onPressed: () {
                                 Navigator.push(
                                   context,
                                   CupertinoPageRoute(
                                     builder: (context) {
-                                      return BookingScreen(projection: projection, heroId: heroId);
+                                      return BookingScreen(
+                                          projection: projection,
+                                          heroId: heroId);
                                     },
                                   ),
                                 );
@@ -187,7 +209,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                             ),
                       SizedBox(width: 5),
                     ],
-                    expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
+                    expandedHeight: MediaQuery.of(context).size.width * 3 / 2 -
+                        MediaQuery.of(context).padding.top,
                     backgroundColor: Style.Colors.mainColor.withOpacity(.0),
                     pinned: true,
                     shadowColor: Colors.transparent,
@@ -210,7 +233,10 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                           Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
+                                colors: [
+                                  Colors.transparent,
+                                  Style.Colors.mainColor.withOpacity(.4)
+                                ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 stops: [0, 1],
@@ -224,7 +250,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                     leading: Padding(
                       padding: EdgeInsets.only(left: 5),
                       child: RaisedButton(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
                         color: Colors.white60,
                         child: Icon(
                           Icons.chevron_left,
@@ -239,7 +266,9 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                   SliverToBoxAdapter(
                     child: Container(
                       // padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))
+                      decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(20))
                           //color: Style.Colors.mainColor.withOpacity(.75),
                           ),
                       clipBehavior: Clip.antiAlias,
