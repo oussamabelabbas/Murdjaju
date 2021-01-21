@@ -59,7 +59,6 @@ dependencies:
   video_player: ^1.0.1
   worm_indicator: ^0.2.4
   youtube_player_flutter: ^7.0.0+7
-  youtube_player_iframe: ^1.1.0
 
 dev_dependencies:
   flutter_test:

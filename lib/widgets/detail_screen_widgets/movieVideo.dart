@@ -12,8 +12,9 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class MovieVideo extends StatefulWidget {
   final Movie movie;
+  final Widget videoPlayer;
 
-  MovieVideo({Key key, this.movie}) : super(key: key);
+  MovieVideo({Key key, this.movie, this.videoPlayer}) : super(key: key);
 
   @override
   _MovieVideoState createState() => _MovieVideoState(movie);
@@ -21,147 +22,23 @@ class MovieVideo extends StatefulWidget {
 
 class _MovieVideoState extends State<MovieVideo> {
   final Movie movie;
-
+  VideoPlayerController _showVideoPlayerController;
   _MovieVideoState(this.movie);
-
-  VideoPlayerController videoPlayerController;
-  YoutubePlayerController youtubePlayerController;
-  bool videoIsPlaying = false;
-
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
-  YoutubePlayerController _controller;
-  TextEditingController _idController;
-  TextEditingController _seekToController;
-
-  bool _isPlayerReady = false;
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId: movie.trailer,
-      flags: const YoutubePlayerFlags(
-        mute: false,
-        autoPlay: false,
-        disableDragSeek: false,
-        loop: false,
-        isLive: false,
-        forceHD: false,
-        enableCaption: true,
-      ),
-    );
-  }
-
-  @override
-  void deactivate() {
-    // Pauses video while navigating to next page.
-    _controller.pause();
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    if (movie.isShow) _showVideoPlayerController = VideoPlayerController.network(movie.trailer);
   }
 
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayerBuilder(
-      onExitFullScreen: () {
-        // The player forces portraitUp after exiting fullscreen. This overrides the behaviour.
-        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-      },
-      player: YoutubePlayer(
-        controller: _controller,
-        showVideoProgressIndicator: true,
-        progressIndicatorColor: Colors.blueAccent,
-        onReady: () {
-          _isPlayerReady = true;
-        },
-        onEnded: (data) {
-          _controller.load(movie.trailer);
-        },
-      ),
-      builder: (context, player) => player,
-    );
-    /*  return YoutubePlayerBuilder(
-      player: YoutubePlayer(
-        controller: youtubePlayerController,
-      ),
-      builder: (context, player) => Column(
-        children: [
-          // some widgets
-          player,
-          //some other widgets
-        ],
-      ),
-    ); */
-
-    //if (movie.isShow)
-    /* return Stack(
-      children: [
-        Container(
-          margin: EdgeInsets.all(5),
-          width: (MediaQuery.of(context).size.width - 10),
-          height: (MediaQuery.of(context).size.width - 10) * 9 / 16,
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(
-            child: CircularProgressIndicator(
-              backgroundColor: Style.Colors.titleColor.withOpacity(.15),
-              valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
-            ),
-          ),
-        ),
-        Container(
-            margin: EdgeInsets.all(5),
-            width: (MediaQuery.of(context).size.width - 10),
-            height: (MediaQuery.of(context).size.width - 10) * 9 / 16,
-            clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: InkWell(
-              child: VideoPlayer(videoPlayerController),
-              onTap: () {
-                videoIsPlaying ? videoPlayerController.pause() : videoPlayerController.play();
-                setState(() => videoIsPlaying = !videoIsPlaying);
-              },
-            )),
-      ],
-    ); */
-    /* return StreamBuilder(
-      stream: movieVideosBloc.subject.stream,
-      builder: (context, AsyncSnapshot<VideoResponse> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.error != null && snapshot.data.error.length > 0) {
-            return _buildErrorWidget(snapshot.data);
-          }
-
-          return _buildVideoWidget(
-            snapshot.data,
-            YoutubePlayerController(
-              initialVideoId: snapshot.data.videos.first.key,
-              params: YoutubePlayerParams(
-                showFullscreenButton: true,
-                showControls: true,
-                desktopMode: true,
-                strictRelatedVideos: true,
-                showVideoAnnotations: false,
-              ),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return _buildErrorWidget(snapshot.data);
-        } else {
-          return _buildLoadingWidget();
-        }
-      },
-    ); */
+    if (movie.isShow)
+      return VideoPlayer(
+        _showVideoPlayerController,
+      );
+    return widget.videoPlayer;
   }
 
   Widget _buildVideoWidget(VideoResponse data, YoutubePlayerController controller) {

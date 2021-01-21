@@ -60,12 +60,12 @@ class _MovieCastState extends State<MovieCast> {
     List<Cast> cast = data.casts;
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: 130,
+      height: 120,
       child: ListView.separated(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
         scrollDirection: Axis.horizontal,
         itemCount: cast.length,
-        separatorBuilder: (context, index) => SizedBox(width: 5),
+        separatorBuilder: (context, index) => SizedBox(width: 10),
         itemBuilder: (context, index) {
           return Stack(
             children: [

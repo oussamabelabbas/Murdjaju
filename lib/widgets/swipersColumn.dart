@@ -10,6 +10,12 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 import 'package:progressive_image/progressive_image.dart';
 
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
+}
+
 class SwiperColumn extends StatefulWidget {
   final List<Projection> projections;
   final int heroId;
@@ -86,8 +92,8 @@ class _SwiperColumnState extends State<SwiperColumn> {
               padding: EdgeInsets.all(10),
               height: AppBar().preferredSize.height,
               child: Text(
-                DateFormat('EEEEEE d MMM y. HH:mm.', 'fr-FR').format(projections.first.date),
-                style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
+                DateFormat('EEEEEE d MMM', 'fr-FR').format(projections.first.date).capitalize(),
+                style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(height: 20),
@@ -183,30 +189,30 @@ class _SwiperColumnState extends State<SwiperColumn> {
                         Hero(
                           tag: projections[index].id.toString() + projections[index].date.toString() + index.toString(),
                           child: Text(
-                            ((DateTime.now().isAfter(
+                            (DateTime.now().isBefore(projections[index].date) ? "Aujourd'hui à " : "") +
+                                DateFormat('HH:mm ').format(projections[index].date) +
+                                (DateTime.now().isAfter(
+                                  projections[index].date.add(
+                                        Duration(minutes: projections[index].movie.runtime),
+                                      ),
+                                )
+                                    ? "(Déjà joué) "
+                                    : "") +
+                                (DateTime.now().isBefore(
                                           projections[index].date.add(
                                                 Duration(minutes: projections[index].movie.runtime),
                                               ),
-                                        )
-                                            ? "(Played) "
-                                            : "") +
-                                        (DateTime.now().isBefore(
-                                                  projections[index].date.add(
-                                                        Duration(minutes: projections[index].movie.runtime),
-                                                      ),
-                                                ) &&
-                                                DateTime.now().isAfter(projections[index].date)
-                                            ? "(Playing Now) "
-                                            : "") +
-                                        DateFormat('EEE, d MMM', 'fr-FR').format(projections[index].date) +
-                                        DateFormat(' HH:mm').format(projections[index].date) ??
-                                    "Sat 14 Nov, 17:30") +
-                                ", " +
+                                        ) &&
+                                        DateTime.now().isAfter(projections[index].date)
+                                    ? "(En train de jouer) "
+                                    : "") +
+                                //DateFormat('EEE, d MMM', 'fr-FR').format(projections[index].date) +
+                                "\n" +
                                 projections[index].salle.name,
                             textAlign: TextAlign.center,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.button.copyWith(color: Style.Colors.secondaryColor),
+                            style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.secondaryColor),
                           ),
                         ),
                         Spacer(),

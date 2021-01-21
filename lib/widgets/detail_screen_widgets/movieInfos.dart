@@ -7,11 +7,18 @@ import 'package:murdjaju/widgets/detail_screen_widgets/movieVideo.dart';
 import 'package:flutter/material.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
 
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
+}
+
 class MovieInfos extends StatefulWidget {
   final Projection projection;
   final int heroId;
+  final Widget videoPlayer;
 
-  MovieInfos({Key key, this.projection, this.heroId}) : super(key: key);
+  MovieInfos({Key key, this.projection, this.heroId, this.videoPlayer}) : super(key: key);
 
   @override
   _MovieInfosState createState() => _MovieInfosState(projection, heroId);
@@ -48,46 +55,44 @@ class _MovieInfosState extends State<MovieInfos> {
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.headline4.copyWith(color: Style.Colors.secondaryColor),
               ),
             ),
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 20),
         Container(
           child: Center(
             child: Hero(
               tag: projection.id.toString() + projection.date.toString() + heroId.toString(),
               child: Text(
-                ((DateTime.now().isAfter(
-                              projection.date.add(
-                                Duration(minutes: projection.movie.runtime),
-                              ),
-                            )
-                                ? "(Played) "
-                                : "") +
-                            (DateTime.now().isBefore(
-                                      projection.date.add(
-                                        Duration(minutes: projection.movie.runtime),
-                                      ),
-                                    ) &&
-                                    DateTime.now().isAfter(projection.date)
-                                ? "(Playing Now) "
-                                : "") +
-                            DateFormat('EEE, d MMM,').format(projection.date) +
-                            DateFormat(' HH:mm').format(projection.date) ??
-                        "Sat 14 Nov, 17:30") +
-                    ", " +
-                    projection.salle.name,
+                DateTime.now().day == projection.date.day
+                    ? "Aujourd'hui à ${DateFormat('HH:mm ').format(projection.date)} "
+                    : DateFormat('EEEEEE d MMM ', 'fr-FR').format(projection.date).capitalize() +
+                        (DateTime.now().isAfter(
+                          projection.date.add(
+                            Duration(minutes: projection.movie.runtime),
+                          ),
+                        )
+                            ? "(Déjà joué) "
+                            : "") +
+                        (DateTime.now().isBefore(
+                                  projection.date.add(
+                                    Duration(minutes: projection.movie.runtime),
+                                  ),
+                                ) &&
+                                DateTime.now().isAfter(projection.date)
+                            ? "(En train de jouer) "
+                            : ""), //+ projection.salle.name,
                 textAlign: TextAlign.center,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.button.copyWith(color: Style.Colors.secondaryColor),
+                style: Theme.of(context).textTheme.headline6.copyWith(color: Colors.white),
               ),
             ),
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 20),
         Container(
           constraints: BoxConstraints.tightFor(),
           height: 40,
@@ -103,7 +108,7 @@ class _MovieInfosState extends State<MovieInfos> {
                 padding: EdgeInsets.all(10),
                 decoration: ShapeDecoration(
                   shape: StadiumBorder(),
-                  color: Colors.white30,
+                  color: Style.Colors.secondaryColor.withOpacity(.3),
                 ),
                 child: Center(
                   child: Text(
@@ -114,44 +119,29 @@ class _MovieInfosState extends State<MovieInfos> {
             ),
           ),
         ),
+        SizedBox(height: 20),
+        _title("Resumé:"),
         SizedBox(height: 10),
-        Padding(
-          padding: _padding,
-          child: Text(
-            "Resumé:",
-            textAlign: TextAlign.left,
-            style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ),
         Padding(
           padding: _padding,
           child: Text(
             projection.movie.overview,
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.justify,
             style: Theme.of(context).textTheme.bodyText2.copyWith(color: Colors.white),
           ),
         ),
+        SizedBox(height: 20),
+        _title("Casting:"),
         SizedBox(height: 10),
-        Padding(
-          padding: _padding,
-          child: Text(
-            "Casting:",
-            textAlign: TextAlign.left,
-            //maxLines: 1,
-            //overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ),
-        SizedBox(height: 5),
         projection.movie.isShow
             ? Container(
                 width: MediaQuery.of(context).size.width,
-                height: 130,
+                height: 120,
                 child: ListView.separated(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                   scrollDirection: Axis.horizontal,
                   itemCount: 10,
-                  separatorBuilder: (context, index) => SizedBox(width: 5),
+                  separatorBuilder: (context, index) => SizedBox(width: 10),
                   itemBuilder: (context, index) {
                     return Container(
                       height: 120,
@@ -167,23 +157,25 @@ class _MovieInfosState extends State<MovieInfos> {
                 ),
               )
             : MovieCast(movie: projection.movie),
+        SizedBox(height: 20),
+        _title("Gallery:"),
         SizedBox(height: 10),
+        MovieImages(movie: projection.movie),
+        SizedBox(height: 20),
+        _title("Bande annonce:"),
         SizedBox(height: 10),
-        Padding(
-          padding: _padding,
-          child: Text(
-            "Bande annonce:",
-            textAlign: TextAlign.left,
-            //maxLines: 1,
-            //overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ),
-        SizedBox(height: 5),
-        MovieVideo(movie: projection.movie),
-        SizedBox(height: 10),
-        MovieImages(movie: projection.movie)
+        MovieVideo(movie: projection.movie, videoPlayer: widget.videoPlayer),
+        //SizedBox(height: 20),
       ],
     );
   }
+
+  Widget _title(String text) => Padding(
+        padding: _padding,
+        child: Text(
+          text,
+          textAlign: TextAlign.left,
+          style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+      );
 }

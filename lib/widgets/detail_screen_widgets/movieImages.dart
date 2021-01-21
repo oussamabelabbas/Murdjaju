@@ -94,31 +94,43 @@ class _MovieImagesState extends State<MovieImages> {
     // posters.shuffle();
 
     return Container(
-      color: Colors.white10,
+      //color: Colors.white10,
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width / 1.777777777777778,
+      height: MediaQuery.of(context).size.width / 1.777777777777778 * .9,
       child: Swiper(
         itemCount: backdrops.length,
+        loop: true,
+        //autoplay: true,
+        //autoplayDelay: 1,
+        scale: .95,
+        viewportFraction: .9,
         itemBuilder: (context, index) {
           //   return Text(backdrops[index].path);
-          return Image.network(
-            "https://image.tmdb.org/t/p/w780" + backdrops[index].path,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: SizedBox(
-                  height: 50,
-                  width: 50,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 1,
-                    backgroundColor: Colors.white10,
-                    valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
-                    /* value: loadingProgress.expectedTotalBytes /
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Image.network(
+              "https://image.tmdb.org/t/p/w780" + backdrops[index].path,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1,
+                      backgroundColor: Colors.white10,
+                      valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
+                      /* value: loadingProgress.expectedTotalBytes /
                         loadingProgress.expectedTotalBytes, */
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
