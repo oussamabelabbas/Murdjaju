@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         splashColor: Style.Colors.secondaryColor,
         iconTheme: IconThemeData(
           color: Colors.white,
-          opacity: .85,
+          opacity: .9,
         ),
       ),
       home: Consumer<UserAuth>(
