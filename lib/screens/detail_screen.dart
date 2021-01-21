@@ -155,83 +155,82 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
             ),
           ),
           clipBehavior: Clip.antiAlias,
-          child:
-              // BackdropFilter(
-              //   filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-              //   child:
-              BlurryContainer(
-            bgColor: Style.Colors.mainColor.withOpacity(.4),
-            padding: EdgeInsets.zero,
-            child: CustomScrollView(
-              //controller: _scrollController,
-              slivers: <Widget>[
-                SliverAppBar(
-                  expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
-                  backgroundColor: Style.Colors.mainColor.withOpacity(.0),
-                  pinned: true,
-                  shadowColor: Colors.transparent,
-                  elevation: 0,
-                  flexibleSpace: FlexibleSpaceBar(
-                    centerTitle: true,
-                    background: Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        Hero(
-                          tag: projection.movie.id + heroId.toString(),
-                          child: ProgressiveImage(
-                            placeholder: widget.asset,
-                            thumbnail: widget.thumbnail,
-                            image: widget.image,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.width * 3 / 2,
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              stops: [0, 1],
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+            child: Container(
+              color: Style.Colors.mainColor.withOpacity(.4),
+              padding: EdgeInsets.zero,
+              child: CustomScrollView(
+                //controller: _scrollController,
+                slivers: <Widget>[
+                  SliverAppBar(
+                    expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
+                    backgroundColor: Style.Colors.mainColor.withOpacity(.0),
+                    pinned: true,
+                    shadowColor: Colors.transparent,
+                    elevation: 0,
+                    flexibleSpace: FlexibleSpaceBar(
+                      centerTitle: true,
+                      background: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Hero(
+                            tag: projection.movie.id + heroId.toString(),
+                            child: ProgressiveImage(
+                              placeholder: widget.asset,
+                              thumbnail: widget.thumbnail,
+                              image: widget.image,
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.width * 3 / 2,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  leadingWidth: 56 + 5.0,
-                  leading: Padding(
-                    padding: EdgeInsets.only(left: 5),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      color: Colors.white60,
-                      child: Icon(
-                        Icons.chevron_left,
-                        color: Style.Colors.mainColor,
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [0, 1],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
                     ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    // padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))
-                        //color: Style.Colors.mainColor.withOpacity(.75),
+                    leadingWidth: 56 + 5.0,
+                    leading: Padding(
+                      padding: EdgeInsets.only(left: 5),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        color: Colors.white60,
+                        child: Icon(
+                          Icons.chevron_left,
+                          color: Style.Colors.mainColor,
                         ),
-                    clipBehavior: Clip.antiAlias,
-                    child: SingleChildScrollView(
-                      child: MovieInfos(
-                        heroId: heroId,
-                        projection: projection,
-                        videoPlayer: player,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SliverToBoxAdapter(
+                    child: Container(
+                      // padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))
+                          //color: Style.Colors.mainColor.withOpacity(.75),
+                          ),
+                      clipBehavior: Clip.antiAlias,
+                      child: SingleChildScrollView(
+                        child: MovieInfos(
+                          heroId: heroId,
+                          projection: projection,
+                          videoPlayer: player,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
