@@ -18,8 +18,7 @@ class MovieInfos extends StatefulWidget {
   final int heroId;
   final Widget videoPlayer;
 
-  MovieInfos({Key key, this.projection, this.heroId, this.videoPlayer})
-      : super(key: key);
+  MovieInfos({Key key, this.projection, this.heroId, this.videoPlayer}) : super(key: key);
 
   @override
   _MovieInfosState createState() => _MovieInfosState(projection, heroId);
@@ -37,20 +36,7 @@ class _MovieInfosState extends State<MovieInfos> {
 
   _MovieInfosState(this.projection, this.heroId);
 
-  List<String> months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'Decenmebr'
-  ];
+  List<String> months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decenmebr'];
 
   final EdgeInsets _padding = EdgeInsets.symmetric(horizontal: 10);
 
@@ -63,18 +49,13 @@ class _MovieInfosState extends State<MovieInfos> {
         Container(
           child: Center(
             child: Hero(
-              tag: projection.movie.id.toString() +
-                  projection.movie.title.toString() +
-                  heroId.toString(),
+              tag: projection.movie.id.toString() + projection.movie.title.toString() + heroId.toString(),
               child: Text(
                 projection.movie.title,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4
-                    .copyWith(color: Style.Colors.secondaryColor),
+                style: Theme.of(context).textTheme.headline4.copyWith(color: Style.Colors.secondaryColor),
               ),
             ),
           ),
@@ -83,15 +64,11 @@ class _MovieInfosState extends State<MovieInfos> {
         Container(
           child: Center(
             child: Hero(
-              tag: projection.id.toString() +
-                  projection.date.toString() +
-                  heroId.toString(),
+              tag: projection.id.toString() + projection.date.toString() + heroId.toString(),
               child: Text(
                 DateTime.now().day == projection.date.day
                     ? "Aujourd'hui à ${DateFormat('HH:mm ').format(projection.date)} "
-                    : DateFormat('EEEEEE d MMM ', 'fr-FR')
-                            .format(projection.date)
-                            .capitalize() +
+                    : DateFormat('EEEEEE d MMM ', 'fr-FR').format(projection.date).capitalize() +
                         (DateTime.now().isAfter(
                           projection.date.add(
                             Duration(minutes: projection.movie.runtime),
@@ -110,10 +87,7 @@ class _MovieInfosState extends State<MovieInfos> {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6
-                    .copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.headline6.copyWith(color: Colors.white),
               ),
             ),
           ),
@@ -153,10 +127,7 @@ class _MovieInfosState extends State<MovieInfos> {
           child: Text(
             projection.movie.overview,
             textAlign: TextAlign.justify,
-            style: Theme.of(context)
-                .textTheme
-                .bodyText2
-                .copyWith(color: Colors.white),
+            style: Theme.of(context).textTheme.bodyText2.copyWith(color: Colors.white),
           ),
         ),
         SizedBox(height: 20),
@@ -204,10 +175,7 @@ class _MovieInfosState extends State<MovieInfos> {
         child: Text(
           text,
           textAlign: TextAlign.left,
-          style: Theme.of(context)
-              .textTheme
-              .headline5
-              .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+          style: Theme.of(context).textTheme.headline5.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
         ),
       );
 }
