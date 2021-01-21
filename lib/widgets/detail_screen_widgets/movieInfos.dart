@@ -158,7 +158,7 @@ class _MovieInfosState extends State<MovieInfos> {
               )
             : MovieCast(movie: projection.movie),
         SizedBox(height: 20),
-        _title("Gallery:"),
+        _title("Gallerie:"),
         SizedBox(height: 10),
         MovieImages(movie: projection.movie),
         SizedBox(height: 20),

@@ -229,7 +229,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                         ),
                     clipBehavior: Clip.antiAlias,
                     child: SingleChildScrollView(
-                      physics: ClampingScrollPhysics(),
+                      physics: BouncingScrollPhysics(),
                       child: MovieInfos(
                         heroId: heroId,
                         projection: projection,

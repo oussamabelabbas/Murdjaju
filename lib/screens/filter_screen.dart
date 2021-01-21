@@ -95,7 +95,8 @@ class _FilterScreenState extends State<FilterScreen> {
             child: Center(
               child: Text(
                 "filtrer votre expérience",
-                style: Theme.of(context).textTheme.headline5.copyWith(
+                maxLines: 1,
+                style: Theme.of(context).textTheme.headline6.copyWith(
                       color: Style.Colors.titleColor,
                       fontWeight: FontWeight.bold,
                     ),
@@ -141,6 +142,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       ),
                       InkWell(
                         borderRadius: BorderRadius.circular(50),
+
                         //padding: EdgeInsets.zero,
                         child: Icon(
                           MdiIcons.closeCircle,
@@ -308,6 +310,7 @@ class _FilterScreenState extends State<FilterScreen> {
       separatorBuilder: (context, index) => SizedBox(width: 10),
       itemBuilder: (context, index) {
         return InkWell(
+          borderRadius: BorderRadius.circular(20),
           onTap: () {
             myWeekId == weeks[index].id ? myWeekId = null : myWeekId = weeks[index].id;
             setState(() {});
@@ -316,7 +319,7 @@ class _FilterScreenState extends State<FilterScreen> {
             padding: EdgeInsets.all(10),
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: myWeekId == weeks[index].id ? Style.Colors.secondaryColor.withOpacity(.5) : Style.Colors.titleColor,
+              color: myWeekId == weeks[index].id ? Style.Colors.secondaryColor.withOpacity(.5) : Style.Colors.titleColor.withOpacity(.5),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
@@ -347,6 +350,7 @@ class _FilterScreenState extends State<FilterScreen> {
       separatorBuilder: (context, index) => SizedBox(width: 10),
       itemBuilder: (context, index) {
         return InkWell(
+          borderRadius: BorderRadius.circular(20),
           onTap: () {
             genresFilterList.contains(genres[index % genres.length].id) ? genresFilterList.remove(genres[index % genres.length].id) : genresFilterList.add(genres[index % genres.length].id);
             setState(() {});
@@ -355,7 +359,7 @@ class _FilterScreenState extends State<FilterScreen> {
             padding: EdgeInsets.all(10),
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: genresFilterList.contains(genres[index % genres.length].id) ? Style.Colors.secondaryColor.withOpacity(.5) : Style.Colors.titleColor,
+              color: genresFilterList.contains(genres[index % genres.length].id) ? Style.Colors.secondaryColor.withOpacity(.5) : Style.Colors.titleColor.withOpacity(.5),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
