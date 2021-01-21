@@ -120,35 +120,41 @@ class _SignupFormMailState extends State<SignupFormMail> {
                   ),
                 ),
                 const SizedBox(height: 10.0),
-                RaisedButton(
-                  padding: EdgeInsets.all(2),
-                  color: Style.Colors.secondaryColor,
-                  textColor: Colors.black,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  child: Center(
-                    child: _loading
-                        ? CircularProgressIndicator(
-                            strokeWidth: .5,
-                            backgroundColor: Colors.transparent,
-                            valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
-                          )
-                        : Text("S'inscrire."),
-                  ),
-                  onPressed: () async {
-                    final auth = Provider.of<UserAuth>(context, listen: false);
-                    await auth.signupWithMailAndPassword(_mailAdressFieldTextController.text, _passwordFieldTextController.text);
-                    Navigator.pushReplacement(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => MyApp(),
+                _loading
+                    ? CircularProgressIndicator(
+                        strokeWidth: .5,
+                        backgroundColor: Colors.transparent,
+                        valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
+                      )
+                    : RaisedButton(
+                        padding: EdgeInsets.all(2),
+                        color: Style.Colors.secondaryColor,
+                        textColor: Colors.black,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        child: Center(
+                          child: Text("S'inscrire."),
+                        ),
+                        onPressed: () async {
+                          setState(() {
+                            _loading = true;
+                          });
+                          final auth = Provider.of<UserAuth>(context, listen: false);
+                          await auth.signupWithMailAndPassword(_mailAdressFieldTextController.text, _passwordFieldTextController.text);
+                          Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (_) => MyApp(),
+                            ),
+                            //ModalRoute.withName('/'),
+                          );
+                          setState(() {
+                            _loading = false;
+                          });
+                        },
                       ),
-                      //ModalRoute.withName('/'),
-                    );
-                  },
-                ),
               ],
             ),
           ),

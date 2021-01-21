@@ -144,7 +144,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                   ),
                 ),
               ),
-
         body: Stack(
           children: [
             Container(

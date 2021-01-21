@@ -40,7 +40,7 @@ class _FillDataScreenState extends State<FillDataScreen> {
   String errorText;
 
   int currentBox = 0;
-  bool _isLoading = false;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -143,22 +143,30 @@ class _FillDataScreenState extends State<FillDataScreen> {
           ? FloatingActionButton(
               child: Icon(Icons.keyboard_arrow_right),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              onPressed: () async {
-                final auth = Provider.of<UserAuth>(context, listen: false);
-                await auth.updateUser(
-                  _nameController.text,
-                  null,
-                  "+213" + _phoneNumber,
-                );
-                await FirebaseFirestore.instance.collection("Users").doc(auth.user.uid).set(
-                  {
-                    "name": _nameController.text,
-                    "mailAdress": auth.user.email,
-                    "phoneNumber": "+213" + _phoneNumber,
-                  },
-                );
-                await Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
-              },
+              onPressed: _loading
+                  ? null
+                  : () async {
+                      setState(() {
+                        _loading = true;
+                      });
+                      final auth = Provider.of<UserAuth>(context, listen: false);
+                      await auth.updateUser(
+                        _nameController.text,
+                        null,
+                        "+213" + _phoneNumber,
+                      );
+                      await FirebaseFirestore.instance.collection("Users").doc(auth.user.uid).set(
+                        {
+                          "name": _nameController.text,
+                          "mailAdress": auth.user.email,
+                          "phoneNumber": "+213" + _phoneNumber,
+                        },
+                      );
+                      await Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
+                      setState(() {
+                        _loading = false;
+                      });
+                    },
             )
           : null,
       body: GestureDetector(

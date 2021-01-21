@@ -35,6 +35,8 @@ class _AccountScreenState extends State<AccountScreen> {
 
   bool _enableEditing = false;
 
+  bool _loading = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -91,200 +93,278 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Style.Colors.mainColor,
-      appBar: AppBar(
+      /* appBar: AppBar(
         elevation: 0,
         backgroundColor: Style.Colors.mainColor,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.keyboard_arrow_left),
-        ),
-        actions: _enableEditing
+        leading: _loading
+            ? IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.keyboard_arrow_left),
+              )
+            : null,
+        actions: _loading
             ? [
-                IconButton(
-                  icon: Icon(MdiIcons.contentSave, color: Colors.green),
-                  onPressed: () async {
-                    if (_nameValide == null && _mailValide == null && _phoneNumberValide == null) {
-                      await auth.updateUser(
-                        _nameFieldTextController.text,
-                        _mailFieldTextController.text,
-                        "+213" + _phoneNumberFieldTextController.text,
-                      );
-                      setState(() {
-                        _enableEditing = !_enableEditing;
-                      });
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.close, color: Colors.red),
-                  onPressed: () => setState(() {
-                    _enableEditing = !_enableEditing;
-                    resetFields();
-                  }),
-                ),
+                Expanded(
+                  child: LinearProgressIndicator(),
+                )
               ]
-            : [
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () => setState(() => _enableEditing = !_enableEditing),
-                ),
-              ],
-      ),
-      body: ListView(
-        shrinkWrap: true,
-        controller: scrollController,
-        padding: EdgeInsets.symmetric(vertical: 20),
+            : _enableEditing
+                ? [
+                    IconButton(
+                      icon: Icon(MdiIcons.contentSave, color: Colors.green),
+                      onPressed: () async {
+                        setState(() {
+                          _loading = true;
+                          _enableEditing = !_enableEditing;
+                        });
+                        if (_nameValide == null && _mailValide == null && _phoneNumberValide == null) {
+                          await auth.updateUser(
+                            _nameFieldTextController.text,
+                            _mailFieldTextController.text,
+                            "+213" + _phoneNumberFieldTextController.text,
+                          );
+                          setState(() {
+                            _loading = false;
+                          });
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.red),
+                      onPressed: () => setState(() {
+                        _enableEditing = !_enableEditing;
+                        resetFields();
+                      }),
+                    ),
+                  ]
+                : [
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => setState(() => _enableEditing = !_enableEditing),
+                    ),
+                  ],
+      ), */
+      body: Stack(
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Center(
-              child: TextFormField(
-                enabled: _enableEditing,
-                controller: _nameFieldTextController,
-                focusNode: _nameFieldFocusNode,
-                maxLines: 1,
-                keyboardType: TextInputType.name,
-                autofocus: false,
-                decoration: new InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: _nameFieldTextController.text != ''
-                            ? _nameValide != null
-                                ? Colors.red
-                                : Style.Colors.secondaryColor
-                            : Colors.white,
+          CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                elevation: 0,
+                backgroundColor: Style.Colors.mainColor,
+                leading: !_loading
+                    ? IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(Icons.keyboard_arrow_left),
+                      )
+                    : SizedBox(),
+                actions: _enableEditing
+                    ? [
+                        IconButton(
+                          icon: Icon(MdiIcons.contentSave, color: Colors.green),
+                          onPressed: () async {
+                            setState(() {
+                              _loading = true;
+                              _enableEditing = !_enableEditing;
+                            });
+                            if (_nameValide == null && _mailValide == null && _phoneNumberValide == null) {
+                              await auth.updateUser(
+                                _nameFieldTextController.text,
+                                _mailFieldTextController.text,
+                                "+213" + _phoneNumberFieldTextController.text,
+                              );
+                              setState(() {
+                                _loading = false;
+                              });
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.red),
+                          onPressed: () => setState(() {
+                            _enableEditing = !_enableEditing;
+                            resetFields();
+                          }),
+                        ),
+                      ]
+                    : [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => setState(() => _enableEditing = !_enableEditing),
+                        ),
+                      ],
+              ),
+              SliverToBoxAdapter(
+                child: ListView(
+                  shrinkWrap: true,
+                  controller: scrollController,
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      child: Center(
+                        child: TextFormField(
+                          enabled: _enableEditing,
+                          controller: _nameFieldTextController,
+                          focusNode: _nameFieldFocusNode,
+                          maxLines: 1,
+                          keyboardType: TextInputType.name,
+                          autofocus: false,
+                          decoration: new InputDecoration(
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _nameFieldTextController.text != ''
+                                      ? _nameValide != null
+                                          ? Colors.red
+                                          : Style.Colors.secondaryColor
+                                      : Colors.white,
+                                ),
+                                borderRadius: BorderRadius.circular(10)),
+                            errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                            focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
+                            disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor.withOpacity(.25)), borderRadius: BorderRadius.circular(10)),
+                            helperText: '',
+                            errorMaxLines: 1,
+                            floatingLabelBehavior: FloatingLabelBehavior.auto,
+                            errorText: _nameValide ?? null,
+                            labelText: 'Full Name',
+                            labelStyle: TextStyle(color: Style.Colors.secondaryColor),
+                            prefixIcon: new Icon(
+                              Icons.person,
+                              color: _nameFieldTextController.text != ''
+                                  ? _nameValide != null
+                                      ? Colors.red
+                                      : Style.Colors.secondaryColor
+                                  : Style.Colors.secondaryColor,
+                            ),
+                          ),
+                          autocorrect: false,
+                          onChanged: (value) => validateName(value),
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(10)),
-                  errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                  focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
-                  disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor.withOpacity(.25)), borderRadius: BorderRadius.circular(10)),
-                  helperText: '',
-                  errorMaxLines: 1,
-                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                  errorText: _nameValide ?? null,
-                  labelText: 'Full Name',
-                  labelStyle: TextStyle(color: Style.Colors.secondaryColor),
-                  prefixIcon: new Icon(
-                    Icons.person,
-                    color: _nameFieldTextController.text != ''
-                        ? _nameValide != null
-                            ? Colors.red
-                            : Style.Colors.secondaryColor
-                        : Style.Colors.secondaryColor,
-                  ),
+                    ),
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      child: Center(
+                        child: TextFormField(
+                          enabled: false, //_enableEditing,
+                          controller: _mailFieldTextController,
+                          focusNode: _mailFieldFocusNode,
+                          maxLines: 1,
+                          keyboardType: TextInputType.emailAddress,
+                          autofocus: false,
+                          decoration: new InputDecoration(
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _mailFieldTextController.text != ''
+                                      ? _mailValide != null
+                                          ? Colors.red
+                                          : Style.Colors.secondaryColor
+                                      : Colors.white,
+                                ),
+                                borderRadius: BorderRadius.circular(10)),
+                            errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                            focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
+                            disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor.withOpacity(.25)), borderRadius: BorderRadius.circular(10)),
+                            helperText: '',
+                            errorMaxLines: 1,
+                            floatingLabelBehavior: FloatingLabelBehavior.auto,
+                            errorText: _mailValide ?? null,
+                            labelText: 'Adresse mail',
+                            labelStyle: TextStyle(color: Style.Colors.secondaryColor),
+                            prefixIcon: new Icon(
+                              Icons.mail,
+                              color: _mailFieldTextController.text != ''
+                                  ? _mailValide != null
+                                      ? Colors.red
+                                      : Style.Colors.secondaryColor
+                                  : Style.Colors.secondaryColor,
+                            ),
+                          ),
+                          autocorrect: false,
+                          onChanged: (text) => validateMail(text),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      child: Center(
+                        child: TextFormField(
+                          enabled: _enableEditing,
+                          controller: _phoneNumberFieldTextController,
+                          focusNode: _phoneNumberFieldFocusNode,
+                          maxLines: 1,
+                          // inputFormatters: [FilteringTextInputFormatter("r^[0-9]", allow: true)],
+                          keyboardType: TextInputType.phone,
+                          autofocus: false,
+                          decoration: new InputDecoration(
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _phoneNumberFieldTextController.text != ''
+                                      ? _phoneNumberValide != null
+                                          ? Colors.red
+                                          : Style.Colors.secondaryColor
+                                      : Colors.white,
+                                ),
+                                borderRadius: BorderRadius.circular(10)),
+                            errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                            focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
+                            disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor.withOpacity(.25)), borderRadius: BorderRadius.circular(10)),
+                            helperText: '',
+                            errorMaxLines: 1,
+                            floatingLabelBehavior: FloatingLabelBehavior.auto,
+                            errorText: _phoneNumberValide ?? null,
+                            labelText: 'Numéro de téléphone:',
+                            labelStyle: TextStyle(color: Style.Colors.secondaryColor),
+                            prefixText: auth.phoneNumber.substring(0, auth.phoneNumber.length - 9),
+                            prefixStyle: TextStyle(color: Style.Colors.secondaryColor),
+                            prefixIcon: new Icon(
+                              Icons.phone,
+                              color: _phoneNumberFieldTextController.text != ''
+                                  ? _phoneNumberValide != null
+                                      ? Colors.red
+                                      : Style.Colors.secondaryColor
+                                  : Style.Colors.secondaryColor,
+                            ),
+                          ),
+                          autocorrect: false,
+                          onChanged: (text) => validatePhoneNumber(text),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: FloatingActionButton.extended(
+                        backgroundColor: Colors.red,
+                        label: Text('Déconnexion'),
+                        icon: Icon(Icons.logout),
+                        onPressed: () async {
+                          await auth.logout();
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                autocorrect: false,
-                onChanged: (value) => validateName(value),
+              ),
+            ],
+          ),
+          if (_loading)
+            Container(
+              color: Style.Colors.secondaryColor.withOpacity(.2),
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Center(
+                child: CircularProgressIndicator(),
               ),
             ),
-          ),
-          SizedBox(height: 10),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Center(
-              child: TextFormField(
-                enabled: false, //_enableEditing,
-                controller: _mailFieldTextController,
-                focusNode: _mailFieldFocusNode,
-                maxLines: 1,
-                keyboardType: TextInputType.emailAddress,
-                autofocus: false,
-                decoration: new InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: _mailFieldTextController.text != ''
-                            ? _mailValide != null
-                                ? Colors.red
-                                : Style.Colors.secondaryColor
-                            : Colors.white,
-                      ),
-                      borderRadius: BorderRadius.circular(10)),
-                  errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                  focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
-                  disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor.withOpacity(.25)), borderRadius: BorderRadius.circular(10)),
-                  helperText: '',
-                  errorMaxLines: 1,
-                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                  errorText: _mailValide ?? null,
-                  labelText: 'Adresse mail',
-                  labelStyle: TextStyle(color: Style.Colors.secondaryColor),
-                  prefixIcon: new Icon(
-                    Icons.mail,
-                    color: _mailFieldTextController.text != ''
-                        ? _mailValide != null
-                            ? Colors.red
-                            : Style.Colors.secondaryColor
-                        : Style.Colors.secondaryColor,
-                  ),
-                ),
-                autocorrect: false,
-                onChanged: (text) => validateMail(text),
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Center(
-              child: TextFormField(
-                enabled: _enableEditing,
-                controller: _phoneNumberFieldTextController,
-                focusNode: _phoneNumberFieldFocusNode,
-                maxLines: 1,
-                // inputFormatters: [FilteringTextInputFormatter("r^[0-9]", allow: true)],
-                keyboardType: TextInputType.phone,
-                autofocus: false,
-                decoration: new InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: _phoneNumberFieldTextController.text != ''
-                            ? _phoneNumberValide != null
-                                ? Colors.red
-                                : Style.Colors.secondaryColor
-                            : Colors.white,
-                      ),
-                      borderRadius: BorderRadius.circular(10)),
-                  errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                  focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
-                  disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor.withOpacity(.25)), borderRadius: BorderRadius.circular(10)),
-                  helperText: '',
-                  errorMaxLines: 1,
-                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                  errorText: _phoneNumberValide ?? null,
-                  labelText: 'Numéro de téléphone:',
-                  labelStyle: TextStyle(color: Style.Colors.secondaryColor),
-                  prefixText: auth.phoneNumber.substring(0, auth.phoneNumber.length - 9),
-                  prefixStyle: TextStyle(color: Style.Colors.secondaryColor),
-                  prefixIcon: new Icon(
-                    Icons.phone,
-                    color: _phoneNumberFieldTextController.text != ''
-                        ? _phoneNumberValide != null
-                            ? Colors.red
-                            : Style.Colors.secondaryColor
-                        : Style.Colors.secondaryColor,
-                  ),
-                ),
-                autocorrect: false,
-                onChanged: (text) => validatePhoneNumber(text),
-              ),
-            ),
-          ),
-          Center(
-            child: FloatingActionButton.extended(
-              backgroundColor: Colors.red,
-              label: Text('Déconnexion'),
-              icon: Icon(Icons.logout),
-              onPressed: () async {
-                await auth.logout();
-                Navigator.pop(context);
-              },
-            ),
-          ),
         ],
       ),
     );

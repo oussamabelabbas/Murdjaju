@@ -189,7 +189,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
                         Hero(
                           tag: projections[index].id.toString() + projections[index].date.toString() + index.toString(),
                           child: Text(
-                            (DateTime.now().isBefore(projections[index].date) ? "Aujourd'hui à " : "") +
+                            (DateTime.now().day == projections[index].date.day ? "Aujourd'hui à " : "") +
                                 DateFormat('HH:mm ').format(projections[index].date) +
                                 (DateTime.now().isAfter(
                                   projections[index].date.add(
