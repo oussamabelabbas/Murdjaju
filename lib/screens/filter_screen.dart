@@ -96,7 +96,7 @@ class _FilterScreenState extends State<FilterScreen> {
               child: Text(
                 "filtrer votre expérience",
                 maxLines: 1,
-                style: Theme.of(context).textTheme.headline6.copyWith(
+                style: Theme.of(context).textTheme.caption.copyWith(
                       color: Style.Colors.titleColor,
                       fontWeight: FontWeight.bold,
                     ),

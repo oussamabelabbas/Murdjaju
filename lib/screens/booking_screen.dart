@@ -136,8 +136,19 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
 
                       return Center(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
+                            Spacer(),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                children: [
+                                  Text("Vous avez reservé pour cette projection..."),
+                                  Text("Places Réservées: " + reservation.placesIds.toString()),
+                                ],
+                              ),
+                            ),
+                            Spacer(),
                             AspectRatio(
                               aspectRatio: 1,
                               child: Container(
@@ -151,116 +162,210 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                                 ),
                               ),
                             ),
-                            Text("Vous avez reservé pour cette projection..."),
-                            Text("Places Réservées: " + reservation.placesIds.toString()),
+                            Spacer(),
                             if (!reservation.confirmed)
                               StreamBuilder(
                                 stream: Stream.periodic(Duration(seconds: 20)),
-                                builder: (context, snapshot) => Text(
-                                  "Votre projection n\a pas encore etais confirmé...\nLa reservation serra supprimé automatiquement dans ${DateTime.now().difference(reservation.date.add(Duration(hours: 1))).inMinutes} Minutes.",
+                                builder: (context, snapshot) => Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Text(
+                                    "Votre projection n\a pas encore etais confirmé...\nLa reservation serra supprimé automatiquement dans ${DateTime.now().difference(reservation.date.add(Duration(hours: 1))).inMinutes} Minutes.",
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                               ),
+                            Spacer(),
                             if (!reservation.confirmed)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   TextButton.icon(
+                                    style: ButtonStyle(
+                                      foregroundColor: MaterialStateProperty.resolveWith(
+                                        (Set<MaterialState> states) {
+                                          const Set<MaterialState> interactiveStates = <MaterialState>{
+                                            MaterialState.pressed,
+                                            MaterialState.hovered,
+                                            MaterialState.focused,
+                                          };
+                                          if (states.any(interactiveStates.contains)) {
+                                            return Colors.white;
+                                          }
+                                          return Colors.red;
+                                        },
+                                      ),
+                                      overlayColor: MaterialStateProperty.resolveWith(
+                                        (Set<MaterialState> states) {
+                                          const Set<MaterialState> interactiveStates = <MaterialState>{
+                                            MaterialState.pressed,
+                                            MaterialState.hovered,
+                                            MaterialState.focused,
+                                          };
+                                          if (states.any(interactiveStates.contains)) {
+                                            return Colors.red;
+                                          }
+                                          return Colors.red;
+                                        },
+                                      ),
+                                    ),
                                     label: Text("Annuler"),
                                     icon: Icon(MdiIcons.cancel),
                                     onPressed: () async {
                                       setState(() {
-                                        _loading = true;
+                                        _loading = !_loading;
                                       });
-                                      await reservation.reference.delete();
+                                      print(_loading.toString());
+                                      /* await reservation.reference.delete();
                                       setState(() {
                                         _loading = false;
-                                      });
+                                      }); */
                                       //Navigator.pop(context);
                                     },
                                   ),
                                   TextButton.icon(
+                                    style: ButtonStyle(
+                                      foregroundColor: MaterialStateProperty.resolveWith(
+                                        (Set<MaterialState> states) {
+                                          const Set<MaterialState> interactiveStates = <MaterialState>{
+                                            MaterialState.pressed,
+                                            MaterialState.hovered,
+                                            MaterialState.focused,
+                                          };
+                                          if (states.any(interactiveStates.contains)) {
+                                            return Style.Colors.mainColor;
+                                          }
+                                          return Style.Colors.secondaryColor;
+                                        },
+                                      ),
+                                      overlayColor: MaterialStateProperty.resolveWith(
+                                        (Set<MaterialState> states) {
+                                          const Set<MaterialState> interactiveStates = <MaterialState>{
+                                            MaterialState.pressed,
+                                            MaterialState.hovered,
+                                            MaterialState.focused,
+                                          };
+                                          if (states.any(interactiveStates.contains)) {
+                                            return Style.Colors.secondaryColor;
+                                          }
+                                          return Style.Colors.secondaryColor;
+                                        },
+                                      ),
+                                    ),
                                     label: Text("Valider"),
                                     icon: Icon(MdiIcons.ticketConfirmation),
                                     onPressed: () async {
-                                      setState(() {
-                                        _loading = true;
-                                      });
                                       final auth = Provider.of<UserAuth>(context, listen: false);
                                       if (auth.user.phoneNumber == null) {
-                                        print("Is Empty");
-                                        await FirebaseAuth.instance.verifyPhoneNumber(
-                                          phoneNumber: auth.phoneNumber,
-                                          timeout: Duration(seconds: 120),
-                                          verificationCompleted: (credential) async {
-                                            setState(() {
-                                              _loading = false;
-                                            });
-                                          },
-                                          verificationFailed: (FirebaseAuthException exception) {
-                                            print(exception);
-                                            setState(() {
-                                              _loading = false;
-                                            });
-                                          },
-                                          codeSent: (String verificationId, [int forceResendingToken]) {
-                                            setState(() {
-                                              _loading = false;
-                                            });
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder: (context) {
-                                                return StatefulBuilder(
-                                                  builder: (BuildContext context, StateSetter myState) {
-                                                    return Container(
-                                                      child: Column(
-                                                        children: [
-                                                          TextField(
-                                                            controller: _codeController,
-                                                            textAlign: TextAlign.center,
-                                                            decoration: InputDecoration(
-                                                              labelText: 'Code',
-                                                              labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.black),
-                                                              border: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(16),
-                                                                borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                                        SnackBar _sb = SnackBar(
+                                          backgroundColor: Style.Colors.titleColor,
+                                          content: Text("Votre numéro de téléphone n'as pas encore était validé. Voulez vous le "),
+                                          action: SnackBarAction(
+                                            textColor: Style.Colors.secondaryColor,
+                                            label: "Valider?",
+                                            onPressed: () async {
+                                              setState(() {
+                                                _loading = true;
+                                              });
+
+                                              await FirebaseAuth.instance.verifyPhoneNumber(
+                                                phoneNumber: auth.phoneNumber,
+                                                timeout: Duration(seconds: 120),
+                                                verificationCompleted: (credential) async {
+                                                  setState(() {
+                                                    _loading = false;
+                                                  });
+                                                },
+                                                verificationFailed: (FirebaseAuthException exception) {
+                                                  print(exception);
+                                                  setState(() {
+                                                    _loading = false;
+                                                  });
+                                                },
+                                                codeSent: (String verificationId, [int forceResendingToken]) {
+                                                  setState(() {
+                                                    _loading = false;
+                                                  });
+                                                  showDialog(
+                                                    //backgroundColor: Colors.transparent,
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return StatefulBuilder(
+                                                        builder: (BuildContext context, StateSetter myState) {
+                                                          return AlertDialog(
+                                                            title: Text("Entrer votre code:"),
+                                                            backgroundColor: Style.Colors.titleColor,
+                                                            clipBehavior: Clip.antiAlias,
+                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                                                            contentPadding: EdgeInsets.zero,
+                                                            actions: [
+                                                              RaisedButton(
+                                                                color: Style.Colors.secondaryColor,
+                                                                textColor: Colors.black,
+                                                                elevation: 0,
+                                                                shape: RoundedRectangleBorder(
+                                                                  borderRadius: BorderRadius.circular(5.0),
+                                                                ),
+                                                                child: Text("Confirmer"),
+                                                                onPressed: () async {
+                                                                  myState(() {
+                                                                    _loading = true;
+                                                                  });
+                                                                  Navigator.pop(context);
+                                                                  final code = _codeController.text.trim();
+                                                                  AuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
+                                                                  await auth.verifyPhoneNumber(credential);
+                                                                  Navigator.pop(context);
+                                                                  myState(() {
+                                                                    _loading = false;
+                                                                  });
+                                                                },
                                                               ),
-                                                              focusedBorder: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(16),
-                                                                borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                                                            ],
+                                                            content: Container(
+                                                              width: MediaQuery.of(context).size.width * .75,
+                                                              height: MediaQuery.of(context).size.width * .5,
+                                                              padding: EdgeInsets.all(35),
+                                                              decoration: BoxDecoration(
+                                                                color: Style.Colors.titleColor,
+                                                                borderRadius: BorderRadius.circular(35),
+                                                              ),
+                                                              child: Column(
+                                                                children: [
+                                                                  Spacer(),
+                                                                  TextField(
+                                                                    controller: _codeController,
+                                                                    textAlign: TextAlign.center,
+                                                                    keyboardType: TextInputType.number,
+                                                                    decoration: InputDecoration(
+                                                                      labelText: 'Code',
+                                                                      labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.black),
+                                                                      border: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(16),
+                                                                        borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                                                                      ),
+                                                                      focusedBorder: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(16),
+                                                                        borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  Spacer(),
+                                                                ],
                                                               ),
                                                             ),
-                                                          ),
-                                                          RaisedButton(
-                                                            color: Style.Colors.secondaryColor,
-                                                            textColor: Colors.black,
-                                                            elevation: 0,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.circular(16.0),
-                                                            ),
-                                                            child: Text("Confirmer"),
-                                                            onPressed: () async {
-                                                              setState(() {
-                                                                _loading = true;
-                                                              });
-                                                              final code = _codeController.text.trim();
-                                                              AuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
-                                                              await auth.verifyPhoneNumber(credential);
-                                                              Navigator.pop(context);
-                                                              setState(() {
-                                                                _loading = false;
-                                                              });
-                                                            },
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            );
-                                          },
-                                          codeAutoRetrievalTimeout: (str) {},
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                codeAutoRetrievalTimeout: (str) {},
+                                              );
+                                            },
+                                          ),
                                         );
+                                        ScaffoldMessenger.of(context).showSnackBar(_sb);
+                                        print("Is Empty");
                                       } else {
                                         setState(() {
                                           _loading = true;
@@ -276,6 +381,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                                   ),
                                 ],
                               ),
+                            Spacer(),
                           ],
                         ),
                       );
@@ -405,7 +511,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                                     width: (MediaQuery.of(context).size.width * .85) / projection.salle.rowLength / 2,
                                     height: (MediaQuery.of(context).size.width * .85) / projection.salle.rowLength / 2,
                                     decoration: BoxDecoration(
-                                      color: Style.Colors.titleColor.withOpacity(.25),
+                                      color: Colors.white,
                                       shape: BoxShape.circle,
                                       /* borderRadius: BorderRadius.vertical(
                           top: Radius.circular(10),
@@ -457,15 +563,16 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                     );
                   },
                 ),
-                if (_loading)
-                  Container(
-                    color: Style.Colors.secondaryColor.withOpacity(.2),
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
+                _loading
+                    ? Container(
+                        color: Style.Colors.secondaryColor.withOpacity(.2),
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : SizedBox(),
               ],
             ),
           );

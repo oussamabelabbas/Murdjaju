@@ -42,13 +42,13 @@ class UserAuth with ChangeNotifier {
   }
 
   Future<void> updateUser(String displayName, String mailAdress, String phoneNumber) async {
-    if (mailAdress != null && mailAdress != _user.email) await _user.updateEmail(mailAdress);
+    //if (mailAdress != null && mailAdress != _user.email) await _user.updateEmail(mailAdress);
     if (displayName != null && displayName != _user.displayName) await _user.updateProfile(displayName: displayName);
     await FirebaseFirestore.instance.collection("Users").doc(_user.uid).update(
       {
         "phoneNumber": phoneNumber,
         "name": displayName,
-        if (mailAdress != null && mailAdress != _user.email) "mailAdress": mailAdress,
+        //if (mailAdress != null && mailAdress != _user.email) "mailAdress": mailAdress,
       },
     );
 

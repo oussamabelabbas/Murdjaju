@@ -18,7 +18,7 @@ import 'screens/fillData_screen.dart';
 import 'screens/welcome_screen.dart';
 
 void main() async {
-  SystemUiOverlayStyle mySystemTheme = SystemUiOverlayStyle.dark.copyWith(systemNavigationBarColor: Style.Colors.mainColor);
+  SystemUiOverlayStyle mySystemTheme = SystemUiOverlayStyle.dark.copyWith(systemNavigationBarColor: Colors.black);
   SystemChrome.setSystemUIOverlayStyle(mySystemTheme);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

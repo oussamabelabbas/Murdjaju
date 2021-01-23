@@ -69,15 +69,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     OneSignal.shared.setNotificationReceivedHandler((OSNotification notification) async {
       // will be called whenever a notification is received
-      /*  showBottomSheet(
+      showDialog(
         context: context,
         builder: (context) {
-          return Container(
-              child: Center(
-            child: Text(notification.toString()),
-          ));
+          return AlertDialog(
+            content: Center(
+              child: Text(
+                notification.jsonRepresentation(),
+              ),
+            ),
+          );
         },
-      ); */
+      );
     });
 
     OneSignal.shared.setNotificationOpenedHandler((OSNotificationOpenedResult result) {

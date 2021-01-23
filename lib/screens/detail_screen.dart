@@ -105,7 +105,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
     return YoutubePlayerBuilder(
       onExitFullScreen: () {
         // The player forces portraitUp after exiting fullscreen. This overrides the behaviour.
-        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       },
       onEnterFullScreen: () {
         _controller.play();
@@ -168,7 +168,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
             ),
             CustomScrollView(
               physics: ClampingScrollPhysics(),
-              //controller: _scrollController,
+              controller: _scrollController,
               slivers: <Widget>[
                 SliverAppBar(
                   expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,

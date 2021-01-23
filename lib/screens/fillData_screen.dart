@@ -131,17 +131,10 @@ class _FillDataScreenState extends State<FillDataScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Style.Colors.mainColor,
-      appBar: AppBar(
-        backgroundColor: Style.Colors.mainColor,
-        centerTitle: true,
-        title: Text(
-          'Just one more step !',
-          style: Theme.of(context).textTheme.subtitle2,
-        ),
-      ),
       floatingActionButton: (_phoneController.text.isNotEmpty && _nameValide == null && errorText == null)
           ? FloatingActionButton(
-              child: Icon(Icons.keyboard_arrow_right),
+              child: _loading ? CircularProgressIndicator() : Icon(Icons.keyboard_arrow_right),
+              backgroundColor: _loading ? Style.Colors.titleColor : null,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               onPressed: _loading
                   ? null
@@ -152,139 +145,155 @@ class _FillDataScreenState extends State<FillDataScreen> {
                       final auth = Provider.of<UserAuth>(context, listen: false);
                       await auth.updateUser(
                         _nameController.text,
-                        null,
+                        auth.user.email,
                         "+213" + _phoneNumber,
                       );
-                      await FirebaseFirestore.instance.collection("Users").doc(auth.user.uid).set(
-                        {
-                          "name": _nameController.text,
-                          "mailAdress": auth.user.email,
-                          "phoneNumber": "+213" + _phoneNumber,
-                        },
-                      );
-                      await Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
+
+                      //await Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
                       setState(() {
                         _loading = false;
                       });
                     },
             )
           : null,
-      body: GestureDetector(
-        onTap: () {
-          _emailFocusNode.unfocus();
-          _nameFocusNode.unfocus();
-        },
-        child: Container(
-          height: double.infinity,
-          width: double.infinity,
-          // color: Colors.white,
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 20),
-                TextFormField(
-                  controller: _nameController,
-                  focusNode: _nameFocusNode,
-                  maxLines: 1,
-                  keyboardType: TextInputType.name,
-                  autofocus: false,
-                  decoration: new InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              _emailFocusNode.unfocus();
+              _nameFocusNode.unfocus();
+            },
+            child: Container(
+              height: double.infinity,
+              width: double.infinity,
+              // color: Colors.white,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBar(
+                      backgroundColor: Style.Colors.mainColor,
+                      elevation: 0,
+                      centerTitle: true,
+                      title: Text(
+                        'Just one more step !',
+                        style: Theme.of(context).textTheme.subtitle2,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    TextFormField(
+                      enabled: !_loading,
+                      controller: _nameController,
+                      focusNode: _nameFocusNode,
+                      maxLines: 1,
+                      keyboardType: TextInputType.name,
+                      autofocus: false,
+                      decoration: new InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: _nameController.text != ''
+                                  ? _nameValide != null
+                                      ? Colors.red
+                                      : Style.Colors.secondaryColor
+                                  : Colors.white, /* Palette.secondaryColor */
+                            ),
+                            borderRadius: BorderRadius.circular(10)),
+                        errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                        focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
+                        helperText: '',
+                        errorMaxLines: 1,
+                        floatingLabelBehavior: FloatingLabelBehavior.auto,
+                        errorText: _nameValide ?? null,
+                        labelText: 'Full Name',
+                        labelStyle: TextStyle(color: Style.Colors.secondaryColor),
+                        prefixIcon: new Icon(
+                          Icons.person,
                           color: _nameController.text != ''
                               ? _nameValide != null
                                   ? Colors.red
                                   : Style.Colors.secondaryColor
-                              : Colors.white, /* Palette.secondaryColor */
+                              : Style.Colors.secondaryColor,
                         ),
-                        borderRadius: BorderRadius.circular(10)),
-                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                    focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red), borderRadius: BorderRadius.circular(10)),
-                    enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Style.Colors.titleColor), borderRadius: BorderRadius.circular(10)),
-                    helperText: '',
-                    errorMaxLines: 1,
-                    floatingLabelBehavior: FloatingLabelBehavior.auto,
-                    errorText: _nameValide ?? null,
-                    labelText: 'Full Name',
-                    labelStyle: TextStyle(color: Style.Colors.secondaryColor),
-                    prefixIcon: new Icon(
-                      Icons.person,
-                      color: _nameController.text != ''
-                          ? _nameValide != null
-                              ? Colors.red
-                              : Style.Colors.secondaryColor
-                          : Style.Colors.secondaryColor,
+                      ),
+                      autocorrect: false,
+                      onChanged: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
                     ),
-                  ),
-                  autocorrect: false,
-                  onChanged: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  focusNode: _phoneFocusNode,
-                  controller: _phoneController,
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.phone,
-                  onChanged: (phone) {
-                    _phoneNumber = phone;
-                    if (phone.isEmpty)
-                      errorText = "Empty !";
-                    else if (phone.startsWith("0"))
-                      errorText = "Please remove 0 from the start !";
-                    else if (phone.length < 9)
-                      errorText = "To short !";
-                    else
-                      errorText = null;
+                    SizedBox(height: 20),
+                    TextFormField(
+                      enabled: !_loading,
+                      focusNode: _phoneFocusNode,
+                      controller: _phoneController,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.phone,
+                      onChanged: (phone) {
+                        _phoneNumber = phone;
+                        if (phone.isEmpty)
+                          errorText = "Empty !";
+                        else if (phone.startsWith("0"))
+                          errorText = "Please remove 0 from the start !";
+                        else if (phone.length < 9)
+                          errorText = "To short !";
+                        else
+                          errorText = null;
 
-                    print(phone);
-                    setState(() {});
-                  },
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      print("Error!");
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    prefixIcon: new Icon(
-                      Icons.mail,
-                      color: _phoneController.text != ''
-                          ? errorText != null
-                              ? Colors.red
-                              : Style.Colors.secondaryColor
-                          : Style.Colors.secondaryColor,
+                        print(phone);
+                        setState(() {});
+                      },
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          print("Error!");
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: new Icon(
+                          Icons.mail,
+                          color: _phoneController.text != ''
+                              ? errorText != null
+                                  ? Colors.red
+                                  : Style.Colors.secondaryColor
+                              : Style.Colors.secondaryColor,
+                        ),
+                        prefixText: "+213",
+                        prefixStyle: TextStyle(color: Style.Colors.secondaryColor),
+                        errorText: errorText,
+                        labelText: 'Phone Number',
+                        labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.white60),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: Style.Colors.secondaryColor),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+                      ),
                     ),
-                    prefixText: "+213",
-                    prefixStyle: TextStyle(color: Style.Colors.secondaryColor),
-                    errorText: errorText,
-                    labelText: 'Phone Number',
-                    labelStyle: Theme.of(context).textTheme.caption.copyWith(color: Colors.white60),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Style.Colors.secondaryColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Style.Colors.secondaryColor),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.red),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.red),
-                    ),
-                  ),
+                    SizedBox(height: 20),
+                  ],
                 ),
-                SizedBox(height: 20),
-              ],
+              ),
             ),
           ),
-        ),
+          /* if (_loading)
+            Container(
+              color: Style.Colors.secondaryColor.withOpacity(.2),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ), */
+        ],
       ),
     );
   }
