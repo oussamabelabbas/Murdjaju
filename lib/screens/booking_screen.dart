@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:murdjaju/authentication/auth.dart';
+import 'package:murdjaju/providers/auth.dart';
 import 'package:murdjaju/model/projection.dart';
 import 'package:murdjaju/bloc/get_weeks_bloc.dart';
 import 'package:flutter/material.dart';

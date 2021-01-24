@@ -1,7 +1,8 @@
 import 'dart:ui';
 
-import 'authentication/auth.dart';
+import 'providers/auth.dart';
 import 'myMain/palette.dart';
+import 'providers/loading_provider.dart';
 import 'screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,17 +27,24 @@ void main() async {
   DocumentSnapshot snap;
   if (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser.phoneNumber == null) snap = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser.uid).get();
   runApp(
-    ChangeNotifierProvider<UserAuth>(
-      create: (_) => UserAuth(
-        FirebaseAuth.instance.currentUser,
-        FirebaseAuth.instance.currentUser != null,
-        FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser.displayName != null,
-        FirebaseAuth.instance.currentUser == null
-            ? null
-            : snap != null
-                ? snap['phoneNumber']
-                : FirebaseAuth.instance.currentUser.phoneNumber,
-      ),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UserAuth>(
+          create: (context) => UserAuth(
+            FirebaseAuth.instance.currentUser,
+            FirebaseAuth.instance.currentUser != null,
+            FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser.displayName != null,
+            FirebaseAuth.instance.currentUser == null
+                ? null
+                : snap != null
+                    ? snap['phoneNumber']
+                    : FirebaseAuth.instance.currentUser.phoneNumber,
+          ),
+        ),
+        ChangeNotifierProvider<LoadingProvider>(
+          create: (context) => LoadingProvider(),
+        ),
+      ],
       child: MyApp(),
     ),
   );
@@ -59,12 +67,28 @@ class MyApp extends StatelessWidget {
           opacity: .9,
         ),
       ),
-      home: Consumer<UserAuth>(
-        builder: (_, auth, __) {
-          if (!auth.loggedIn) return WelcomeScreen();
-          if (!auth.haveData) return FillDataScreen();
-          return HomeScreen();
-        },
+      home: Stack(
+        children: [
+          Consumer<UserAuth>(
+            builder: (_, auth, __) {
+              if (!auth.loggedIn) return WelcomeScreen();
+              if (!auth.haveData) return FillDataScreen();
+              return HomeScreen();
+            },
+          ),
+          Consumer<LoadingProvider>(
+            builder: (_, loading, __) {
+              if (loading.appIsLoading)
+                return Container(
+                  color: Style.Colors.mainColor.withOpacity(.2),
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              return SizedBox();
+            },
+          ),
+        ],
       ),
     );
   }

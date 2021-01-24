@@ -7,7 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 import 'package:http/http.dart';
-import 'package:murdjaju/authentication/auth.dart';
+import 'package:murdjaju/providers/auth.dart';
 import 'package:murdjaju/bloc/current_week_bloc.dart';
 import 'package:murdjaju/model/firebase.dart';
 import 'package:murdjaju/model/genre.dart';

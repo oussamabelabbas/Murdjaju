@@ -36,8 +36,6 @@ class _SwiperColumnState extends State<SwiperColumn> {
   SwiperControl _swiperControl;
   int initialIndex;
 
-  List<String> months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'Decenmebr'];
-
   @override
   void initState() {
     super.initState();
@@ -56,20 +54,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
     if (projections.isEmpty) return Text('Error');
     return Stack(
       children: [
-        Container(
-          child: Swiper(
-            controller: _swiperController,
-            control: _swiperControl,
-            itemCount: projections.length,
-            loop: false,
-            itemBuilder: (context, index) {
-              return Image.network(
-                projections[index].movie.isShow ? projections[index].movie.poster : 'https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster,
-                fit: BoxFit.cover,
-              );
-            },
-          ),
-        ),
+        _backgroundSwiper(),
         Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
@@ -79,177 +64,188 @@ class _SwiperColumnState extends State<SwiperColumn> {
             filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
             child: Container(
               color: Style.Colors.mainColor.withOpacity(.4),
+              child: Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(10),
+                    height: AppBar().preferredSize.height,
+                    child: Text(
+                      DateFormat('EEEEEE d MMM', 'fr-FR').format(projections.first.date).capitalize(),
+                      style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  _mainSwiper(),
+                  _textSwiper(),
+                ],
+              ),
             ),
           ),
         ),
-        Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).padding.top,
-            ),
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(10),
-              height: AppBar().preferredSize.height,
-              child: Text(
-                DateFormat('EEEEEE d MMM', 'fr-FR').format(projections.first.date).capitalize(),
-                style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 20),
-            Container(
-              height: MediaQuery.of(context).size.width,
-              child: Swiper(
-                controller: _swiperController,
-                control: _swiperControl,
-                itemCount: projections.length,
-                loop: false,
-                viewportFraction: 0.67,
-                scale: 0.7,
-                onIndexChanged: (value) => _swiperController.move(value),
-                itemBuilder: (context, index) {
-                  NetworkImage thumbnail = NetworkImage(projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster));
-                  NetworkImage image = NetworkImage(
-                    projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w780/' + projections[index].movie.poster),
-                  );
-                  AssetImage asset = AssetImage(
-                    'assets/placeholder.png',
-                  );
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    splashColor: Colors.orange,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MovieDetailScreen(
-                            projection: projections[index],
-                            image: image,
-                            thumbnail: thumbnail,
-                            asset: asset,
-                            heroId: index,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(0),
-                      decoration: BoxDecoration(
-                        //color: Colors.orange,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Container(
-                        padding: EdgeInsets.all(1),
-                        decoration: BoxDecoration(
-                          //color: Colors.orange,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Hero(
-                          tag: projections[index].movie.id + index.toString(),
-                          child: ProgressiveImage(
-                            fit: BoxFit.cover,
-                            blur: 10,
-                            alignment: Alignment.center,
-
-                            placeholder: asset,
-                            // size: 1.87KB
-                            thumbnail: thumbnail,
-                            // size: 1.29MB
-                            image: image,
-                            height: MediaQuery.of(context).size.width,
-                            width: MediaQuery.of(context).size.width,
-                            // ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Swiper(
-                scrollDirection: Axis.horizontal,
-                loop: false,
-                //index: initialIndex == -1 ? projections.length - 1 : initialIndex,
-                physics: NeverScrollableScrollPhysics(),
-                control: _swiperControl,
-                controller: _swiperController,
-                itemCount: projections.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 35),
-                    //color: Colors.orange,
-                    child: Column(
-                      children: [
-                        Spacer(),
-                        Hero(
-                          tag: projections[index].id.toString() + projections[index].date.toString() + index.toString(),
-                          child: Text(
-                            (DateTime.now().day == projections[index].date.day ? "Aujourd'hui à " : "") +
-                                DateFormat('HH:mm ').format(projections[index].date) +
-                                (DateTime.now().isAfter(
-                                  projections[index].date.add(
-                                        Duration(minutes: projections[index].movie.runtime),
-                                      ),
-                                )
-                                    ? "(Déjà joué) "
-                                    : "") +
-                                (DateTime.now().isBefore(
-                                          projections[index].date.add(
-                                                Duration(minutes: projections[index].movie.runtime),
-                                              ),
-                                        ) &&
-                                        DateTime.now().isAfter(projections[index].date)
-                                    ? "(En train de jouer) "
-                                    : "") +
-                                //DateFormat('EEE, d MMM', 'fr-FR').format(projections[index].date) +
-                                "\n" +
-                                projections[index].salle.name,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.secondaryColor),
-                          ),
-                        ),
-                        Spacer(),
-                        Hero(
-                          tag: projections[index].movie.id.toString() + projections[index].movie.title.toString() + index.toString(),
-                          child: Text(
-                            projections[index].movie.title,
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.headline5.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                        Text(
-                          "\n" + projections[index].movie.overview,
-                          textAlign: TextAlign.center,
-                          softWrap: true,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyText2.copyWith(
-                                color: Colors.white,
-                              ),
-                        ),
-                        Spacer(),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
       ],
     );
-    // return
   }
+
+  Widget _textSwiper() => Expanded(
+        flex: 3,
+        child: Swiper(
+          scrollDirection: Axis.horizontal,
+          loop: false,
+          //index: initialIndex == -1 ? projections.length - 1 : initialIndex,
+          physics: NeverScrollableScrollPhysics(),
+          control: _swiperControl,
+          controller: _swiperController,
+          itemCount: projections.length,
+          itemBuilder: (context, index) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 35),
+              //color: Colors.orange,
+              child: Column(
+                children: [
+                  Spacer(),
+                  Hero(
+                    tag: projections[index].id.toString() + projections[index].date.toString() + index.toString(),
+                    child: Text(
+                      (DateTime.now().day == projections[index].date.day ? "Aujourd'hui à " : "") +
+                          DateFormat('HH:mm ').format(projections[index].date) +
+                          (DateTime.now().isAfter(
+                            projections[index].date.add(
+                                  Duration(minutes: projections[index].movie.runtime),
+                                ),
+                          )
+                              ? "(Déjà joué) "
+                              : "") +
+                          (DateTime.now().isBefore(
+                                    projections[index].date.add(
+                                          Duration(minutes: projections[index].movie.runtime),
+                                        ),
+                                  ) &&
+                                  DateTime.now().isAfter(projections[index].date)
+                              ? "(En train de jouer) "
+                              : "") +
+                          //DateFormat('EEE, d MMM', 'fr-FR').format(projections[index].date) +
+                          "\n" +
+                          projections[index].salle.name,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.secondaryColor),
+                    ),
+                  ),
+                  Spacer(),
+                  Hero(
+                    tag: projections[index].movie.id.toString() + projections[index].movie.title.toString() + index.toString(),
+                    child: Text(
+                      projections[index].movie.title,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.headline5.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                  Text(
+                    "\n" + projections[index].movie.overview,
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyText2.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                  Spacer(),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+  Widget _mainSwiper() => Container(
+        height: MediaQuery.of(context).size.width,
+        child: Swiper(
+          controller: _swiperController,
+          control: _swiperControl,
+          itemCount: projections.length,
+          loop: false,
+          viewportFraction: 0.67,
+          scale: 0.7,
+          onIndexChanged: (value) => _swiperController.move(value),
+          itemBuilder: (context, index) {
+            NetworkImage thumbnail = NetworkImage(projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster));
+            NetworkImage image = NetworkImage(
+              projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w780/' + projections[index].movie.poster),
+            );
+            AssetImage asset = AssetImage(
+              'assets/placeholder.png',
+            );
+            return InkWell(
+              borderRadius: BorderRadius.circular(20),
+              splashColor: Colors.orange,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MovieDetailScreen(
+                      projection: projections[index],
+                      image: image,
+                      thumbnail: thumbnail,
+                      asset: asset,
+                      heroId: index,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.all(0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Container(
+                  padding: EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Hero(
+                    tag: projections[index].movie.id + index.toString(),
+                    child: ProgressiveImage(
+                      fit: BoxFit.cover,
+                      blur: 10,
+                      alignment: Alignment.center,
+                      placeholder: asset,
+                      thumbnail: thumbnail,
+                      image: image,
+                      height: MediaQuery.of(context).size.width,
+                      width: MediaQuery.of(context).size.width,
+                      // ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+
+  Widget _backgroundSwiper() => Container(
+        child: Swiper(
+          controller: _swiperController,
+          control: _swiperControl,
+          itemCount: projections.length,
+          loop: false,
+          itemBuilder: (context, index) {
+            return Image.network(
+              projections[index].movie.isShow ? projections[index].movie.poster : 'https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster,
+              fit: BoxFit.cover,
+            );
+          },
+        ),
+      );
 }

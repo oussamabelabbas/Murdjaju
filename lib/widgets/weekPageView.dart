@@ -4,14 +4,11 @@ import 'package:murdjaju/model/genre.dart';
 import 'package:murdjaju/model/projection.dart';
 import 'package:murdjaju/model/week.dart';
 import 'package:murdjaju/model/week_response.dart';
-import 'package:murdjaju/widgets/cine_kids_widgets/cineKids%20copy.dart';
 import 'package:flutter/material.dart';
 
 import 'package:murdjaju/style/theme.dart' as Style;
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-import 'cine_box_office_widgets/cineBoxOffice copy.dart';
-import 'cine_show_widgets/cineShow copy.dart';
+import 'package:murdjaju/widgets/swipersColumn.dart';
 
 class WeekPageView extends StatefulWidget {
   final TabController tabController;
@@ -75,7 +72,7 @@ class _WeekPageViewState extends State<WeekPageView> {
       controller: _pageController,
       itemBuilder: (context, index) {
         List<Projection> _projections = myWeek.projections.where((proj) => proj.date.day == myWeek.startDate.add(Duration(days: index)).day).toList();
-        return CineBoxOffice2(
+        return SwiperColumn(
           projections: _projections,
         );
       },

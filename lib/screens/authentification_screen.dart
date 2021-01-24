@@ -1,4 +1,3 @@
-import 'package:murdjaju/widgets/authentification_widgets/sign_in_form.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
@@ -37,79 +36,80 @@ class _AuthentificationScreenState extends State<AuthentificationScreen> with Si
         animation: _animationController,
         builder: (context, child) => Container(
           decoration: BoxDecoration(
-            image: DecorationImage(
+            gradient: LinearGradient(
+              colors: [Style.Colors.secondaryColor, Style.Colors.mainColor],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            //color: Style.Colors.secondaryColor,
+            /* image: DecorationImage(
               image: AssetImage("assets/joker.jpg"),
               fit: BoxFit.cover,
-            ),
+            ), */
           ),
-          child: Stack(
-            children: <Widget>[
-              Container(
-                color: Colors.black54,
-                child: Column(
-                  children: <Widget>[
-                    const SizedBox(height: kToolbarHeight + 40),
-                    Expanded(
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                            "Cinema Murdjaju",
-                            style: TextStyle(
+          child: Container(
+            //color: Colors.black54,
+            child: Column(
+              children: <Widget>[
+                const SizedBox(height: kToolbarHeight + 40),
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Center(
+                            child: Image.asset('assets/splash.png'),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Spacer(),
+                          Container(
+                            clipBehavior: Clip.antiAlias,
+                            decoration: BoxDecoration(
+                              color: Style.Colors.mainColor.withOpacity(.75),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: ToggleButtons(
+                              onPressed: (index) => setState(() => _formsIndex = index),
+                              selectedColor: Style.Colors.mainColor,
                               color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 30.0,
+                              fillColor: Style.Colors.secondaryColor,
+                              borderRadius: BorderRadius.circular(15),
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+                                  child: Text("S'identifier"),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+                                  child: Text("S'inscrire"),
+                                ),
+                              ],
+                              isSelected: [
+                                _formsIndex == 0,
+                                _formsIndex == 1,
+                              ],
                             ),
                           ),
                           Spacer(),
-                          Row(
-                            children: [
-                              Spacer(),
-                              Container(
-                                clipBehavior: Clip.antiAlias,
-                                decoration: BoxDecoration(
-                                  color: Style.Colors.mainColor.withOpacity(.75),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: ToggleButtons(
-                                  onPressed: (index) => setState(() => _formsIndex = index),
-                                  selectedColor: Style.Colors.mainColor,
-                                  color: Colors.white,
-                                  fillColor: Style.Colors.secondaryColor,
-                                  borderRadius: BorderRadius.circular(15),
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                                      child: Text("S'identifier"),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                                      child: Text("S'inscrire"),
-                                    ),
-                                  ],
-                                  isSelected: [
-                                    _formsIndex == 0,
-                                    _formsIndex == 1,
-                                  ],
-                                ),
-                              ),
-                              Spacer(),
-                            ],
-                          ),
                         ],
                       ),
-                    ),
-                    IndexedStack(
-                      index: _formsIndex,
-                      children: [
-                        SigninFormMail(),
-                        SignupFormMail(),
-                      ],
-                    ),
-                    Spacer(),
+                    ],
+                  ),
+                ),
+                IndexedStack(
+                  index: _formsIndex,
+                  children: [
+                    SigninFormMail(),
+                    SignupFormMail(),
                   ],
                 ),
-              ),
-            ],
+                Spacer(),
+              ],
+            ),
           ),
         ),
       ),
