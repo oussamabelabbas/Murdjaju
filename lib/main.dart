@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:intl/date_symbol_data_local.dart';
+
 import 'providers/auth.dart';
 import 'myMain/palette.dart';
 import 'providers/loading_provider.dart';
@@ -22,6 +24,7 @@ void main() async {
   SystemUiOverlayStyle mySystemTheme = SystemUiOverlayStyle.dark.copyWith(systemNavigationBarColor: Colors.black, statusBarIconBrightness: Brightness.light);
   SystemChrome.setSystemUIOverlayStyle(mySystemTheme);
   WidgetsFlutterBinding.ensureInitialized();
+  initializeDateFormatting();
   await Firebase.initializeApp();
   // await FirebaseAuth.instance.signOut();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

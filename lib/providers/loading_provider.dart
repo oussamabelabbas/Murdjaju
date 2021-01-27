@@ -18,7 +18,17 @@ class LoadingProvider with ChangeNotifier {
 }
 
 class Loader {
-  Loader();
+  Loader() {
+    _loader = Loader2(
+      color1: Style.Colors.secondaryColor,
+      color2: Style.Colors.titleColor,
+      color3: Style.Colors.secondaryColor,
+    );
+  }
+
+  Widget _loader;
+
+  Widget get loader => _loader;
 
   Future<bool> showLoadingDialog(BuildContext context, GlobalKey key) async {
     showDialog<void>(
@@ -35,11 +45,7 @@ class Loader {
               Center(
                 child: Column(
                   children: [
-                    Loader2(
-                      color1: Style.Colors.secondaryColor,
-                      color2: Style.Colors.titleColor,
-                      color3: Style.Colors.secondaryColor,
-                    ),
+                    _loader,
                     SizedBox(height: 10),
                     Text(
                       "Une minute, SVP....",

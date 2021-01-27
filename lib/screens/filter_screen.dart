@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:murdjaju/model/week.dart';
 import 'package:murdjaju/model/week_response.dart';
 import 'package:murdjaju/bloc/get_weeks_bloc.dart';
+import 'package:murdjaju/providers/loading_provider.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
 import 'package:toggle_bar_button/toggle_bar_button.dart';
 
@@ -48,7 +49,6 @@ class _FilterScreenState extends State<FilterScreen> {
     // TODO: implement initState
     super.initState();
     getData();
-    initializeDateFormatting();
     genresListBloc.getGenres();
     weeksListBloc.getMiniWeeks();
     myWeekId = widget.myWeekId;
@@ -58,16 +58,14 @@ class _FilterScreenState extends State<FilterScreen> {
   }
 
   void getData() async {
-    await FirebaseFirestore.instance.collection("Salles").get().then(
-      (value) {
-        value.docs.forEach(
-          (element) {
-            allSalles.add(Salle.fromSnapshot(element));
-          },
-        );
-      },
-    );
-    setState(() {});
+    if (currentWeekBloc.subject.hasValue) {
+      currentWeekBloc.subject.value.projections.forEach(
+        (element) {
+          if (allSalles.indexWhere((salle) => salle.id == element.salle.id) == -1) allSalles.add(element.salle);
+        },
+      );
+      setState(() {});
+    }
   }
 
   Widget _title(String _str) => Padding(
@@ -89,12 +87,7 @@ class _FilterScreenState extends State<FilterScreen> {
         onPressed: () {
           Navigator.pop(
             context,
-            [
-              myWeekId,
-              cineClear ? null : cineWhat,
-              genresFilterList,
-              sallesFilterList,
-            ],
+            [myWeekId, cineClear ? null : cineWhat, genresFilterList, sallesFilterList],
           );
         },
       ),
@@ -122,20 +115,8 @@ class _FilterScreenState extends State<FilterScreen> {
                     _buildGenresListView(),
                     _title("Semaine du:"),
                     _buildWeeksListView(),
-                    Row(
-                      children: [
-                        _title("Ciné:"),
-                        Spacer(),
-                        _buildCineToggleButtons(),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        _title("Salle:"),
-                        Spacer(),
-                        _buildSalleToggleButtons(),
-                      ],
-                    ),
+                    Row(children: [_title("Ciné:"), Spacer(), _buildCineToggleButtons()]),
+                    Row(children: [_title("Salle:"), Spacer(), _buildSalleToggleButtons()]),
                   ],
                 ),
               ),
@@ -211,16 +192,16 @@ class _FilterScreenState extends State<FilterScreen> {
           borderRadius: BorderRadius.circular(20),
           selectedColor: Style.Colors.secondaryColor,
           selectedBorderColor: Style.Colors.secondaryColor,
-          isSelected: List.generate(allSalles.length, (index) => sallesFilterList.contains(allSalles[index].id)),
+          isSelected: List.generate(allSalles.length, (index) => sallesFilterList.contains(allSalles.elementAt(index).id)),
           children: List.generate(
             allSalles.length,
-            (index) => Padding(padding: EdgeInsets.all(10), child: Text(allSalles[index].name)),
+            (index) => Padding(padding: EdgeInsets.all(10), child: Text(allSalles.elementAt(index).name)),
           ),
           onPressed: (index) {
-            if (sallesFilterList.contains(allSalles[index].id))
-              sallesFilterList.remove(allSalles[index].id);
+            if (sallesFilterList.contains(allSalles.elementAt(index).id))
+              sallesFilterList.remove(allSalles.elementAt(index).id);
             else
-              sallesFilterList.add(allSalles[index].id);
+              sallesFilterList.add(allSalles.elementAt(index).id);
             setState(() {});
           },
         ),
@@ -334,20 +315,12 @@ class _FilterScreenState extends State<FilterScreen> {
   }
 
   Widget _buildLoadingWidget() {
+    Widget loader = new Loader().loader;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 25,
-            width: 25,
-            child: CircularProgressIndicator(
-              backgroundColor: Style.Colors.mainColor,
-              valueColor: AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
-            ),
-          ),
-        ],
+        children: [loader],
       ),
     );
   }

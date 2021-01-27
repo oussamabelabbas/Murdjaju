@@ -18,16 +18,17 @@ class MovieDetailScreen extends StatefulWidget {
   final NetworkImage image;
   final NetworkImage thumbnail;
   final AssetImage asset;
-  final int heroId;
-  MovieDetailScreen({Key key, this.projection, this.image, this.thumbnail, this.asset, this.heroId}) : super(key: key);
+  final int heroIndex;
+  MovieDetailScreen({Key key, this.projection, this.image, this.thumbnail, this.asset, this.heroIndex}) : super(key: key);
 
   @override
-  _MovieDetailScreenState createState() => _MovieDetailScreenState(projection, heroId);
+  _MovieDetailScreenState createState() => _MovieDetailScreenState(projection, heroIndex);
 }
 
 class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTickerProviderStateMixin {
   final Projection projection;
-  final int heroId;
+  final int heroIndex;
+  _MovieDetailScreenState(this.projection, this.heroIndex);
 
   YoutubePlayerController _controller;
 
@@ -35,8 +36,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
   AnimationController _hideFabAnimController;
 
   bool _isVisible = true;
-
-  _MovieDetailScreenState(this.projection, this.heroId);
 
   @override
   void initState() {
@@ -77,25 +76,18 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
         }
       },
     );
-    // movieVideosBloc..getMovieDetail(movie.id);
-    // movieDetailBloc..getMovieDetail(movie.id);
-    // castsBloc..getCasts(movie.id);
   }
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
-
-    // _scrollController.dispose();
-    // _hideFabAnimController.dispose(); // movieDetailBloc.drainStream();
-    // movieVideosBloc.drainStream();
-    // castsBloc.drainStream();
+    _scrollController.dispose();
+    _hideFabAnimController.dispose();
+    super.dispose();
   }
 
   @override
   void deactivate() {
-    // Pauses video while navigating to next page.
     _controller.pause();
     super.deactivate();
   }
@@ -103,24 +95,18 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return YoutubePlayerBuilder(
-      onExitFullScreen: () {
-        // The player forces portraitUp after exiting fullscreen. This overrides the behaviour.
-        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      },
-      onEnterFullScreen: () {
-        _controller.play();
-      },
+      onEnterFullScreen: () => _controller.play(),
+      onExitFullScreen: () => SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
+      // The player forces portraitUp after exiting fullscreen. This overrides the behaviour.
+
       player: YoutubePlayer(
+        onReady: () {},
         controller: _controller,
         showVideoProgressIndicator: true,
         progressIndicatorColor: Colors.blueAccent,
-        onReady: () {},
-        onEnded: (data) {
-          _controller.load(projection.movie.trailer);
-        },
+        onEnded: (data) => _controller.load(projection.movie.trailer),
       ),
       builder: (context, player) => Scaffold(
-        //floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
         floatingActionButton: projection.date.isBefore(DateTime.now())
             ? null
             : FadeTransition(
@@ -136,7 +122,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                         context,
                         CupertinoPageRoute(
                           builder: (context) {
-                            return BookingScreen(projection: projection, heroId: heroId);
+                            return BookingScreen(projection: projection, heroId: heroIndex);
                           },
                         ),
                       );
@@ -146,17 +132,15 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
               ),
         body: Stack(
           children: [
-            Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: widget.image,
-                  fit: BoxFit.cover,
-                ),
-              ),
+            ClipRRect(
               clipBehavior: Clip.antiAlias,
-              child: ClipRRect(
+              child: Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  image: DecorationImage(image: widget.image, fit: BoxFit.cover),
+                ),
+                clipBehavior: Clip.antiAlias,
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(
@@ -166,78 +150,78 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                 ),
               ),
             ),
-            CustomScrollView(
-              physics: ClampingScrollPhysics(),
-              controller: _scrollController,
-              slivers: <Widget>[
-                SliverAppBar(
-                  expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
-                  backgroundColor: Style.Colors.mainColor.withOpacity(.0),
-                  pinned: true,
-                  shadowColor: Colors.transparent,
-                  elevation: 0,
-                  flexibleSpace: FlexibleSpaceBar(
-                    centerTitle: true,
-                    background: Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        Hero(
-                          tag: projection.movie.id + heroId.toString(),
-                          child: ProgressiveImage(
-                            placeholder: widget.asset,
-                            thumbnail: widget.thumbnail,
-                            image: widget.image,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.width * 3 / 2,
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              stops: [0, 1],
+            ClipRRect(
+              clipBehavior: Clip.antiAlias,
+              child: CustomScrollView(
+                controller: _scrollController,
+                physics: BouncingScrollPhysics(),
+                slivers: <Widget>[
+                  SliverAppBar(
+                    pinned: true,
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
+                    backgroundColor: Style.Colors.mainColor.withOpacity(.0),
+                    expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
+                    flexibleSpace: FlexibleSpaceBar(
+                      centerTitle: true,
+                      background: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Hero(
+                            tag: projection.movie.id + heroIndex.toString(),
+                            child: ProgressiveImage(
+                              placeholder: widget.asset,
+                              thumbnail: widget.thumbnail,
+                              image: widget.image,
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.width * 3 / 2,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  leadingWidth: 56 + 5.0,
-                  leading: Padding(
-                    padding: EdgeInsets.only(left: 5),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      color: Colors.white60,
-                      child: Icon(
-                        Icons.chevron_left,
-                        color: Style.Colors.mainColor,
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [0, 1],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);
+                    ),
+                    leading: Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          margin: EdgeInsets.all(10),
+                          decoration: BoxDecoration(color: Style.Colors.secondaryColor.withOpacity(.5), shape: BoxShape.circle),
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.chevron_left),
+                            color: Style.Colors.mainColor,
+                            onPressed: () => Navigator.pop(context),
+                            tooltip: MaterialLocalizations.of(context).previousPageTooltip,
+                          ),
+                        );
                       },
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    // padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))
-                        //color: Style.Colors.mainColor.withOpacity(.75),
+                  SliverToBoxAdapter(
+                    child: Container(
+                      decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                      clipBehavior: Clip.antiAlias,
+                      child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: MovieInfos(
+                          heroId: heroIndex,
+                          projection: projection,
+                          videoPlayer: player,
                         ),
-                    clipBehavior: Clip.antiAlias,
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      child: MovieInfos(
-                        heroId: heroId,
-                        projection: projection,
-                        videoPlayer: player,
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

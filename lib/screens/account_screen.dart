@@ -134,66 +134,97 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Style.Colors.mainColor,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        icon: Icon(Icons.logout),
+        label: Text("Déconnexion"),
+        onPressed: () {
+          SnackBar sb = SnackBar(
+            margin: EdgeInsets.all(10),
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Style.Colors.mainColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            content: Text("Voulez vous déconnecter?", style: TextStyle(color: Colors.white)),
+            action: SnackBarAction(
+              label: "Déconnecter.",
+              disabledTextColor: Colors.white,
+              textColor: Style.Colors.secondaryColor,
+              onPressed: () async {
+                setState(() => _enableEditing = false);
+                final auth = Provider.of<UserAuth>(context, listen: false);
+                final loader = Loader();
+                final GlobalKey<State> key = new GlobalKey<State>();
+                loader.showLoadingDialog(context, key);
+                await auth.logout();
+                // Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
+                Navigator.pop(context);
+                loader.removeLoadingDialog(context, key);
+              },
+            ),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(sb);
+        },
+      ),
       body: ClipRRect(
         clipBehavior: Clip.antiAlias,
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage('https://image.tmdb.org/t/p/w780/' + currentWeekBloc.subject.value.projections.first.movie.poster),
-              fit: BoxFit.cover,
+        child: SingleChildScrollView(
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage('https://image.tmdb.org/t/p/w780/' + currentWeekBloc.subject.value.projections.first.movie.poster),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: Style.Colors.mainColor.withOpacity(.4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  AppBar(
-                    elevation: 0,
-                    backgroundColor: Colors.transparent,
-                    actions: _enableEditing
-                        ? [
-                            IconButton(
-                              icon: Icon(Icons.save, color: Colors.green),
-                              onPressed: () async {
-                                _verifyPhoneNumber();
-                                _verifyName();
-                                if (_nameValide == null && _phoneNumberValide == null) {
-                                  final auth = Provider.of<UserAuth>(context, listen: false);
-                                  final loader = Loader();
-                                  final GlobalKey<State> key = new GlobalKey<State>();
-                                  loader.showLoadingDialog(context, key);
-                                  await auth.updateUser(_nameFieldTextController.text, _phoneNumberFieldTextController.text);
-                                  loader.removeLoadingDialog(context, key);
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                color: Style.Colors.mainColor.withOpacity(.4),
+                child: Column(
+                  children: <Widget>[
+                    AppBar(
+                      elevation: 0,
+                      backgroundColor: Colors.transparent,
+                      actions: _enableEditing
+                          ? [
+                              IconButton(
+                                icon: Icon(Icons.save, color: Colors.green),
+                                onPressed: () async {
+                                  _verifyPhoneNumber();
+                                  _verifyName();
+                                  if (_nameValide == null && _phoneNumberValide == null) {
+                                    final auth = Provider.of<UserAuth>(context, listen: false);
+                                    final loader = Loader();
+                                    final GlobalKey<State> key = new GlobalKey<State>();
+                                    loader.showLoadingDialog(context, key);
+                                    await auth.updateUser(_nameFieldTextController.text, _phoneNumberFieldTextController.text);
+                                    loader.removeLoadingDialog(context, key);
+                                    setState(() => _enableEditing = false);
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.cancel, color: Colors.red),
+                                onPressed: () {
+                                  resetFields();
                                   setState(() => _enableEditing = false);
-                                }
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.cancel, color: Colors.red),
-                              onPressed: () {
-                                resetFields();
-                                setState(() => _enableEditing = false);
-                              },
-                            ),
-                          ]
-                        : [
-                            IconButton(
-                              icon: Icon(Icons.edit, color: Style.Colors.secondaryColor),
-                              onPressed: () {
-                                setState(() => _enableEditing = true);
-                              },
-                            ),
-                          ],
-                  ),
-                  Expanded(
-                    child: Padding(
+                                },
+                              ),
+                            ]
+                          : [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: Style.Colors.secondaryColor),
+                                onPressed: () {
+                                  setState(() => _enableEditing = true);
+                                },
+                              ),
+                            ],
+                    ),
+                    Padding(
                       padding: EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          Spacer(),
                           TextFormField(
                             readOnly: !_enableEditing,
                             maxLines: 1,
@@ -235,7 +266,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ),
                           SizedBox(height: 5),
                           TextFormField(
-                            readOnly: !_enableEditing,
+                            readOnly: true,
                             textAlign: TextAlign.center,
                             focusNode: _mailAdressFocusNode,
                             keyboardType: TextInputType.emailAddress,
@@ -311,28 +342,11 @@ class _AccountScreenState extends State<AccountScreen> {
                               ),
                             ),
                           ),
-                          Spacer(),
-                          FloatingActionButton.extended(
-                            icon: Icon(Icons.logout),
-                            label: Text("Déconnexion"),
-                            onPressed: () async {
-                              setState(() => _enableEditing = false);
-                              final auth = Provider.of<UserAuth>(context, listen: false);
-                              final loader = Loader();
-                              final GlobalKey<State> key = new GlobalKey<State>();
-                              loader.showLoadingDialog(context, key);
-                              await auth.logout();
-                              // Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_) => MyApp()));
-                              Navigator.pop(context);
-                              loader.removeLoadingDialog(context, key);
-                            },
-                          ),
-                          Spacer(),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

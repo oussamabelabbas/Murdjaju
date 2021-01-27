@@ -5,40 +5,27 @@ import 'package:murdjaju/model/projection.dart';
 import 'package:murdjaju/model/week.dart';
 import 'package:murdjaju/model/week_response.dart';
 import 'package:flutter/material.dart';
+import 'package:murdjaju/providers/loading_provider.dart';
 
 import 'package:murdjaju/style/theme.dart' as Style;
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:murdjaju/widgets/swipersColumn.dart';
 
 class WeekPageView extends StatefulWidget {
-  final TabController tabController;
-  final String weekId;
-  final String cineWhat;
-  final List<int> myGenresFilterList;
-  final List<String> mySallesFilterList;
-
-  WeekPageView({Key key, this.tabController, this.weekId, this.cineWhat, this.myGenresFilterList, this.mySallesFilterList}) : super(key: key);
+  WeekPageView({Key key}) : super(key: key);
 
   @override
-  _WeekPageViewState createState() => _WeekPageViewState(tabController, weekId, cineWhat, myGenresFilterList, mySallesFilterList);
+  _WeekPageViewState createState() => _WeekPageViewState();
 }
 
 class _WeekPageViewState extends State<WeekPageView> {
-  final TabController _tabController;
-  final String weekId;
-  final String cineWhat;
-
-  final List<int> myGenresFilterList;
-  final List<String> mySallesFilterList;
-
-  _WeekPageViewState(this._tabController, this.weekId, this.cineWhat, this.myGenresFilterList, this.mySallesFilterList);
+  _WeekPageViewState();
 
   PageController _pageController;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    currentWeekBloc.getCurrentWeek(weekId);
   }
 
   @override
@@ -72,9 +59,7 @@ class _WeekPageViewState extends State<WeekPageView> {
       controller: _pageController,
       itemBuilder: (context, index) {
         List<Projection> _projections = myWeek.projections.where((proj) => proj.date.day == myWeek.startDate.add(Duration(days: index)).day).toList();
-        return SwiperColumn(
-          projections: _projections,
-        );
+        return SwiperColumn(projections: _projections);
       },
     );
   }
@@ -105,20 +90,12 @@ class _WeekPageViewState extends State<WeekPageView> {
   }
 
   Widget _buildLoadingWidget() {
+    Widget loader = new Loader().loader;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 25,
-            width: 25,
-            child: CircularProgressIndicator(
-              backgroundColor: Style.Colors.mainColor,
-              valueColor: AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
-            ),
-          ),
-        ],
+        children: [loader],
       ),
     );
   }

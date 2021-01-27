@@ -44,79 +44,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  TabController _tabController;
-
   List<int> myGenresFilterList = [];
   List<String> mySallesFilterList = [];
-
-  AnimationController _animationController;
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   String myWeekId;
   String cineWhat;
 
-  void oneSignal() async {
+  void _initOneSignal() async {
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
-
-    await OneSignal.shared.init(
-      "2c44c278-0038-4e05-a26b-3d17c6562f22",
-      iOSSettings: {OSiOSSettings.autoPrompt: false, OSiOSSettings.inAppLaunchUrl: false},
-    );
     await OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
-
-// The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-    //  await OneSignal.shared.promptUserForPushNotificationPermission(fallbackToSettings: true);
-
-    OneSignal.shared.setNotificationReceivedHandler((OSNotification notification) async {
-      // will be called whenever a notification is received
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Center(
-              child: Text(
-                notification.jsonRepresentation(),
-              ),
-            ),
-          );
-        },
-      );
-    });
-
-    OneSignal.shared.setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-      // will be called whenever a notification is opened/button pressed.
-    });
-
-    OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
-      // will be called whenever the permission changes
-      // (ie. user taps Allow on the permission prompt in iOS)
-    });
-
-    OneSignal.shared.setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-      // will be called whenever the subscription changes
-      //(ie. user gets registered with OneSignal and gets a user ID)
-    });
-
-    OneSignal.shared.setEmailSubscriptionObserver((OSEmailSubscriptionStateChanges emailChanges) {
-      // will be called whenever then user's email subscription changes
-      // (ie. OneSignal.setEmail(email) is called and the user gets registered
-    });
+    await OneSignal.shared.init("2c44c278-0038-4e05-a26b-3d17c6562f22", iOSSettings: {OSiOSSettings.autoPrompt: false, OSiOSSettings.inAppLaunchUrl: false});
     var status = await OneSignal.shared.getPermissionSubscriptionState();
     DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").get();
-
     if (!doc.exists) {
-      await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").set(
-        {
-          "Ids": <String>[status.subscriptionStatus.userId],
-        },
-      );
+      await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").set({
+        "Ids": <String>[status.subscriptionStatus.userId]
+      });
     } else {
       if (!doc["Ids"].contains(status.subscriptionStatus.userId)) {
-        doc.reference.update(
-          {
-            "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId]),
-          },
-        );
+        doc.reference.update({
+          "Ids": FieldValue.arrayUnion([status.subscriptionStatus.userId])
+        });
       }
     }
   }
@@ -124,16 +72,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    oneSignal();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
-
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() {
-      setState(() {});
-    });
+    currentWeekBloc.getCurrentWeek(myWeekId);
+    _initOneSignal();
   }
 
   void getSallesAndGenres() async {}
@@ -148,25 +88,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         shadowColor: Colors.transparent,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        // centerTitle: true,
-        title: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          /*  child: Text(
-            mySallesFilterList.isEmpty
-                ? ""
-                : mySallesFilterList.fold(
-                      "",
-                      (previousValue, element) => previousValue + element + ", ",
-                    ) +
-                    (myGenresFilterList.isEmpty
-                        ? ""
-                        : myGenresFilterList.fold(
-                            "",
-                            (previousValue, element) => (previousValue + element.toString() + ", ").toString(),
-                          )),
-            style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.secondaryColor),
-          ), */
-        ),
         leading: IconButton(
           icon: Icon(MdiIcons.account, color: Colors.white),
           onPressed: () async {
@@ -179,13 +100,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         ),
         actions: [
-          /*  IconButton(
-            key: _fabKey,
-            icon: Icon(Icons.add_alert),
-            onPressed: () async {},
-          ), */
           IconButton(
-            icon: Icon(MdiIcons.filterOutline, color: Colors.white),
+            icon: Icon(MdiIcons.filter, color: (myWeekId != null || cineWhat != null || myGenresFilterList.isNotEmpty || mySallesFilterList.isNotEmpty) ? Style.Colors.secondaryColor : Colors.white),
             onPressed: () async {
               await Navigator.push(
                 context,
@@ -203,13 +119,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 (value) {
                   if (value != null && value.isNotEmpty) {
                     print(value.toString());
-                    setState(() {
-                      myWeekId = value[0];
-                      cineWhat = value[1];
-                      myGenresFilterList = value[2];
-                      mySallesFilterList = value[3];
-                    });
-
+                    setState(
+                      () {
+                        myWeekId = value[0];
+                        cineWhat = value[1];
+                        myGenresFilterList = value[2];
+                        mySallesFilterList = value[3];
+                      },
+                    );
                     currentWeekBloc.filterCurrentWeek(value[0], value[1], value[2], value[3]);
                   }
                 },
@@ -222,357 +139,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: Column(
           children: [
             Builder(
-              builder: (context) => WeekPageView(
-                tabController: _tabController,
-                weekId: null, // myWeekId,
-                cineWhat: null, // cineWhat,
-                myGenresFilterList: [], //myGenresFilterList,
-                mySallesFilterList: [], //mySallesFilterList,
-              ),
+              builder: (context) => WeekPageView(),
             ),
           ],
         ),
         snackBar: SnackBar(
-          content: Text('Double-Tap to close'),
+          backgroundColor: Style.Colors.mainColor,
+          duration: Duration(seconds: 2),
+          content: Text(
+            'Appuyer "Retour" a nouveau pour quitter Murdjaju.',
+            style: TextStyle(color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          margin: EdgeInsets.all(10),
         ),
       ),
-      /* floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await currentWeekBloc.getCurrentWeek(null);
-          print(currentWeekBloc.subject.value.startDate.toString());
-        },
-      ), */
-      /*   floatingActionButton: FloatingActionButton(onPressed: () async {
-        var status = await OneSignal.shared.getPermissionSubscriptionState();
-        String str = status.subscriptionStatus.userId;
-        print(str);
-        /*  var status = await OneSignal.shared.getPermissionSubscriptionState();
-        print(status.subscriptionStatus.userId);
-
-        await FirebaseFirestore.instance
-            .collection("Players")
-            .doc("NotificationsPlayersIdsDocument")
-            .get()
-            .then(
-          (doc) async {
-            try {
-              await OneSignal.shared.postNotification(
-                OSCreateNotification(
-                  playerIds: List.generate(
-                      doc['Ids'].length, (index) => doc['Ids'][index]),
-                  androidLargeIcon: "@mipmap/logo",
-                  androidSmallIcon: "@mipmap/logo",
-                  bigPicture:
-                      "https://image.tmdb.org/t/p/original/pbrkL804c8yAv3zBZR4QPEafpAR.jpg",
-                  content:
-                      "Interstellar,Tenet et Inception...\nLa semaine Christopher Nolan est la pour vous, 25% de reduction pour les 10 premiers réservations !!",
-                  heading: "Nouvelle semaine et nouveaux films !!!",
-                  buttons: [
-                    OSActionButton(
-                      text: "Botona",
-                      id: "id1",
-                    ),
-                    OSActionButton(
-                      text: "Botona bessah a droite",
-                      id: "id2",
-                    )
-                  ],
-                ),
-              );
-            } catch (e) {
-              print(e);
-            }
-          },
-        );
-
-        var response;
-
-        print("==>" + response.toString()); */
-
-        /*  var res = await http.post(
-          "https://onesignal.com/api/v1/notifications",
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            "Authorization":
-                "basic ODk4ZTMzZTktYzAzMy00ZGI3LThjMWYtMTQ1YTcxNzM4YWZm"
-          },
-          body: {
-            "app_id": "5eb5a37e-b458-11e3-ac11-000c2940e62c",
-            "included_segments": ["All"],
-            "data": {"foo": "bar"},
-            "contents": {"en": "English Message"},
-          },
-
-          /*   {
-            "app_id": "5eb5a37e-b458-11e3-ac11-000c2940e62c",
-            "contents": {"en": "English Message"},
-          }, */
-        );
-
-        print(res.body); */
-        /*   var postUrl = "https://onesignal.com/api/v1/notifications";
-
-        var headers = {
-          "Content-Type": "application/json; charset=utf-8",
-          "Authorization": "ODk4ZTMzZTktYzAzMy00ZGI3LThjMWYtMTQ1YTcxNzM4YWZm"
-        };
-
-        var options = {
-          "host": "onesignal.com",
-          "port": 443,
-          "path": "/api/v1/notifications",
-          "method": "POST",
-          "headers": headers
-        };
-        BaseOptions option = BaseOptions(
-          headers: headers,
-        );
-
-        final data = {
-          "app_id": "a1de0aa0-fb19-466a-9986-37ff14e1491e",
-          "included_segments": ["All"],
-          "contents": {"en": "English Message"},
-          "data": {"foo": "bar"}
-        };
-
-        var message = {
-          "app_id": "5eb5a37e-b458-11e3-ac11-000c2940e62c",
-          "contents": {"en": "English Message"},
-          "filters": [
-            {"field": "tag", "key": "level", "relation": "=", "value": "10"},
-            {"operator": "OR"},
-            {"field": "amount_spent", "relation": ">", "value": "0"}
-          ]
-        };
-
-        try {
-          final response = await Dio(option).post(postUrl, data: data);
-
-          if (response.statusCode == 200) {
-            Fluttertoast.showToast(msg: 'Request Sent To Driver');
-          } else {
-            print('notification sending failed');
-            // on failure do sth
-          }
-        } catch (e) {
-          print('exception $e');
-        } */
-
-        /*  // See index.js in the functions folder for the example function we
-        // are using for this example
-        HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
-            'listFruit',
-            options: HttpsCallableOptions(timeout: Duration(seconds: 5)));
-
-        await callable().then((v) {
-          print("ketba chabaa ====");
-        }).catchError((e) {
-          print("Lmohim ketba");
-        }); */
-        /*  Dio dio = Dio();
-        var postUrl = "fcm.googleapis.com/fcm/send";
-        FirebaseMessaging fcm = FirebaseMessaging();
-        var token = await fcm.getToken();
-
-        final data = {
-          "notification": {
-            "body": "Accept Ride Request",
-            "title": "This is Ride Request"
-          },
-          "priority": "high",
-          "data": {
-            "click_action": "FLUTTER_NOTIFICATION_CLICK",
-            "id": "1",
-            "status": "done"
-          },
-          "to": "$token"
-        };
-
-        final headers = {
-          'content-type': 'application/json',
-          'Authorization':
-              'AAAAe2oi9U4:APA91bFLEdUODxfi9uQr3NheZF-jnCTLawULAx1riWhRUUOm7eFCQey0a5axD_GHZ9-I79_RlZG8Q7HD_gU2yLOXNW75nQBAmO6h-LNT2AUxRhBLVwjQqrvZcUOrK7augqSlhSql2uO-'
-        };
-
-        BaseOptions options = new BaseOptions(
-          connectTimeout: 5000,
-          receiveTimeout: 3000,
-          headers: headers,
-        );
-
-        try {
-          final response =
-              await http.post(postUrl, body: data.toString(), headers: headers);
-
-          if (response.statusCode == 200) {
-            Fluttertoast.showToast(msg: 'Request Sent To Driver');
-          } else {
-            print('notification sending failed');
-            // on failure do sth
-          }
-        } catch (e) {
-          print('exception $e');
-        } */
-      }), */
-      /*
-        child: Center(
-          child: CircularProgressIndicator(
-            value: _animationController.isAnimating ? null : 1,
-            valueColor: AlwaysStoppedAnimation(Colors.white),
-          ),
-        ),
-         onPressed: () async {
-          /*Stream s = weeksListBloc.subject.stream; */
-
-        floatingActionButton: FloatingActionButton(
-          print("pressed");
-          _animationController.repeat();
-          Random rnd = Random();
-
-          List<DateTime> list = [
-            DateTime(2020, 12, 6, 12, 30),
-            DateTime(2020, 12, 6, 14, 30),
-            DateTime(2020, 12, 6, 15, 30),
-            DateTime(2020, 12, 6, 17, 30),
-            DateTime(2020, 12, 7, 13, 30),
-            DateTime(2020, 12, 7, 15, 30),
-            DateTime(2020, 12, 7, 17, 15),
-            DateTime(2020, 12, 7, 18, 45),
-            DateTime(2020, 12, 8, 12, 00),
-            DateTime(2020, 12, 8, 13, 45),
-            DateTime(2020, 12, 8, 15, 30),
-            DateTime(2020, 12, 8, 17, 30),
-            DateTime(2020, 12, 8, 19, 00),
-            DateTime(2020, 12, 9, 12, 30),
-            DateTime(2020, 12, 9, 14, 30),
-            DateTime(2020, 12, 9, 16, 30),
-            DateTime(2020, 12, 9, 18, 30),
-            DateTime(2020, 12, 10, 12, 00),
-            DateTime(2020, 12, 10, 14, 30),
-            DateTime(2020, 12, 10, 16, 30),
-            DateTime(2020, 12, 11, 12, 00),
-            DateTime(2020, 12, 11, 13, 45),
-            DateTime(2020, 12, 11, 15, 30),
-            DateTime(2020, 12, 11, 17, 30),
-            DateTime(2020, 12, 11, 19, 00),
-            DateTime(2020, 12, 12, 12, 30),
-            DateTime(2020, 12, 12, 14, 30),
-            DateTime(2020, 12, 12, 16, 30),
-            DateTime(2020, 12, 12, 18, 30),
-          ];
-
-          QuerySnapshot moviesQuery =
-              await FirebaseFirestore.instance.collection("Movies").get();
-          List<DocumentSnapshot> _movies = moviesQuery.docs;
-          QuerySnapshot sallesQuery =
-              await FirebaseFirestore.instance.collection("Salles").get();
-          List<DocumentSnapshot> _salles = sallesQuery.docs;
-
-          int randomInt = 0;
-
-          list.forEach(
-            (_date) async {
-              randomInt = rnd.nextInt(9999);
-              await FirebaseFirestore.instance
-                  .collection("Weeks")
-                  .doc("PGNyQuoIDdOh3kzqejda")
-                  .collection("Projections")
-                  .add(
-                {
-                  "date": _date,
-                  "movieId": _movies[randomInt % _movies.length].id,
-                  "prixTicket": 500 + (randomInt % 10) * 50,
-                  "salleId": _salles[randomInt % _salles.length].id,
-                  "places": _salles[randomInt % _salles.length]['places'],
-                },
-              );
-            },
-          );
-
-          _animationController.stop();
-          /*  MovieRepository _rep = MovieRepository();
-          TMDB tmdbWithCustomLogs = TMDB(
-            ApiKeys(
-              "3fcc3cf0902881ec381782b11cebbe92",
-              "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZmNjM2NmMDkwMjg4MWVjMzgxNzgyYjExY2ViYmU5MiIsInN1YiI6IjVmODg5ZGRjZTMzZjgzMDAzN2ZkZjk1NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.tLu7CRm0t78C9_NtDb4_1KC8TC3sh6nqUGXdXq2BN44",
-            ),
-          );
-
-          MovieResponse movieResponse = await _rep.getNowPlayingMovies();
-
-          movieResponse.movies.forEach(
-            (_movie) async {
-              Map<dynamic, dynamic> response = await tmdbWithCustomLogs
-                  .v3.movies
-                  .getDetails(_movie.id, language: "fr-FR");
-
-              await FirebaseFirestore.instance
-                  .collection("Movies")
-                  .doc(_movie.id.toString())
-                  .set(response);
-            },
-          );
-
-          print('stoped'); */
-
-          /*  QuerySnapshot snapshot =
-              await FirebaseFirestore.instance.collection('Movies').get();
-          List<DocumentSnapshot> movies = snapshot.docs;
-          QuerySnapshot snapshotsalle =
-              await FirebaseFirestore.instance.collection('Salles').get();
-          List<DocumentSnapshot> salles = snapshotsalle.docs;
-          DocumentSnapshot movie;
-          int number;
-          QuerySnapshot query = await FirebaseFirestore.instance
-              .collection('Projections')
-              //.where("date.Date.weekDay", isEqualTo: dayIndex)
-              .orderBy("date", descending: false)
-              .get();
-          List<DocumentSnapshot> projs = query.docs; */
-
-          /* await Future.forEach(
-            list,
-            (element) {
-              projs.add({
-                "movieId": movies[number].id,
-                "date": element,
-                "salleId": number % 2 == 0 ? "salle_Q" : "salle_W",
-                "prixTicket": 300 + (number * 10),
-                "places": number % 2 == 0
-                    ? salles
-                        .where((element) => element.id == "salle_Q")
-                        .toList()
-                        .first['places']
-                    : salles
-                        .where((element) => element.id == "salle_W")
-                        .toList()
-                        .first['places'],
-              });
-            },
-          );
- */
-          /*   list.forEach(
-            (element) async { */
-          /*  number = rnd.nextInt(list.length);
-          movie = movies[number % movies.length];
-          await FirebaseFirestore.instance.collection("Weeks").add(
-            {
-              "numberOfDays": 5,
-              "startDay": list[0],
-            },
-          ).then(
-            (value) async {
-              projs.map((e) => e.data()).toList().forEach(
-                (element) async {
-                  value.collection("Projections").add(
-                        element,
-                      );
-                },
-              );
-            },
-          ); */
-        },
-      ), */
     );
   }
 }

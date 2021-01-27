@@ -14,11 +14,12 @@ class CurrentWeekBloc {
     _subject.sink.add(Week(_subject.value.id, _subject.value.startDate, 1, _subject.value.projections, "Loading..."));
     await Future.delayed(Duration(milliseconds: 500));
     Week response;
-    if (_subject.value.id != id) {
-      print("Yes, ah no .");
+    if (id == null)
+      response = _subjectReserve.value;
+    else if (_subject.value.id != id) response = await _repository.getCurrentWeek(id);
+    if (id != null && _subject.value.id != id)
       response = await _repository.getCurrentWeek(id);
-      _subjectReserve.sink.add(response);
-    } else
+    else
       response = _subjectReserve.value;
 
     List<Projection> projections = response.projections
@@ -26,16 +27,20 @@ class CurrentWeekBloc {
           (proj) => (cineWhat == null || proj.cine == cineWhat) && (genresIdList.isEmpty || proj.movie.genres.map<int>((e) => e.id).toList().where((element) => genresIdList.contains(element)).isNotEmpty) && (sallesIdList.isEmpty || sallesIdList.indexWhere((element) => proj.salle.id == element) != -1),
         )
         .toList();
-    print("Yes, ah no .");
 
     response = Week(response.id, response.startDate, response.numberOfDays, projections, response.error);
     _subject.sink.add(response);
   }
 
   Future getCurrentWeek(String id) async {
-    Week response = await _repository.getCurrentWeek(id);
+    Week response;
+    if (id != null && _subjectReserve.value.id == id)
+      response = _subjectReserve.value;
+    else
+      response = await _repository.getCurrentWeek(id);
+
     _subject.sink.add(response);
-    _subjectReserve.sink.add(response);
+    if (!_subjectReserve.hasValue) _subjectReserve.sink.add(response);
   }
 
   void dispose() async {
