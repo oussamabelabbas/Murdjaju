@@ -23,6 +23,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       iconImagePath: 'assets/notification.svg',
       heroImagePath: 'assets/notification.svg',
       heroImageColor: Style.Colors.mainColor,
+
       title: Padding(
         padding: EdgeInsets.all(25),
         child: Text(
@@ -58,7 +59,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     ),
     PageModel(
       body: SizedBox(),
-
       //icon: Icon(Icons.movie),
       color: Style.Colors.secondaryColor,
       iconImagePath: 'assets/calendar.svg',
@@ -87,19 +87,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         doneButtonText: "Terminé",
         skipButtonText: "Sauter",
         doneButtonBackgroundColor: Style.Colors.mainColor,
-        onDoneButtonPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
-        onSkipButtonPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
+        onDoneButtonPressed: () => Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
+        onSkipButtonPressed: () => Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
         doneButton: MaterialButton(
           shape: StadiumBorder(),
           color: Style.Colors.mainColor,
           child: Text("Terminé"),
-          onPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
+          onPressed: () => Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
         ),
         skipButton: MaterialButton(
           shape: StadiumBorder(),
           color: Style.Colors.mainColor,
           child: Text("Sauter"),
-          onPressed: () => Navigator.push(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
+          onPressed: () => Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => AuthentificationScreen())),
         ),
       ),
     );
