@@ -107,7 +107,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
         onEnded: (data) => _controller.load(projection.movie.trailer),
       ),
       builder: (context, player) => Scaffold(
-        floatingActionButton: projection.date.isBefore(DateTime.now())
+        floatingActionButton: false //projection.date.isBefore(DateTime.now())
             ? null
             : FadeTransition(
                 opacity: _hideFabAnimController,

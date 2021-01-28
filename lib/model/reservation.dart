@@ -8,6 +8,8 @@ class Reservation {
   final String userId;
   final DateTime date;
   final List<String> placesIds;
+  final String movieTitle;
+  final String salleName;
 
   Reservation(
     this.id,
@@ -16,6 +18,8 @@ class Reservation {
     this.userId,
     this.date,
     this.placesIds,
+    this.movieTitle,
+    this.salleName,
   );
 
   Reservation.fromSnapshots(DocumentSnapshot reservation)
@@ -24,7 +28,9 @@ class Reservation {
         confirmed = reservation['Confirmed'],
         userId = reservation['UserId'],
         date = DateTime.fromMillisecondsSinceEpoch(reservation["Date"].millisecondsSinceEpoch),
-        placesIds = (reservation['PlacesIds'] as List).map((e) => e.toString()).toList();
+        placesIds = (reservation['PlacesIds'] as List).map((e) => e.toString()).toList(),
+        movieTitle = reservation['movieTitle'],
+        salleName = reservation['salleName'];
 
   Reservation.withError(String errorValue)
       : id = null,
@@ -32,5 +38,7 @@ class Reservation {
         confirmed = false,
         userId = null,
         date = DateTime.now(),
-        placesIds = [];
+        placesIds = [],
+        movieTitle = null,
+        salleName = null;
 }

@@ -5,6 +5,7 @@ import 'package:murdjaju/model/movie_detail_response.dart';
 import 'package:murdjaju/model/movie_response.dart';
 import 'package:murdjaju/model/person_response.dart';
 import 'package:murdjaju/model/projection_response.dart';
+import 'package:murdjaju/model/reservations_response.dart';
 import 'package:murdjaju/model/video_response.dart';
 import 'package:murdjaju/model/week.dart';
 import 'package:murdjaju/model/week_response.dart';
@@ -25,6 +26,29 @@ class MovieRepository {
   );
 
   Movies get v3TMDB => tmdbWithCustomLogs.v3.movies;
+
+  Future<ReservationsResponse> getProjectionReservations(String projectionId) async {
+    try {
+      QuerySnapshot reservationsQuery = await FirebaseFirestore.instance.collection("Reservations").where("ProjectionId", isEqualTo: projectionId).get();
+      await Future.forEach(
+        reservationsQuery.docs
+            .where(
+              (element) => DateTime.now().isAfter(
+                DateTime.fromMillisecondsSinceEpoch(element["Date"].millisecondsSinceEpoch).add(Duration(minutes: 59)),
+              ),
+            )
+            .toList(),
+        (doc) async {
+          await doc.reference.delete();
+          reservationsQuery.docs.removeAt(reservationsQuery.docs.indexOf(doc));
+        },
+      );
+
+      return ReservationsResponse.fromSnapshots(reservationsQuery.docs);
+    } catch (e) {
+      return ReservationsResponse.withError("Somethig went wrong:" + e.toString());
+    }
+  }
 
   Future<GenreResponse> getAllGenres() async {
     try {

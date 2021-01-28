@@ -1,16 +1,20 @@
-import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:murdjaju/bloc/current_week_bloc.dart';
+import 'package:murdjaju/bloc/get_user_reservations_bloc.dart';
+import 'package:murdjaju/model/reservation.dart';
+import 'package:murdjaju/model/reservations_response.dart';
 import 'package:murdjaju/providers/auth.dart';
 import 'package:murdjaju/providers/loading_provider.dart';
+import 'package:murdjaju/screens/reservations_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
-import '../main.dart';
 import '../style/theme.dart' as Style;
 
 class AccountScreen extends StatefulWidget {
@@ -56,78 +60,6 @@ class _AccountScreenState extends State<AccountScreen> {
     _nameFieldTextController.text = auth.user.displayName;
     _mailAdressFieldTextController.text = auth.user.email;
     _phoneNumberFieldTextController.text = auth.phoneNumber.substring(auth.phoneNumber.length - 9);
-  }
-
-  void _verifyPhoneNumber() {
-    if (_phoneNumberFieldTextController.text == null || _phoneNumberFieldTextController.text == '')
-      setState(() {
-        _phoneNumberValide = 'Numéro téléphone vide !';
-      });
-    else if (!validatePhoneNumber(_phoneNumberFieldTextController.text))
-      setState(() {
-        _phoneNumberValide = 'Le numéro téléphone doit être valide.';
-      });
-    else
-      setState(() {
-        _phoneNumberValide = null;
-      });
-  }
-
-  bool validatePhoneNumber(String value) {
-    String pattern = r"^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3}$";
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return false;
-    else
-      return true;
-  }
-
-  void _verifyName() {
-    if (_nameFieldTextController.text == null || _nameFieldTextController.text == '')
-      setState(() {
-        _nameValide = 'Le nom est vide !';
-      });
-    else if (!validateName(_nameFieldTextController.text))
-      setState(() {
-        _nameValide = 'Veillez entrer votre nom complet, svp.';
-      });
-    else
-      setState(() {
-        _nameValide = null;
-      });
-  }
-
-  bool validateName(String value) {
-    String pattern = r"^([a-zA-Z]{2,}\s[a-zA-Z]{1,}'?-?[a-zA-Z]{2,}\s?([a-zA-Z]{1,})?)";
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return false;
-    else
-      return true;
-  }
-
-  void _verifyEmail() {
-    if (_mailAdressFieldTextController.text == null || _mailAdressFieldTextController.text == '')
-      setState(() {
-        _emailValide = 'L\adresse mail est vide.';
-      });
-    else if (!validateEmail(_mailAdressFieldTextController.text))
-      setState(() {
-        _emailValide = 'L\'adresse mail doit être valide.';
-      });
-    else
-      setState(() {
-        _emailValide = null;
-      });
-  }
-
-  bool validateEmail(String value) {
-    Pattern pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return false;
-    else
-      return true;
   }
 
   @override
@@ -342,6 +274,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               ),
                             ),
                           ),
+                          //_buildReservationsList(),
                         ],
                       ),
                     ),
@@ -353,5 +286,209 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildReservationsList() => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _title("Mes réservations:"),
+          StreamBuilder(
+            stream: reservationsListBloc.subject.stream,
+            builder: (context, AsyncSnapshot<ReservationsResponse> snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data.error != null && snapshot.data.error.length > 0) {
+                  return _buildErrorWidget(snapshot.data);
+                }
+                return _buildWeekBuilder(snapshot.data);
+              } else if (snapshot.hasError) {
+                return _buildErrorWidget(snapshot.data);
+              } else {
+                return _buildLoadingWidget();
+              }
+            },
+          ),
+        ],
+      );
+  Widget _title(String _str) => Padding(
+        padding: EdgeInsets.only(left: 0),
+        child: Row(
+          children: [
+            Text(
+              _str,
+              style: Theme.of(context).textTheme.headline6.copyWith(color: Style.Colors.secondaryColor),
+            ),
+            Spacer(),
+            InkWell(
+              onTap: () {
+                Navigator.push(context, CupertinoPageRoute(builder: (context) => ReservationsScreen()));
+              },
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: Center(
+                  child: Text(
+                    "Voir tout.",
+                    style: Theme.of(context).textTheme.caption,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildWeekBuilder(ReservationsResponse data) {
+    List<Reservation> reservations = data.reservations;
+
+    return Container(
+      height: 120,
+      child: ListView.separated(
+        itemCount: reservations.length,
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.all(10),
+        separatorBuilder: (context, index) => SizedBox(width: 20),
+        itemBuilder: (context, index) => AspectRatio(
+          aspectRatio: 1,
+          child: InkWell(
+            onTap: () {},
+            child: Card(
+              color: Style.Colors.titleColor.withOpacity(.65),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Hero(
+                    tag: "QR" + reservations[index].id,
+                    child: QrImage(
+                      data: reservations[index].id,
+                      version: QrVersions.auto,
+                      backgroundColor: Style.Colors.titleColor,
+                      foregroundColor: Style.Colors.mainColor,
+                      padding: EdgeInsets.all(10),
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(reservations[index].salleName),
+                      Text(reservations[index].movieTitle),
+                      Text(DateFormat('E d/MM.', 'fr-FR').format(reservations[index].date)),
+                      Text(DateFormat('HH:mm', 'fr-FR').format(reservations[index].date)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget(ReservationsResponse error) {
+    if (error.error == "Loading...") return _buildLoadingWidget();
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 25,
+            width: 25,
+            child: Icon(MdiIcons.exclamation, color: Colors.grey),
+          ),
+          Text(
+            "Something went wrong :",
+            style: TextStyle(color: Colors.grey),
+          ),
+          Text(
+            error.error,
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingWidget() {
+    Widget loader = new Loader().loader;
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [loader],
+      ),
+    );
+  }
+
+  void _verifyPhoneNumber() {
+    if (_phoneNumberFieldTextController.text == null || _phoneNumberFieldTextController.text == '')
+      setState(() {
+        _phoneNumberValide = 'Numéro téléphone vide !';
+      });
+    else if (!validatePhoneNumber(_phoneNumberFieldTextController.text))
+      setState(() {
+        _phoneNumberValide = 'Le numéro téléphone doit être valide.';
+      });
+    else
+      setState(() {
+        _phoneNumberValide = null;
+      });
+  }
+
+  bool validatePhoneNumber(String value) {
+    String pattern = r"^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{3}$";
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return false;
+    else
+      return true;
+  }
+
+  void _verifyName() {
+    if (_nameFieldTextController.text == null || _nameFieldTextController.text == '')
+      setState(() {
+        _nameValide = 'Le nom est vide !';
+      });
+    else if (!validateName(_nameFieldTextController.text))
+      setState(() {
+        _nameValide = 'Veillez entrer votre nom complet, svp.';
+      });
+    else
+      setState(() {
+        _nameValide = null;
+      });
+  }
+
+  bool validateName(String value) {
+    String pattern = r"^([a-zA-Z]{2,}\s[a-zA-Z]{1,}'?-?[a-zA-Z]{2,}\s?([a-zA-Z]{1,})?)";
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return false;
+    else
+      return true;
+  }
+
+  void _verifyEmail() {
+    if (_mailAdressFieldTextController.text == null || _mailAdressFieldTextController.text == '')
+      setState(() {
+        _emailValide = 'L\adresse mail est vide.';
+      });
+    else if (!validateEmail(_mailAdressFieldTextController.text))
+      setState(() {
+        _emailValide = 'L\'adresse mail doit être valide.';
+      });
+    else
+      setState(() {
+        _emailValide = null;
+      });
+  }
+
+  bool validateEmail(String value) {
+    Pattern pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return false;
+    else
+      return true;
   }
 }
