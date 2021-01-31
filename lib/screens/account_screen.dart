@@ -59,7 +59,11 @@ class _AccountScreenState extends State<AccountScreen> {
   void resetFields() {
     _nameFieldTextController.text = auth.user.displayName;
     _mailAdressFieldTextController.text = auth.user.email;
-    _phoneNumberFieldTextController.text = auth.phoneNumber.substring(auth.phoneNumber.length - 9);
+    _phoneNumberFieldTextController.text = (auth.phoneNumber.isEmpty || auth.phoneNumber == null)
+        ? ""
+        : auth.phoneNumber.substring(
+            auth.phoneNumber.length - 9,
+          );
   }
 
   @override
