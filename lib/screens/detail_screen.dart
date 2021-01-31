@@ -194,17 +194,38 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
                       builder: (BuildContext context) {
                         return Container(
                           margin: EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: Style.Colors.secondaryColor.withOpacity(.5), shape: BoxShape.circle),
-                          child: IconButton(
+                          child: MaterialButton(
                             padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.chevron_left),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(56)),
                             color: Style.Colors.mainColor,
-                            onPressed: () => Navigator.pop(context),
-                            tooltip: MaterialLocalizations.of(context).previousPageTooltip,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.arrow_back),
+                              color: Style.Colors.secondaryColor,
+                              onPressed: () => Navigator.pop(context),
+                              //tooltip: MaterialLocalizations.of(context).previousPageTooltip,
+                            ),
+                            onPressed: () {},
                           ),
                         );
                       },
                     ),
+                    //     Builder(
+                    //   builder: (BuildContext context) {
+                    //     return Container(
+                    //       margin: EdgeInsets.all(10),
+                    //       decoration: BoxDecoration(color: Style.Colors.secondaryColor.withOpacity(.5), shape: BoxShape.circle),
+                    //       child: Center(
+                    //         child: IconButton(
+                    //           padding: EdgeInsets.zero,
+                    //           icon: const Icon(Icons.arrow_back_ios),
+                    //           color: Style.Colors.mainColor,
+                    //           onPressed: () => Navigator.pop(context),
+                    //         ),
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
                   ),
                   SliverToBoxAdapter(
                     child: Container(

@@ -103,14 +103,25 @@ class _FilterScreenState extends State<FilterScreen> {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
-              color: Style.Colors.mainColor.withOpacity(.4),
+              color: Style.Colors.mainColor.withOpacity(.7),
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(vertical: kToolbarHeight),
+                //padding: EdgeInsets.symmetric(vertical: kToolbarHeight),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    AppBar(
+                      elevation: 0,
+                      automaticallyImplyLeading: false,
+                      backgroundColor: Colors.transparent,
+                      leading: IconButton(
+                        icon: Icon(Icons.arrow_back, color: Style.Colors.secondaryColor),
+                        onPressed: () async => Navigator.pop(context),
+                      ),
+                    ),
+                    SizedBox(height: 20),
                     _title("Genres:"),
                     _buildGenresListView(),
                     _title("Semaine du:"),

@@ -58,7 +58,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
     _hideFabAnimController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 200),
-      value: 1, // initially visible
+      value: 0, // initially visible
     );
     _seats = List.generate(
       projection.salle.capacity,
@@ -69,24 +69,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FadeTransition(
-        opacity: _hideFabAnimController,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            end: const Offset(0.0, 0.0),
-            begin: Offset(MediaQuery.of(context).size.width / 2, 0.0),
-          ).animate(CurvedAnimation(
-            parent: _hideFabAnimController,
-            curve: Curves.easeInCubic,
-          )),
-          child: FloatingActionButton.extended(
-            onPressed: () async {},
-            label: Text("Réserver"),
-            icon: Icon(CupertinoIcons.ticket_fill),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          ),
-        ),
-      ),
+      backgroundColor: Style.Colors.mainColor,
       body: Column(
         children: [
           AspectRatio(
@@ -201,14 +184,59 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
 
   Widget _buildQrScreenBuilder(Reservation reservation) {
     return ListView(
+      padding: EdgeInsets.all(20),
       physics: BouncingScrollPhysics(),
       children: [
+        Text(
+          projection.movie.title,
+          textAlign: TextAlign.center,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.headline5.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        Text(
+          "Le " +
+              DateFormat('EEEEEE, DD MMM ', 'fr-FR').format(projection.date) +
+              "à " +
+              DateFormat('HH:mm ').format(projection.date) +
+              (DateTime.now().isAfter(
+                projection.date.add(
+                  Duration(minutes: projection.movie.runtime),
+                ),
+              )
+                  ? "(Déjà joué) "
+                  : "") +
+              (DateTime.now().isBefore(
+                        projection.date.add(
+                          Duration(minutes: projection.movie.runtime),
+                        ),
+                      ) &&
+                      DateTime.now().isAfter(projection.date)
+                  ? "(En train de jouer) "
+                  : "") +
+              "\n" +
+              projection.salle.name,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.subtitle1.copyWith(
+                color: Style.Colors.secondaryColor,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
         AspectRatio(
           aspectRatio: 1,
           child: Container(
-            margin: EdgeInsets.all(10),
-            padding: EdgeInsets.all(10),
-            child: Center(),
+            padding: EdgeInsets.all(20),
+            child: Center(
+              child: QrImage(
+                data: reservation.id,
+                foregroundColor: Colors.white,
+              ),
+            ),
           ),
         ),
       ],
@@ -222,10 +250,101 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
         _buildSeatsCounter(),
         _buildSeats(data.reservations),
         _buildExample(),
-        SizedBox(height: 100),
+        Padding(
+          padding: EdgeInsets.all(20),
+          child: Center(
+            child: FloatingActionButton.extended(
+              onPressed: () async {
+                if (_selectedSeats.isEmpty) {
+                  SnackBar sb = SnackBar(
+                    margin: EdgeInsets.all(10),
+                    duration: Duration(seconds: 3),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Style.Colors.mainColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    content: Text("Vueillez selectionner au moins une chaise.", style: TextStyle(color: Colors.white)),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(sb);
+                } else {
+                  await showDialog(
+                    context: context,
+                    barrierColor: Style.Colors.secondaryColor.withOpacity(.25),
+                    builder: (_) => SimpleDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      backgroundColor: Style.Colors.mainColor,
+                      contentPadding: EdgeInsets.all(20),
+                      titlePadding: EdgeInsets.all(10),
+                      title: Text(
+                        "Valider votre réservation?",
+                        style: Theme.of(context).textTheme.subtitle1.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                      children: [
+                        _buildText("Film", projection.movie.title),
+                        _buildText("Date", DateFormat('EEEEEE, DD MMM ', 'fr-FR').format(projection.date)),
+                        _buildText("Heur", DateFormat('HH:mm ', 'fr-FR').format(projection.date)),
+                        _buildText("Salle", projection.salle.name),
+                        _buildText("Places", _selectedSeats.toString()),
+                        Row(
+                          children: [
+                            Spacer(),
+                            MaterialButton(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              color: Style.Colors.secondaryColor,
+                              textColor: Style.Colors.mainColor,
+                              child: Text("Valider"),
+                              onPressed: () async {
+                                final GlobalKey<State> key = new GlobalKey<State>();
+                                final loader = Loader();
+                                Navigator.pop(context);
+                                await loader.showLoadingDialog(context, key);
+
+                                await FirebaseFirestore.instance.collection('Reservations').add(
+                                  {
+                                    "projectionId": projection.id,
+                                    "confirmed": true,
+                                    "userId": auth.user.uid,
+                                    "date": DateTime.now(),
+                                    "placesIds": _selectedSeats,
+                                    "movieTitle": projection.movie.title,
+                                    "salleName": projection.salle.name,
+                                    "projectionDate": projection.date,
+                                  },
+                                );
+                                await reservationsListBloc.getReservations(projection.id);
+                                loader.removeLoadingDialog(context, key);
+                              },
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              label: Text("Réserver"),
+              icon: Icon(CupertinoIcons.ticket_fill),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ),
+        // SizedBox(height: 100),
       ],
     );
   }
+
+  Widget _buildText(String title, String str) => RichText(
+        text: TextSpan(
+          text: title + ": ",
+          style: Theme.of(context).textTheme.subtitle1.copyWith(color: Style.Colors.secondaryColor, fontWeight: FontWeight.w700),
+          children: <TextSpan>[
+            TextSpan(text: str, style: Theme.of(context).textTheme.subtitle1),
+          ],
+        ),
+      );
 
   Widget _buildSeatsCounter() => Row(
         mainAxisAlignment: MainAxisAlignment.start,

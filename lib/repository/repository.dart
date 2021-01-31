@@ -29,22 +29,29 @@ class MovieRepository {
 
   Future<ReservationsResponse> getProjectionReservations(String projectionId) async {
     try {
-      QuerySnapshot reservationsQuery = await FirebaseFirestore.instance.collection("Reservations").where("ProjectionId", isEqualTo: projectionId).get();
-      await Future.forEach(
+      QuerySnapshot reservationsQuery = await FirebaseFirestore.instance.collection("Reservations").where("projectionId", isEqualTo: projectionId).get();
+      await Future.forEach<DocumentSnapshot>(
         reservationsQuery.docs
             .where(
               (element) => DateTime.now().isAfter(
-                DateTime.fromMillisecondsSinceEpoch(element["Date"].millisecondsSinceEpoch).add(Duration(minutes: 59)),
+                DateTime.fromMillisecondsSinceEpoch(element["projectionDate"].millisecondsSinceEpoch).add(Duration(hours: 3)),
               ),
             )
             .toList(),
         (doc) async {
           await doc.reference.delete();
-          reservationsQuery.docs.removeAt(reservationsQuery.docs.indexOf(doc));
         },
       );
 
-      return ReservationsResponse.fromSnapshots(reservationsQuery.docs);
+      return ReservationsResponse.fromSnapshots(
+        reservationsQuery.docs
+            .where(
+              (element) => !DateTime.now().isAfter(
+                DateTime.fromMillisecondsSinceEpoch(element["projectionDate"].millisecondsSinceEpoch).add(Duration(hours: 3)),
+              ),
+            )
+            .toList(),
+      );
     } catch (e) {
       return ReservationsResponse.withError("Somethig went wrong:" + e.toString());
     }

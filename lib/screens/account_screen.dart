@@ -112,11 +112,16 @@ class _AccountScreenState extends State<AccountScreen> {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
-                color: Style.Colors.mainColor.withOpacity(.4),
+                color: Style.Colors.mainColor.withOpacity(.7),
                 child: Column(
                   children: <Widget>[
                     AppBar(
                       elevation: 0,
+                      automaticallyImplyLeading: false,
+                      leading: IconButton(
+                        icon: Icon(Icons.arrow_back, color: Style.Colors.secondaryColor),
+                        onPressed: () async => Navigator.pop(context),
+                      ),
                       backgroundColor: Colors.transparent,
                       actions: _enableEditing
                           ? [
