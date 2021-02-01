@@ -165,7 +165,6 @@ class _MovieInfosState extends State<MovieInfos> {
         _title("Bande annonce:"),
         SizedBox(height: 10),
         MovieVideo(movie: projection.movie, videoPlayer: widget.videoPlayer),
-        //SizedBox(height: 20),
       ],
     );
   }

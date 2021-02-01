@@ -162,7 +162,8 @@ class _SwiperColumnState extends State<SwiperColumn> {
             scale: 0.7,
             onIndexChanged: (value) => _swiperController.move(value),
             itemBuilder: (context, index) {
-              AssetImage asset = AssetImage('assets/placeholder.png');
+              AssetImage asset = AssetImage('assets/myGiffy.gif');
+
               NetworkImage thumbnail = NetworkImage(projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster));
               NetworkImage image = NetworkImage(
                 projections[index].movie.isShow ? projections[index].movie.poster : ('https://image.tmdb.org/t/p/w780/' + projections[index].movie.poster),
@@ -195,6 +196,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
                       blur: 10,
                       image: image,
                       fit: BoxFit.cover,
+
                       placeholder: asset,
                       thumbnail: thumbnail,
                       alignment: Alignment.center,
@@ -223,7 +225,7 @@ class _SwiperColumnState extends State<SwiperColumn> {
             loop: false,
             itemBuilder: (context, index) {
               return Image.network(
-                projections[index].movie.isShow ? projections[index].movie.poster : 'https://image.tmdb.org/t/p/w780/' + projections[index].movie.poster,
+                projections[index].movie.isShow ? projections[index].movie.poster : 'https://image.tmdb.org/t/p/w92/' + projections[index].movie.poster,
                 fit: BoxFit.cover,
               );
             },

@@ -3,6 +3,7 @@ import 'package:murdjaju/model/cast.dart';
 import 'package:murdjaju/model/cast_response.dart';
 import 'package:murdjaju/model/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:murdjaju/providers/loading_provider.dart';
 import 'package:murdjaju/style/theme.dart' as Style;
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:progressive_image/progressive_image.dart';
@@ -38,60 +39,57 @@ class _MovieCastState extends State<MovieCast> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: castsBloc.subject.stream,
-      builder: (context, AsyncSnapshot<CastResponse> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.error != null && snapshot.data.error.length > 0) {
-            return _buildErrorWidget(snapshot.data);
-          }
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: 120,
+      child: StreamBuilder(
+        stream: castsBloc.subject.stream,
+        builder: (context, AsyncSnapshot<CastResponse> snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data.error != null && snapshot.data.error.length > 0) {
+              return _buildErrorWidget(snapshot.data);
+            }
 
-          return _buildCastWidget(snapshot.data);
-        } else if (snapshot.hasError) {
-          return _buildErrorWidget(snapshot.data);
-        } else {
-          return _buildLoadingWidget();
-        }
-      },
+            return _buildCastWidget(snapshot.data);
+          } else if (snapshot.hasError) {
+            return _buildErrorWidget(snapshot.data);
+          } else {
+            return _buildLoadingWidget();
+          }
+        },
+      ),
     );
   }
 
   Widget _buildCastWidget(CastResponse data) {
     List<Cast> cast = data.casts;
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 120,
-      child: ListView.separated(
-        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-        scrollDirection: Axis.horizontal,
-        itemCount: cast.length,
-        separatorBuilder: (context, index) => SizedBox(width: 10),
-        itemBuilder: (context, index) {
-          return Stack(
-            children: [
-              Container(
-                height: 120,
-                width: 80,
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  color: Colors.white38,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: cast[index].image != null
-                    ? ProgressiveImage(
-                        height: 120,
-                        width: 80,
-                        placeholder: AssetImage('assets/Netflix_Symbol_RGB.png'),
-                        thumbnail: NetworkImage(
-                          "https://image.tmdb.org/t/p/w45/" + cast[index].image,
-                        ),
-                        image: NetworkImage(
-                          "https://image.tmdb.org/t/p/h632/" + cast[index].image,
-                        ),
-                      )
-                    : Icon(Icons.person),
+    return ListView.separated(
+      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+      scrollDirection: Axis.horizontal,
+      itemCount: cast.length,
+      separatorBuilder: (context, index) => SizedBox(width: 10),
+      itemBuilder: (context, index) {
+        return Stack(
+          children: [
+            Container(
+              height: 120,
+              width: 80,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                color: Colors.white38,
+                borderRadius: BorderRadius.circular(20),
               ),
-              /*  Container(
+              child: cast[index].image != null
+                  ? ProgressiveImage(
+                      height: 120,
+                      width: 80,
+                      placeholder: AssetImage('assets/splash.png'),
+                      thumbnail: NetworkImage("https://image.tmdb.org/t/p/w45/" + cast[index].image),
+                      image: NetworkImage("https://image.tmdb.org/t/p/h632/" + cast[index].image),
+                    )
+                  : Icon(Icons.person),
+            ),
+            /*  Container(
                 height: 120,
                 width: 80,
                 clipBehavior: Clip.hardEdge,
@@ -136,10 +134,9 @@ class _MovieCastState extends State<MovieCast> {
                   ],
                 ),
               ) */
-            ],
-          );
-        },
-      ),
+          ],
+        );
+      },
     );
   }
 
@@ -168,24 +165,12 @@ class _MovieCastState extends State<MovieCast> {
   }
 
   Widget _buildLoadingWidget() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 190,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 25,
-              width: 25,
-              child: CircularProgressIndicator(
-                backgroundColor: Style.Colors.mainColor,
-                valueColor: AlwaysStoppedAnimation<Color>(Style.Colors.secondaryColor),
-              ),
-            ),
-          ],
-        ),
+    Widget loader = new Loader().loader;
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [loader],
       ),
     );
   }
