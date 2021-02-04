@@ -31,7 +31,6 @@ class _MovieInfosState extends State<MovieInfos> {
   @override
   void initState() {
     super.initState();
-    //movieDetailBloc..getMovieDetail(projection.movie.id);
   }
 
   _MovieInfosState(this.projection, this.heroId);
@@ -55,7 +54,7 @@ class _MovieInfosState extends State<MovieInfos> {
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.headline4.copyWith(color: Style.Colors.secondaryColor),
+                style: Theme.of(context).textTheme.headline4.copyWith(color: Style.Colors.secondaryColor, fontWeight: FontWeight.w500),
               ),
             ),
           ),
@@ -104,16 +103,14 @@ class _MovieInfosState extends State<MovieInfos> {
               padding: EdgeInsets.symmetric(horizontal: 10),
               itemCount: projection.movie.genres.length,
               separatorBuilder: (context, index) => SizedBox(width: 10),
-              itemBuilder: (context, index) => Container(
-                padding: EdgeInsets.all(10),
-                decoration: ShapeDecoration(
-                  shape: StadiumBorder(),
-                  color: Style.Colors.secondaryColor.withOpacity(.3),
-                ),
-                child: Center(
-                  child: Text(
-                    projection.movie.genres[index].name,
-                  ),
+              itemBuilder: (context, index) => Card(
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                color: Style.Colors.secondaryColor.withOpacity(.5),
+                shadowColor: Style.Colors.secondaryColor.withOpacity(.15),
+                child: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Center(child: Text(projection.movie.genres[index].name)),
                 ),
               ),
             ),
@@ -133,30 +130,7 @@ class _MovieInfosState extends State<MovieInfos> {
         SizedBox(height: 20),
         _title("Casting:"),
         SizedBox(height: 10),
-        projection.movie.isShow
-            ? Container(
-                width: MediaQuery.of(context).size.width,
-                height: 120,
-                child: ListView.separated(
-                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 10,
-                  separatorBuilder: (context, index) => SizedBox(width: 10),
-                  itemBuilder: (context, index) {
-                    return Container(
-                      height: 120,
-                      width: 80,
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        color: Colors.white38,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(Icons.person),
-                    );
-                  },
-                ),
-              )
-            : MovieCast(movie: projection.movie),
+        MovieCast(movie: projection.movie),
         SizedBox(height: 20),
         _title("Gallerie:"),
         SizedBox(height: 10),

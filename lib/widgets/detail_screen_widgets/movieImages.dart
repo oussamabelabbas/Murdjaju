@@ -35,44 +35,19 @@ class _MovieImagesState extends State<MovieImages> {
   @override
   void dispose() {
     // TODO: implement dispose
-    imagesBloc..drainStream();
+    if (!movie.isShow) imagesBloc..drainStream();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (movie.isShow)
-      return AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Container(
-          color: Colors.white10,
-          child: Image.network(
-            movie.backPoster,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: SizedBox(
-                  height: 50,
-                  width: 50,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 1,
-                    backgroundColor: Colors.white10,
-                    valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
-                    /* value: loadingProgress.expectedTotalBytes /
-                        loadingProgress.expectedTotalBytes, */
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      );
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.width / 1.777777777777778 * .9,
       child: StreamBuilder(
         stream: imagesBloc.subject.stream,
         builder: (context, AsyncSnapshot<ImageResponse> snapshot) {
+          if (movie.isShow) return _buildShowImagesWidget();
           if (snapshot.hasData) {
             if (snapshot.data.error != null && snapshot.data.error.length > 0) {
               return _buildErrorWidget(snapshot.data);
@@ -130,6 +105,30 @@ class _MovieImagesState extends State<MovieImages> {
       },
     );
   }
+
+  Widget _buildShowImagesWidget() => AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Card(
+          color: Colors.white10,
+          child: Image.network(
+            movie.backPoster,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1,
+                    backgroundColor: Colors.white10,
+                    valueColor: AlwaysStoppedAnimation(Style.Colors.secondaryColor),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
 
   Widget _buildErrorWidget(ImageResponse error) {
     return Center(

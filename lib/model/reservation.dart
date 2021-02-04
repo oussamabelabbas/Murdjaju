@@ -5,7 +5,9 @@ class Reservation {
   final String id;
   final DocumentReference reference;
   final String projectionId;
+  final int placePrice;
   final bool confirmed;
+  final bool expired;
   final String userId;
   final DateTime date;
   final List<String> placesIds;
@@ -17,7 +19,9 @@ class Reservation {
     this.id,
     this.reference,
     this.projectionId,
+    this.placePrice,
     this.confirmed,
+    this.expired,
     this.userId,
     this.date,
     this.placesIds,
@@ -30,7 +34,9 @@ class Reservation {
       : id = reservation.id,
         reference = reservation.reference,
         projectionId = reservation['projectionId'],
+        placePrice = reservation['placePrice'],
         confirmed = reservation['confirmed'],
+        expired = reservation['expired'],
         userId = reservation['userId'],
         date = DateTime.fromMillisecondsSinceEpoch(reservation["date"].millisecondsSinceEpoch),
         placesIds = (reservation['placesIds'] as List).map((e) => e.toString()).toList(),
@@ -42,7 +48,9 @@ class Reservation {
       : id = null,
         reference = null,
         projectionId = null,
+        placePrice = 0,
         confirmed = false,
+        expired = true,
         userId = null,
         date = DateTime.now(),
         placesIds = [],

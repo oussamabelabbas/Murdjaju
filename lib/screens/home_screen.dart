@@ -1,6 +1,5 @@
 //import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,6 +15,7 @@ import 'package:murdjaju/model/movie_response.dart';
 import 'package:murdjaju/repository/repository.dart';
 import 'package:murdjaju/screens/account_screen.dart';
 import 'package:murdjaju/screens/filter_screen.dart';
+import 'package:murdjaju/screens/reservations_screen.dart';
 import 'package:murdjaju/widgets/cineTabBar.dart';
 import 'package:murdjaju/widgets/weekPageView.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
@@ -27,18 +27,13 @@ import 'package:provider/provider.dart';
 import '../style/theme.dart' as Style;
 import 'package:murdjaju/bloc/get_weeks_bloc.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-
 import 'package:http/http.dart' as http;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'dart:math';
-
 import 'package:tmdb_api/tmdb_api.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
-
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -46,14 +41,16 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<int> myGenresFilterList = [];
   List<String> mySallesFilterList = [];
-
   String myWeekId;
   String cineWhat;
 
   void _initOneSignal() async {
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
     await OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
-    await OneSignal.shared.init("2c44c278-0038-4e05-a26b-3d17c6562f22", iOSSettings: {OSiOSSettings.autoPrompt: false, OSiOSSettings.inAppLaunchUrl: false});
+    await OneSignal.shared.init(
+      "2c44c278-0038-4e05-a26b-3d17c6562f22",
+      iOSSettings: {OSiOSSettings.autoPrompt: false, OSiOSSettings.inAppLaunchUrl: false},
+    );
     var status = await OneSignal.shared.getPermissionSubscriptionState();
     DocumentSnapshot doc = await FirebaseFirestore.instance.collection("Players").doc("NotificationsPlayersIdsDocument").get();
     if (!doc.exists) {
@@ -101,6 +98,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         actions: [
           IconButton(
+            icon: Icon(CupertinoIcons.tickets),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                backgroundColor: Colors.transparent,
+                builder: (context) {
+                  return ReservationsScreen();
+                },
+              );
+            },
+          ),
+          IconButton(
             icon: Icon(MdiIcons.filter, color: (myWeekId != null || cineWhat != null || myGenresFilterList.isNotEmpty || mySallesFilterList.isNotEmpty) ? Style.Colors.secondaryColor : Colors.white),
             onPressed: () async {
               await Navigator.push(
@@ -138,9 +148,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       body: DoubleBackToCloseApp(
         child: Column(
           children: [
-            Builder(
-              builder: (context) => WeekPageView(),
-            ),
+            Builder(builder: (context) => WeekPageView()),
           ],
         ),
         snackBar: SnackBar(

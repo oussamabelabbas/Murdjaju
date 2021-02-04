@@ -27,13 +27,13 @@ class _MovieCastState extends State<MovieCast> {
   @override
   void initState() {
     super.initState();
-    castsBloc..getCasts(int.parse(movie.id));
+    if (!movie.isShow) castsBloc..getCasts(int.parse(movie.id));
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    castsBloc..drainStream();
+    if (!movie.isShow) castsBloc..drainStream();
     super.dispose();
   }
 
@@ -45,12 +45,13 @@ class _MovieCastState extends State<MovieCast> {
       child: StreamBuilder(
         stream: castsBloc.subject.stream,
         builder: (context, AsyncSnapshot<CastResponse> snapshot) {
+          if (movie.isShow) return _buildCastWidget([]);
           if (snapshot.hasData) {
             if (snapshot.data.error != null && snapshot.data.error.length > 0) {
               return _buildErrorWidget(snapshot.data);
             }
 
-            return _buildCastWidget(snapshot.data);
+            return _buildCastWidget(snapshot.data.casts);
           } else if (snapshot.hasError) {
             return _buildErrorWidget(snapshot.data);
           } else {
@@ -61,8 +62,11 @@ class _MovieCastState extends State<MovieCast> {
     );
   }
 
-  Widget _buildCastWidget(CastResponse data) {
-    List<Cast> cast = data.casts;
+  Widget _buildCastWidget(List<Cast> cast) {
+    if (cast.isEmpty)
+      return Center(
+        child: Text('La liste "Casting" est vide'),
+      );
     return ListView.separated(
       padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
       scrollDirection: Axis.horizontal,

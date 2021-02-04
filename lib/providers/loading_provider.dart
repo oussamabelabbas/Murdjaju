@@ -63,7 +63,7 @@ class Loader {
     return true;
   }
 
-  void removeLoadingDialog(BuildContext context, GlobalKey key) {
+  Future<void> removeLoadingDialog(BuildContext context, GlobalKey key) async {
     Navigator.of(context, rootNavigator: true).pop();
     print("I pooped :3");
   }

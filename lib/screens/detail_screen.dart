@@ -41,18 +41,19 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
   void initState() {
     // TODO: implement initState
     super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId: projection.movie.trailer,
-      flags: const YoutubePlayerFlags(
-        mute: false,
-        autoPlay: false,
-        disableDragSeek: false,
-        loop: false,
-        isLive: false,
-        forceHD: false,
-        enableCaption: true,
-      ),
-    );
+    if (!projection.movie.isShow)
+      _controller = YoutubePlayerController(
+        initialVideoId: projection.movie.trailer,
+        flags: const YoutubePlayerFlags(
+          mute: false,
+          autoPlay: false,
+          disableDragSeek: false,
+          loop: false,
+          isLive: false,
+          forceHD: false,
+          enableCaption: true,
+        ),
+      );
     _scrollController = ScrollController();
     _hideFabAnimController = AnimationController(
       vsync: this,
@@ -80,7 +81,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (!projection.movie.isShow) _controller.dispose();
     _scrollController.dispose();
     _hideFabAnimController.dispose();
     super.dispose();
@@ -88,7 +89,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
 
   @override
   void deactivate() {
-    _controller.pause();
+    if (!projection.movie.isShow) _controller.pause();
     super.deactivate();
   }
 
@@ -99,158 +100,149 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> with SingleTicker
         _controller.pause();
         return true;
       },
-      child: YoutubePlayerBuilder(
-        onEnterFullScreen: () => SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeRight]),
-        onExitFullScreen: () => SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
-        player: YoutubePlayer(
-          onReady: () {},
-          controller: _controller,
-          showVideoProgressIndicator: true,
-          progressIndicatorColor: Colors.blueAccent,
-          onEnded: (data) => _controller.load(projection.movie.trailer),
-        ),
-        builder: (context, player) => Scaffold(
-          floatingActionButton: false //projection.date.isBefore(DateTime.now())
-              ? null
-              : FadeTransition(
-                  opacity: _hideFabAnimController,
-                  child: ScaleTransition(
-                    scale: _hideFabAnimController,
-                    child: FloatingActionButton(
-                      backgroundColor: Style.Colors.secondaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: Icon(MdiIcons.ticket, color: Style.Colors.mainColor),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                            builder: (context) {
-                              return BookingScreen(projection: projection, heroId: heroIndex);
-                            },
+      child: Builder(
+        builder: (context) {
+          if (projection.movie.isShow) _buildMovieDetailsScaffold(null);
+          return YoutubePlayerBuilder(
+            onEnterFullScreen: () => SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]),
+            onExitFullScreen: () => SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
+            player: YoutubePlayer(
+              onReady: () {},
+              controller: _controller,
+              showVideoProgressIndicator: true,
+              progressIndicatorColor: Colors.blueAccent,
+              onEnded: (data) => _controller.load(projection.movie.trailer),
+            ),
+            builder: (context, player) => _buildMovieDetailsScaffold(player),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMovieDetailsScaffold(Widget videoPlayer) => Scaffold(
+        floatingActionButton: false //projection.date.isBefore(DateTime.now())
+            ? null
+            : FadeTransition(
+                opacity: _hideFabAnimController,
+                child: ScaleTransition(
+                  scale: _hideFabAnimController,
+                  child: FloatingActionButton(
+                    backgroundColor: Style.Colors.secondaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    child: Icon(MdiIcons.ticket, color: Style.Colors.mainColor),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) {
+                            return BookingScreen(projection: projection, heroId: heroIndex);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+        body: Stack(
+          children: [
+            ClipRRect(
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  image: DecorationImage(image: widget.thumbnail, fit: BoxFit.cover),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Style.Colors.mainColor.withOpacity(.4),
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ),
+            ClipRRect(
+              clipBehavior: Clip.antiAlias,
+              child: CustomScrollView(
+                controller: _scrollController,
+                physics: BouncingScrollPhysics(),
+                slivers: <Widget>[
+                  SliverAppBar(
+                    pinned: true,
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
+                    backgroundColor: Style.Colors.mainColor.withOpacity(.0),
+                    expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
+                    flexibleSpace: FlexibleSpaceBar(
+                      centerTitle: true,
+                      background: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Hero(
+                            tag: projection.movie.id + heroIndex.toString(),
+                            child: ProgressiveImage(
+                              placeholder: widget.asset,
+                              thumbnail: widget.thumbnail,
+                              image: widget.image,
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.width * 3 / 2,
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [0, 1],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    leading: Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          margin: EdgeInsets.all(10),
+                          child: MaterialButton(
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(56)),
+                            color: Style.Colors.mainColor,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.arrow_back),
+                              color: Style.Colors.secondaryColor,
+                              onPressed: () => Navigator.pop(context),
+                              //tooltip: MaterialLocalizations.of(context).previousPageTooltip,
+                            ),
+                            onPressed: () {},
                           ),
                         );
                       },
                     ),
                   ),
-                ),
-          body: Stack(
-            children: [
-              ClipRRect(
-                clipBehavior: Clip.antiAlias,
-                child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(image: widget.thumbnail, fit: BoxFit.cover),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  SliverToBoxAdapter(
                     child: Container(
-                      color: Style.Colors.mainColor.withOpacity(.4),
-                      padding: EdgeInsets.zero,
+                      decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                      clipBehavior: Clip.antiAlias,
+                      child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: MovieInfos(
+                          heroId: heroIndex,
+                          projection: projection,
+                          videoPlayer: videoPlayer,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-              ClipRRect(
-                clipBehavior: Clip.antiAlias,
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  physics: BouncingScrollPhysics(),
-                  slivers: <Widget>[
-                    SliverAppBar(
-                      pinned: true,
-                      elevation: 0,
-                      shadowColor: Colors.transparent,
-                      backgroundColor: Style.Colors.mainColor.withOpacity(.0),
-                      expandedHeight: MediaQuery.of(context).size.width * 3 / 2 - MediaQuery.of(context).padding.top,
-                      flexibleSpace: FlexibleSpaceBar(
-                        centerTitle: true,
-                        background: Stack(
-                          alignment: Alignment.centerLeft,
-                          children: [
-                            Hero(
-                              tag: projection.movie.id + heroIndex.toString(),
-                              child: ProgressiveImage(
-                                placeholder: widget.asset,
-                                thumbnail: widget.thumbnail,
-                                image: widget.image,
-                                width: MediaQuery.of(context).size.width,
-                                height: MediaQuery.of(context).size.width * 3 / 2,
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Colors.transparent, Style.Colors.mainColor.withOpacity(.4)],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  stops: [0, 1],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      leading: Builder(
-                        builder: (BuildContext context) {
-                          return Container(
-                            margin: EdgeInsets.all(10),
-                            child: MaterialButton(
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(56)),
-                              color: Style.Colors.mainColor,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.arrow_back),
-                                color: Style.Colors.secondaryColor,
-                                onPressed: () => Navigator.pop(context),
-                                //tooltip: MaterialLocalizations.of(context).previousPageTooltip,
-                              ),
-                              onPressed: () {},
-                            ),
-                          );
-                        },
-                      ),
-                      //     Builder(
-                      //   builder: (BuildContext context) {
-                      //     return Container(
-                      //       margin: EdgeInsets.all(10),
-                      //       decoration: BoxDecoration(color: Style.Colors.secondaryColor.withOpacity(.5), shape: BoxShape.circle),
-                      //       child: Center(
-                      //         child: IconButton(
-                      //           padding: EdgeInsets.zero,
-                      //           icon: const Icon(Icons.arrow_back_ios),
-                      //           color: Style.Colors.mainColor,
-                      //           onPressed: () => Navigator.pop(context),
-                      //         ),
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Container(
-                        decoration: BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-                        clipBehavior: Clip.antiAlias,
-                        child: SingleChildScrollView(
-                          physics: BouncingScrollPhysics(),
-                          child: MovieInfos(
-                            heroId: heroIndex,
-                            projection: projection,
-                            videoPlayer: player,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
-    );
-  }
+      );
 }

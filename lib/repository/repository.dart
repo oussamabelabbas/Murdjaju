@@ -14,44 +14,50 @@ import 'package:dio/dio.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 
 class MovieRepository {
-  final String apiKey = "3fcc3cf0902881ec381782b11cebbe92";
+  final String apiKey = "47bf9be263ff2821995b26dc76f57a8e";
   final String mainUrl = "https://api.themoviedb.org/3";
   final Dio _dio = Dio();
 
   TMDB tmdbWithCustomLogs = TMDB(
     ApiKeys(
-      "3fcc3cf0902881ec381782b11cebbe92",
-      "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZmNjM2NmMDkwMjg4MWVjMzgxNzgyYjExY2ViYmU5MiIsInN1YiI6IjVmODg5ZGRjZTMzZjgzMDAzN2ZkZjk1NCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.tLu7CRm0t78C9_NtDb4_1KC8TC3sh6nqUGXdXq2BN44",
+      "47bf9be263ff2821995b26dc76f57a8e",
+      "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0N2JmOWJlMjYzZmYyODIxOTk1YjI2ZGM3NmY1N2E4ZSIsInN1YiI6IjYwMDljM2YyMmQ1MzFhMDA1NzYyODIzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.rAJ6X3Axf5u4vC6Lo2hBIWy9orh5VRLolC9lZW3a3EE",
     ),
   );
 
   Movies get v3TMDB => tmdbWithCustomLogs.v3.movies;
 
-  Future<ReservationsResponse> getProjectionReservations(String projectionId) async {
+  Future<ReservationsResponse> getProjectionReservations(String projectionId, String userId) async {
     try {
-      QuerySnapshot reservationsQuery = await FirebaseFirestore.instance.collection("Reservations").where("projectionId", isEqualTo: projectionId).get();
+      QuerySnapshot reservationsQuery;
+      if (userId == null) reservationsQuery = await FirebaseFirestore.instance.collection("Reservations").where("expired", isEqualTo: false).where("projectionId", isEqualTo: projectionId).get();
+      if (projectionId == null)
+        reservationsQuery = await FirebaseFirestore.instance.collection("Reservations").where("userId", isEqualTo: userId).get();
+      else
+        reservationsQuery = await FirebaseFirestore.instance.collection("Reservations").where("expired", isEqualTo: false).where("projectionId", isEqualTo: projectionId).where("userId", isEqualTo: userId).get();
       await Future.forEach<DocumentSnapshot>(
         reservationsQuery.docs
             .where(
-              (element) => DateTime.now().isAfter(
-                DateTime.fromMillisecondsSinceEpoch(element["projectionDate"].millisecondsSinceEpoch).add(Duration(hours: 3)),
-              ),
+              (element) =>
+                  DateTime.now().isAfter(
+                    DateTime.fromMillisecondsSinceEpoch(element["projectionDate"].millisecondsSinceEpoch).add(Duration(hours: 3)),
+                  ) &&
+                  !element["expired"],
             )
             .toList(),
         (doc) async {
-          await doc.reference.delete();
+          await doc.reference.update({"expired": true});
         },
       );
 
-      return ReservationsResponse.fromSnapshots(
-        reservationsQuery.docs
-            .where(
+      return ReservationsResponse.fromSnapshots(reservationsQuery.docs
+          /* .where(
               (element) => !DateTime.now().isAfter(
                 DateTime.fromMillisecondsSinceEpoch(element["projectionDate"].millisecondsSinceEpoch).add(Duration(hours: 3)),
               ),
             )
-            .toList(),
-      );
+            .toList(), */
+          );
     } catch (e) {
       return ReservationsResponse.withError("Somethig went wrong:" + e.toString());
     }
@@ -287,7 +293,7 @@ class MovieRepository {
     try {
       var response =
           //await tmdbWithCustomLogs.v3.movies.getVideos(id);
-          await _dio.get("https://api.themoviedb.org/3/movie/$id/videos?api_key=3fcc3cf0902881ec381782b11cebbe92&language=fr-FR");
+          await _dio.get("https://api.themoviedb.org/3/movie/$id/videos?api_key=47bf9be263ff2821995b26dc76f57a8e&language=fr-FR");
       print("Response ==>>>" + response.data.toString());
       //var response = await v3TMDB.getVideos(id);
       if (response.data['results'].length == 0) {

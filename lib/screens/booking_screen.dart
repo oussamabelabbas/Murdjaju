@@ -53,7 +53,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
     // TODO: implement initState
     super.initState();
 
-    reservationsListBloc.getReservations(projection.id);
+    reservationsListBloc.getReservations(projection.id, null);
     auth = Provider.of<UserAuth>(context, listen: false);
     _hideFabAnimController = AnimationController(
       vsync: this,
@@ -85,7 +85,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
               margin: EdgeInsets.zero,
               elevation: 10,
               child: Image.network(
-                'https://image.tmdb.org/t/p/w780/' + projection.movie.backPoster,
+                (projection.movie.isShow ? "" : 'https://image.tmdb.org/t/p/w780/') + projection.movie.backPoster,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   Widget loader = Loader().loader;
@@ -206,7 +206,7 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
         ),
         Text(
           "Le " +
-              DateFormat('EEEEEE, DD MMM ', 'fr-FR').format(projection.date) +
+              DateFormat('EEEEEE, d MMM ', 'fr-FR').format(projection.date) +
               "à " +
               DateFormat('HH:mm ').format(projection.date) +
               (DateTime.now().isAfter(
@@ -239,18 +239,40 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
           child: Container(
             padding: EdgeInsets.all(20),
             child: Center(
-              child: QrImage(
-                data: reservation.id,
-                foregroundColor: Colors.white,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  QrImage(
+                    data: reservation.id,
+                    foregroundColor: Colors.white,
+                  ),
+                  if (!reservation.expired)
+                    Container(
+                      color: Colors.red,
+                      height: 100,
+                      width: double.infinity,
+                      child: Center(
+                        child: Text("Réservation éxpiré"),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
         ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Text("Merci de contacter la réception de Murdjaju oubien sur le numero  +213779299089 pour l'annulation ou la modification de votre réservation."),
+        Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildText("Places", reservation.placesIds.toString()),
+              _buildText("Prix Totale", (reservation.placesIds.length * reservation.placePrice).toString() + "Da"),
+            ],
           ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(20),
+          child: Center(child: Text("Merci de contacter la réception de Murdjaju oubien sur le numero +213779299089 pour l'annulation ou la modification de votre réservation.")),
         ),
       ],
     );
@@ -295,11 +317,11 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                       ),
                       children: [
                         _buildText("Film", projection.movie.title),
-                        _buildText("Date", DateFormat('EEEEEE, DD MMM ', 'fr-FR').format(projection.date)),
-                        _buildText("Heur", DateFormat('HH:mm ', 'fr-FR').format(projection.date)),
+                        _buildText("Date", DateFormat('EEEEEE, d MMM ', 'fr-FR').format(projection.date)),
+                        _buildText("Heure", DateFormat('HH:mm ', 'fr-FR').format(projection.date)),
                         _buildText("Salle", projection.salle.name),
                         _buildText("Places", _selectedSeats.toString()),
-                        _buildText("Prix:", "${projection.prixTicket}*${_selectedSeats.length} = ${projection.prixTicket * _selectedSeats.length}Da"),
+                        _buildText("Prix", "${projection.prixTicket * _selectedSeats.length}Da (${projection.prixTicket}*${_selectedSeats.length})"),
                         Row(
                           children: [
                             Spacer(),
@@ -311,23 +333,27 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                               onPressed: () async {
                                 final GlobalKey<State> key = new GlobalKey<State>();
                                 final loader = Loader();
-                                Navigator.pop(context);
                                 await loader.showLoadingDialog(context, key);
 
-                                await FirebaseFirestore.instance.collection('Reservations').add(
+                                DocumentReference reservation = await FirebaseFirestore.instance.collection('Reservations').add(
                                   {
                                     "projectionId": projection.id,
                                     "confirmed": true,
                                     "userId": auth.user.uid,
+                                    "placePrice": projection.prixTicket,
                                     "date": DateTime.now(),
                                     "placesIds": _selectedSeats,
                                     "movieTitle": projection.movie.title,
                                     "salleName": projection.salle.name,
                                     "projectionDate": projection.date,
+                                    "expired": DateTime.now().isAfter(projection.date.add(Duration(hours: 3))),
                                   },
                                 );
-                                await reservationsListBloc.getReservations(projection.id);
+                                await reservationsListBloc.updateReservations(
+                                  Reservation(projection.id, reservation, reservation.id, projection.prixTicket, true, false, auth.user.uid, DateTime.now(), _selectedSeats, projection.movie.title, projection.salle.name, projection.date),
+                                );
                                 loader.removeLoadingDialog(context, key);
+                                Navigator.pop(context);
                               },
                             )
                           ],
