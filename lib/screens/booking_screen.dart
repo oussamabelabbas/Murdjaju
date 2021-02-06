@@ -302,12 +302,14 @@ class _BookingScreenState extends State<BookingScreen> with SingleTickerProvider
                   ScaffoldMessenger.of(context).showSnackBar(sb);
                 } else {
                   await showDialog(
+                    useRootNavigator: true,
                     context: context,
                     barrierColor: Style.Colors.secondaryColor.withOpacity(.25),
                     builder: (_) => SimpleDialog(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       backgroundColor: Style.Colors.mainColor,
                       contentPadding: EdgeInsets.all(20),
+                      
                       titlePadding: EdgeInsets.all(10),
                       title: Text(
                         "Valider votre réservation?",

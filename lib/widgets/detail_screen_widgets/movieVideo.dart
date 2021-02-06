@@ -20,23 +20,54 @@ class MovieVideo extends StatefulWidget {
   _MovieVideoState createState() => _MovieVideoState(movie);
 }
 
-class _MovieVideoState extends State<MovieVideo> {
+class _MovieVideoState extends State<MovieVideo> with SingleTickerProviderStateMixin {
   final Movie movie;
   VideoPlayerController _showVideoPlayerController;
   _MovieVideoState(this.movie);
+
+  AnimationController _iconAnimation;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    if (movie.isShow) _showVideoPlayerController = VideoPlayerController.network(movie.trailer);
+    if (movie.isShow) {
+      _showVideoPlayerController = VideoPlayerController.network(movie.trailer)
+        ..addListener(() {})
+        ..setLooping(true)
+        ..initialize();
+
+      _iconAnimation = AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (movie.isShow)
-      return VideoPlayer(
-        _showVideoPlayerController,
+      return AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Stack(
+          children: [
+            VideoPlayer(_showVideoPlayerController),
+            Center(
+              child: IconButton(
+                onPressed: () {
+                  if (_iconAnimation.isCompleted) {
+                    _showVideoPlayerController.pause();
+                    _iconAnimation.reverse();
+                  } else {
+                    _showVideoPlayerController.play();
+                    _iconAnimation.forward();
+                  }
+                },
+                icon: AnimatedIcon(
+                  icon: AnimatedIcons.play_pause,
+                  progress: _iconAnimation,
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     return widget.videoPlayer;
   }
